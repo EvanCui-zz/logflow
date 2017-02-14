@@ -13,8 +13,6 @@ namespace DataModel
             get; set;
         }
 
-        public int Width { get; set; }
-        public int MinWidth { get; set; }
         public bool Computed { get; set; }
     }
 }

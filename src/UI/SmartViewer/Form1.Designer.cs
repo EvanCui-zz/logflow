@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panelTop = new System.Windows.Forms.Panel();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -142,17 +143,26 @@
             this.dataGridViewMain.AllowUserToDeleteRows = false;
             this.dataGridViewMain.AllowUserToOrderColumns = true;
             this.dataGridViewMain.AllowUserToResizeRows = false;
-            this.dataGridViewMain.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Blue;
+            this.dataGridViewMain.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dataGridViewMain.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.dataGridViewMain.BackgroundColor = System.Drawing.Color.White;
+            this.dataGridViewMain.CausesValidation = false;
+            this.dataGridViewMain.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dataGridViewMain.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewMain.Location = new System.Drawing.Point(0, 0);
             this.dataGridViewMain.Name = "dataGridViewMain";
             this.dataGridViewMain.ReadOnly = true;
+            this.dataGridViewMain.RowHeadersVisible = false;
+            this.dataGridViewMain.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewMain.Size = new System.Drawing.Size(551, 271);
             this.dataGridViewMain.TabIndex = 0;
             this.dataGridViewMain.VirtualMode = true;
             this.dataGridViewMain.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewMain_CellContentClick);
+            this.dataGridViewMain.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGridViewMain_CellPainting);
             this.dataGridViewMain.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dataGridViewMain_CellValueNeeded);
+            this.dataGridViewMain.RowPrePaint += new System.Windows.Forms.DataGridViewRowPrePaintEventHandler(this.dataGridViewMain_RowPrePaint);
             // 
             // panelDetail
             // 
