@@ -29,6 +29,7 @@ namespace DataModel
         public LogLevel Level { get; set; }
 
         [ColumnInfo(Name = "Text", Computed = true)]
+
         public int TemplateId { get; set; }
         public object[] Parameters { get; set; }
 

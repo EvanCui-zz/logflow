@@ -30,7 +30,10 @@ namespace DataModel
             }
             else
             {
-                return dataItem.FormattedText ?? (dataItem.FormattedText = string.Intern(string.Format(this.Templates[dataItem.TemplateId], dataItem.Parameters)));
+                return string.Intern(string.Format(
+                    this.Templates[dataItem.TemplateId],
+                    dataItem.Parameters.Select(p => $"{{{{{{{p}}}}}}}").ToArray()));
+                //return dataItem.FormattedText ?? (dataItem.FormattedText = string.Intern(string.Format(this.Templates[dataItem.TemplateId], dataItem.Parameters)));
             }
         }
 

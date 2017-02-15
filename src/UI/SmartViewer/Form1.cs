@@ -88,31 +88,44 @@ namespace SmartViewer
         {
             if (e.ColumnIndex == 4)
             {
+                e.PaintBackground(e.CellBounds, true);
                 string text = e.Value as string;
 
-                int k = 0;
-
-                e.PaintBackground(e.CellBounds, true);
-                //e.PaintContent(e.CellBounds);
                 var bound = e.CellBounds;
+                bool isBold = false;
+                int p = 0;
 
-                foreach (var token in text.Split(' '))
+                var boldFont = new Font(e.CellStyle.Font, FontStyle.Bold);
+                while (text.Length > 0)
                 {
-                    e.Graphics.DrawString(token, e.CellStyle.Font, Brushes.DeepPink, bound, new StringFormat(StringFormatFlags.NoWrap)
-                    {
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        LineAlignment = StringAlignment.Center,
-                    });
+                    int l = text.IndexOf("{{{", p);
+                    if (l == -1) l = text.Length;
+                    int r = text.IndexOf("}}}", p);
+                    if (r == -1) r = text.Length;
 
-                    var length = e.Graphics.MeasureString(token, e.CellStyle.Font).Width;
-                    bound.X += (int)length;
-                    bound.Width -= (int)length;
+                    int next = Math.Min(l, r);
+                    if (next > 0)
+                    {
+                        string currentToken = text.Substring(p, next - p);
+
+                        var currentFont = isBold ? boldFont : e.CellStyle.Font;
+                        e.Graphics.DrawString(currentToken, currentFont, Brushes.DeepPink, bound, new StringFormat(StringFormatFlags.NoWrap)
+                        {
+                            Trimming = StringTrimming.EllipsisCharacter,
+                            LineAlignment = StringAlignment.Center,
+                        });
+                        
+                        var length = e.Graphics.MeasureString(currentToken, currentFont).Width;
+                        bound.X += (int)length;
+                        bound.Width -= (int)length;
+                        if (bound.Width <= 0) break;
+                    }
+
+                    if (next == text.Length) break;
+
+                    isBold = l < r;
+                    p = next + "{{{".Length;
                 }
-                //foreach (var token in text.Split(' '))
-                //{
-                //    bound.X += token.Length * 5;
-                //    e.Graphics.DrawString(token, e.CellStyle.Font, new SolidBrush(Color.FromArgb(0, 80, 30 * k++)), bound);
-                //}
 
                 e.Handled = true;
             }
