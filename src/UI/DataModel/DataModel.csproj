@@ -45,6 +45,7 @@
     <Compile Include="DataItemBase.cs" />
     <Compile Include="DataSource.cs" />
     <Compile Include="DisplayAttributes.cs" />
+    <Compile Include="ParametricString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -86,45 +86,29 @@ namespace SmartViewer
 
         private void dataGridViewMain_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
+            if (e.RowIndex == -1) return;
+
             if (e.ColumnIndex == 4)
             {
                 e.PaintBackground(e.CellBounds, true);
-                string text = e.Value as string;
+                var paramString = e.Value as ParametricString;
 
                 var bound = e.CellBounds;
-                bool isBold = false;
-                int p = 0;
-
                 var boldFont = new Font(e.CellStyle.Font, FontStyle.Bold);
-                while (text.Length > 0)
+
+                foreach (var token in paramString.GetTokens())
                 {
-                    int l = text.IndexOf("{{{", p);
-                    if (l == -1) l = text.Length;
-                    int r = text.IndexOf("}}}", p);
-                    if (r == -1) r = text.Length;
-
-                    int next = Math.Min(l, r);
-                    if (next > 0)
+                    var currentFont = token.Value ? boldFont : e.CellStyle.Font;
+                    e.Graphics.DrawString(token.Key, currentFont, new SolidBrush(e.CellStyle.ForeColor), bound, new StringFormat(StringFormatFlags.NoWrap)
                     {
-                        string currentToken = text.Substring(p, next - p);
+                        Trimming = StringTrimming.EllipsisCharacter,
+                        LineAlignment = StringAlignment.Center,
+                    });
 
-                        var currentFont = isBold ? boldFont : e.CellStyle.Font;
-                        e.Graphics.DrawString(currentToken, currentFont, Brushes.DeepPink, bound, new StringFormat(StringFormatFlags.NoWrap)
-                        {
-                            Trimming = StringTrimming.EllipsisCharacter,
-                            LineAlignment = StringAlignment.Center,
-                        });
-                        
-                        var length = e.Graphics.MeasureString(currentToken, currentFont).Width;
-                        bound.X += (int)length;
-                        bound.Width -= (int)length;
-                        if (bound.Width <= 0) break;
-                    }
-
-                    if (next == text.Length) break;
-
-                    isBold = l < r;
-                    p = next + "{{{".Length;
+                    var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
+                    bound.Width -= (int)length;
+                    if (bound.Width <= 0) break;
+                    bound.X += (int)length;
                 }
 
                 e.Handled = true;
