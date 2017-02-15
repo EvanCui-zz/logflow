@@ -11,11 +11,11 @@ using System.Windows.Forms;
 
 namespace SmartViewer
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        DataSource<DataItemBase> source = new DataSource<DataItemBase>();
+        private LogDocument<DataItemBase> document;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -27,46 +27,11 @@ namespace SmartViewer
 
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            e.Value = source.GetColumnValue(e.RowIndex, e.ColumnIndex);
+            e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Random r = new Random();
-
-            this.source.Templates = new List<string>();
-
-            for (int i = 0; i < 10000; i++)
-            {
-                this.source.Templates.Add(string.Format("string templates {{0}}, {{1}}, testing long string, {0}", i));
-            }
-
-            this.source.Items = new List<DataItemBase>();
-
-            for (int i = 0; i < 100000; i++)
-            {
-                this.source.Items.Add(new DataItemBase()
-                {
-                    Id = i,
-                    ThreadId = i % 100,
-                    Time = DateTime.UtcNow.AddSeconds(i),
-                    TemplateId = r.Next(10000),
-                    Parameters = new object[] { DateTime.UtcNow, i + 255 },
-                    ProcessId = i / 100000,
-                    Level = (LogLevel)r.Next((int)LogLevel.Verbose) + 1,
-                });
-            }
-
-            var columns = this.source.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
-            {
-                Name = ci.Name,
-                HeaderText = ci.Name,
-                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.DisplayedCells,
-            }).ToArray();
-
-            this.dataGridViewMain.Columns.AddRange(columns);
-
-            this.dataGridViewMain.RowCount = this.source.Items.Count;
         }
 
         private void dataGridViewMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -113,6 +78,45 @@ namespace SmartViewer
 
                 e.Handled = true;
             }
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.document = new LogDocument<DataItemBase>("loaded test");
+            this.treeViewDoc.Nodes.Clear();
+            var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
+            node.Tag = this.document;
+
+            var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
+            {
+                Name = ci.Name,
+                HeaderText = ci.Name,
+                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.DisplayedCells,
+            }).ToArray();
+
+            this.dataGridViewMain.Columns.AddRange(columns);
+            this.treeViewDoc.SelectedNode = node;
+            this.document.ItemAdded += (s, index) => { //if (this.CurrentView.TotalCount % 100 == 0) this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+            
+         //       this.dataGridViewMain.Refresh();
+            };
+            this.document.TestGenerateFakeData();
+
+            this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+        }
+
+        public FilteredView<DataItemBase> CurrentView { get; set; }
+
+        private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
+            if (this.CurrentView == null)
+            {
+                return;
+            }
+
+            this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+            this.dataGridViewMain.Refresh();
         }
     }
 }

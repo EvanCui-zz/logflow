@@ -1,5 +1,6 @@
-﻿1, Highlight the parameters.
+﻿1, Highlight the parameters. done
 2, Context operations.
 3, Thread indent.
 4, Configurations.
 5, Colored level or column level.
+6, Document model
