@@ -45,9 +45,11 @@
     <Compile Include="DataItemBase.cs" />
     <Compile Include="DisplayAttributes.cs" />
     <Compile Include="FilteredView.cs" />
+    <Compile Include="Filter\Filter.cs" />
     <Compile Include="LogDocument.cs" />
     <Compile Include="ParametricString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,11 +9,12 @@ namespace DataModel
 {
     public class LogDocument<T> : FilteredView<T> where T : DataItemBase
     {
-        public LogDocument(string name) : base(name, null, null, null)
+        public LogDocument(string name) : base(name)
         {
             this.PropertyInfos = typeof(T).GetProperties()
                 .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true)).ToList();
             this.ColumnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
+            this.Root = this;
         }
 
         public override object GetColumnValue(int rowIndex, int columnIndex)
@@ -38,9 +39,9 @@ namespace DataModel
 
         public override int TotalCount { get { return this.Items.Count; } }
 
-        private IList<T> Items { get; set; } = new List<T>();
+        public override IList<T> Items { get; set; } = new List<T>();
 
-        public IList<string> Templates { get; set; } = new List<string>();
+        public override IList<string> Templates { get; } = new List<string>();
 
         public IList<PropertyInfo> PropertyInfos { get; set; }
 
@@ -49,8 +50,18 @@ namespace DataModel
             get; set;
         }
 
+        private bool IsSuspended { get; set; }
+
+        public override void Suspend() { this.IsSuspended = true; }
+        public override void Resume() { this.IsSuspended = false; }
+
         public void AddItem(T item)
         {
+            if (this.IsSuspended)
+            {
+                throw new InvalidOperationException("The document is suspended.");
+            }
+
             this.Items.Add(item);
             this.OnItemAdded(this.Items.Count - 1);
         }

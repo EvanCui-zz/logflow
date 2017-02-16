@@ -94,15 +94,16 @@ namespace SmartViewer
                 AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.DisplayedCells,
             }).ToArray();
 
+            this.dataGridViewMain.Columns.Clear();
+
             this.dataGridViewMain.Columns.AddRange(columns);
-            this.treeViewDoc.SelectedNode = node;
-            this.document.ItemAdded += (s, index) => { //if (this.CurrentView.TotalCount % 100 == 0) this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
-            
-         //       this.dataGridViewMain.Refresh();
+            this.document.ItemAdded += (s, index) =>
+            { //if (this.CurrentView.TotalCount % 100 == 0) this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+
+                //       this.dataGridViewMain.Refresh();
             };
             this.document.TestGenerateFakeData();
-
-            this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+            this.treeViewDoc.SelectedNode = node;
         }
 
         public FilteredView<DataItemBase> CurrentView { get; set; }
@@ -117,6 +118,62 @@ namespace SmartViewer
 
             this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
             this.dataGridViewMain.Refresh();
+        }
+
+        private void filterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BackgroundWorker bw = new BackgroundWorker();
+            bw.RunWorkerCompleted += (s, e1) =>
+            {
+                bw.Dispose();
+            };
+
+            bw.DoWork += (s, e1) =>
+            {
+                Filter f = new Filter(this.toolStripTextBox1.Text);
+
+                Action a = () => this.toolStripStatusLabel.Text = "Filtering ...";
+                this.Invoke(a);
+
+                ResultWrapper<FilteredView<DataItemBase>> result = new ResultWrapper<FilteredView<DataItemBase>>();
+                foreach (int progress in this.CurrentView.CreateChild(f, result))
+                {
+                    a = () =>
+                    {
+                        this.toolStripProgressBarStatus.Value = progress;
+                        this.toolStripStatusLabel.Text = $"Filtering ... {progress}%";
+                    };
+
+                    this.Invoke(a);
+                }
+
+                a = () =>
+                {
+                    var node = this.treeViewDoc.SelectedNode.Nodes.Add(result.Result.Name, result.Result.Name);
+                    node.Tag = result.Result;
+                    this.treeViewDoc.SelectedNode = node;
+                    this.toolStripStatusLabel.Text = "Ready";
+                };
+
+                this.Invoke(a);
+            };
+
+            bw.RunWorkerAsync();
+        }
+
+        private void toolStripSplitButton_ButtonClick(object sender, EventArgs e)
+        {
+            //  if (this.toolsToolStripMenuItem.)
+        }
+
+        private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void highlightToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

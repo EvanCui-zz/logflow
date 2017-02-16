@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
+    [Flags]
     public enum LogLevel
     {
-        Critical = 0,
-        Error = 1,
-        Warning = 2,
-        Info = 3,
-        Verbose = 4,
+        None = 0x0,
+        Critical = 0x1,
+        Error = 0x2,
+        Warning = 0x4,
+        Info = 0x8,
+        Verbose = 0x10,
     }
 
     public class DataItemBase
