@@ -29,11 +29,19 @@ namespace DataModel
             {
                 return pi.GetMethod.Invoke(dataItem, null);
             }
-            else
+            else if (ci.Name == "Text")
             {
                 return new ParametricString(
                     this.Templates[dataItem.TemplateId],
                     dataItem.Parameters);
+            }
+            else if (ci.Name == "Tag")
+            {
+                return this.Tags?.Where(kvp => kvp.Value.Match(dataItem, this.Templates[dataItem.TemplateId])).Select(kvp => kvp.Key).ToList();
+            }
+            else
+            {
+                return null;
             }
         }
 

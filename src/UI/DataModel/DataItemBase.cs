@@ -35,7 +35,7 @@ namespace DataModel
         public int TemplateId { get; set; }
         public object[] Parameters { get; set; }
 
-
+        [ColumnInfo(Name = "Tag", Computed = true)]
         public string FormattedText { get; set; }
 
         [ColumnInfo(Name = "Pid")]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,21 +9,6 @@ namespace DataModel
 {
     public class FilteredView<T> where T : DataItemBase
     {
-        public FilteredView(Filter filter, FilteredView<T> parent, FilteredView<T> root, List<int> itemIndexes)
-        {
-            this.Filter = filter;
-            this.Name = this.Filter.Name;
-            this.Parent = parent;
-            this.Root = root;
-            this.ItemIndexes = itemIndexes;
-
-            // todo: filter the item;
-            if (this.Parent != null)
-            {
-                this.Parent.ItemAdded += (s, e) => { this.AddItem(e); };
-            }
-        }
-
         public FilteredView(Filter filter, FilteredView<T> parent, FilteredView<T> root)
         {
             this.Filter = filter;
@@ -31,6 +17,7 @@ namespace DataModel
             this.Root = root;
             this.ItemIndexes = new List<int>();
             
+            // todo: filter the item;
             if (this.Parent != null)
             {
                 this.Parent.ItemAdded += (s, e) => { this.AddItem(e); };
@@ -38,6 +25,8 @@ namespace DataModel
         }
 
         public bool IsInitialized { get; set; }
+
+        public IDictionary<Color, Filter> Tags { get; set; } = new Dictionary<Color, Filter>();
 
         public IEnumerable<int> Initialize()
         {
@@ -104,6 +93,14 @@ namespace DataModel
         public virtual object GetColumnValue(int rowIndex, int columnIndex)
         {
             if (rowIndex >= this.ItemIndexes.Count) return null;
+
+            if (columnIndex == 5)
+            {
+                int index = this.ItemIndexes[rowIndex];
+                T item = this.Root.Items[index];
+                return this.Tags?.Where(kvp => kvp.Value.Match(item, this.Root.Templates[item.TemplateId])).Select(kvp => kvp.Key).ToList();
+            }
+
             return this.Root.GetColumnValue(this.ItemIndexes[rowIndex], columnIndex);
         }
 

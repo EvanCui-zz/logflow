@@ -57,12 +57,13 @@ namespace SmartViewer
         {
             if (e.RowIndex == -1) return;
 
+            e.PaintBackground(e.CellBounds, true);
+            var bound = e.CellBounds;
+
             if (e.ColumnIndex == 4)
             {
-                e.PaintBackground(e.CellBounds, true);
                 var paramString = e.Value as ParametricString;
 
-                var bound = e.CellBounds;
                 var boldFont = new Font(e.CellStyle.Font, FontStyle.Bold);
 
                 foreach (var token in paramString.GetTokens())
@@ -82,6 +83,24 @@ namespace SmartViewer
 
                 e.Handled = true;
             }
+            else if (e.ColumnIndex == 5)
+            {
+                e.Handled = true;
+                var colorList = e.Value as List<Color>;
+                if (colorList == null) return;
+
+                var rect = e.CellBounds;
+                rect.X += 4;
+                rect.Y += 4;
+                rect.Width = 20;
+                rect.Height -= 8;
+
+                foreach(var c in colorList)
+                {
+                    e.Graphics.DrawRectangle(new Pen(c), rect);
+                    rect.X += rect.Width + 2;
+                }
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -95,7 +114,8 @@ namespace SmartViewer
             {
                 Name = ci.Name,
                 HeaderText = ci.Name,
-                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.DisplayedCells,
+                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : (string.Equals(ci.Name, "Tags") ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.DisplayedCells),
+                MinimumWidth = string.Equals(ci.Name, "Tags") ? 100 : 10,
             }).ToArray();
 
             this.dataGridViewMain.Columns.Clear();
@@ -188,7 +208,10 @@ namespace SmartViewer
 
         private void highlightToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (this.CurrentView == null) return;
 
+            this.CurrentView.Tags.Add(Color.Green, new Filter(this.toolStripTextBox1.Text));
+            this.dataGridViewMain.Refresh();
         }
     }
 }
