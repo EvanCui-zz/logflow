@@ -19,6 +19,7 @@ namespace DataModel
 
         public IEnumerable<KeyValuePair<string, bool>> GetTokens()
         {
+            //todo : improve the perf for drawing.
             int p = 0;
             bool isParameter = false;
 

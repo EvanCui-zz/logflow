@@ -15,6 +15,12 @@ namespace SmartViewer
     public partial class MainForm : Form
     {
         private LogDocument<DataItemBase> document;
+        private List<Color> tags = new List<Color>()
+        {
+            Color.Cyan,
+            Color.FromArgb(128, 128, 255),
+            Color.FromArgb(128, 255, 128),
+        };
 
         public MainForm()
         {
@@ -32,22 +38,40 @@ namespace SmartViewer
             e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
+            int i = 0;
+            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.tags.Select(t => new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
+            {
+                if (this.CurrentView == null) return;
+                var currentMenuItem = (ToolStripMenuItem)s;
+                bool tag = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
+                currentMenuItem.Checked = tag;
+                this.TagCurrentView(t, tag ? new Filter(this.toolStripTextBoxPattern.Text) : null);
+            })
+            {
+                BackColor = t,
+            }).ToArray());
+
+            this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
+            this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
         }
 
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             var row = this.dataGridViewMain.Rows[e.RowIndex];
-            if (((LogLevel)row.Cells[3].Value) == LogLevel.Warning)
+            Debug.WriteLine("row pre paint row {0}", e.RowIndex);
+
+            var level = (LogLevel)this.CurrentView.GetColumnValue(e.RowIndex, 3);
+            if (level == LogLevel.Warning)
             {
                 row.DefaultCellStyle.BackColor = Color.FromArgb(200, 180, 0);
             }
-            else if (((LogLevel)row.Cells[3].Value) == LogLevel.Error)
+            else if (level == LogLevel.Error)
             {
                 row.DefaultCellStyle.BackColor = Color.FromArgb(200, 0, 0);
             }
-            else if (((LogLevel)row.Cells[3].Value) == LogLevel.Error)
+            else if (level == LogLevel.Error)
             {
                 row.DefaultCellStyle.BackColor = Color.FromArgb(255, 0, 0);
             }
@@ -62,14 +86,16 @@ namespace SmartViewer
 
             if (e.ColumnIndex == 4)
             {
+                e.Handled = true;
                 var paramString = e.Value as ParametricString;
+                if (paramString == null) return;
 
                 var boldFont = new Font(e.CellStyle.Font, FontStyle.Bold);
 
                 foreach (var token in paramString.GetTokens())
                 {
                     var currentFont = token.Value ? boldFont : e.CellStyle.Font;
-                    e.Graphics.DrawString(token.Key, currentFont, new SolidBrush(e.CellStyle.ForeColor), bound, new StringFormat(StringFormatFlags.NoWrap)
+                    e.Graphics.DrawString(token.Key, currentFont, new SolidBrush((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected ? e.CellStyle.SelectionForeColor : e.CellStyle.ForeColor), bound, new StringFormat(StringFormatFlags.NoWrap)
                     {
                         Trimming = StringTrimming.EllipsisCharacter,
                         LineAlignment = StringAlignment.Center,
@@ -92,12 +118,14 @@ namespace SmartViewer
                 var rect = e.CellBounds;
                 rect.X += 4;
                 rect.Y += 4;
-                rect.Width = 20;
                 rect.Height -= 8;
+                rect.Width = rect.Height;
 
-                foreach(var c in colorList)
+                foreach (var c in colorList)
                 {
-                    e.Graphics.DrawRectangle(new Pen(c), rect);
+                    //                    e.Graphics.DrawRectangle(new Pen(c), rect);
+                    e.Graphics.FillRectangle(new SolidBrush(c), rect);
+
                     rect.X += rect.Width + 2;
                 }
             }
@@ -114,11 +142,13 @@ namespace SmartViewer
             {
                 Name = ci.Name,
                 HeaderText = ci.Name,
-                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : (string.Equals(ci.Name, "Tags") ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.DisplayedCells),
-                MinimumWidth = string.Equals(ci.Name, "Tags") ? 100 : 10,
+                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : (string.Equals(ci.Name, "Tag") ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.DisplayedCells),
+                MinimumWidth = 60,
+                Width = 60,
             }).ToArray();
 
             this.dataGridViewMain.Columns.Clear();
+            this.dataGridViewMain.Rows.Clear();
 
             this.dataGridViewMain.Columns.AddRange(columns);
             this.document.ItemAdded += this.UpdateMainGridRowCount;
@@ -136,18 +166,20 @@ namespace SmartViewer
                 return;
             }
 
-            this.dataGridViewMain.RowCount = 0;
+            this.dataGridViewMain.Rows.Clear();
 
             if (!this.CurrentView.IsInitialized)
             {
+                this.progressBarMain.Value = 0;
                 this.progressBarMain.Visible = true;
-                BackgroundWorker bw = new BackgroundWorker();
+                var bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
                     this.progressBarMain.Visible = false;
                     this.toolStripStatusLabel.Text = "Ready";
+                    this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
                     bw.Dispose();
                 };
 
@@ -176,6 +208,9 @@ namespace SmartViewer
             {
                 this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
             }
+
+            if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
+                this.dataGridViewMain.FirstDisplayedScrollingRowIndex = this.CurrentView.FirstDisplayedScrollingRowIndex.Value;
         }
 
         private void UpdateMainGridRowCount(object sender, int index)
@@ -186,9 +221,32 @@ namespace SmartViewer
             }
         }
 
-        private void filterToolStripMenuItem_Click(object sender, EventArgs e)
+        private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
-            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBox1.Text));
+
+        }
+
+        private void TagCurrentView(Color color, Filter filter)
+        {
+            if (this.CurrentView == null) return;
+
+            if (filter == null)
+            {
+                this.CurrentView.Tags.Remove(color);
+            }
+            else
+            {
+                this.CurrentView.Tags[color] = filter;
+            }
+
+            this.dataGridViewMain.Refresh();
+        }
+
+        private void toolStripButtonFilter_Click(object sender, EventArgs e)
+        {
+            if (this.CurrentView == null) return;
+
+            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBoxPattern.Text));
             childView.ItemAdded += this.UpdateMainGridRowCount;
 
             var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
@@ -196,22 +254,123 @@ namespace SmartViewer
             this.treeViewDoc.SelectedNode = node;
         }
 
-        private void toolStripSplitButton_ButtonClick(object sender, EventArgs e)
-        {
-            //  if (this.toolsToolStripMenuItem.)
-        }
-
-        private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
+        private void toolStripSplitButtonTag_ButtonClick(object sender, EventArgs e)
         {
 
         }
 
-        private void highlightToolStripMenuItem_Click(object sender, EventArgs e)
+        private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int currentIndex = this.dataGridViewMain.RowCount - 1;
+            if (this.dataGridViewMain.SelectedRows.Count > 0)
+            {
+                currentIndex = this.dataGridViewMain.SelectedRows[this.dataGridViewMain.SelectedRows.Count - 1].Index;
+            }
+
+            this.Find(currentIndex, false);
+        }
+
+        private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int currentIndex = 0;
+            if (this.dataGridViewMain.SelectedRows.Count > 0)
+            {
+                currentIndex = this.dataGridViewMain.SelectedRows[0].Index;
+            }
+
+            this.Find(currentIndex, true);
+        }
+
+        private void Find(int startIndex, bool nextDirection)
         {
             if (this.CurrentView == null) return;
+            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
 
-            this.CurrentView.Tags.Add(Color.Green, new Filter(this.toolStripTextBox1.Text));
-            this.dataGridViewMain.Refresh();
+            var bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            this.progressBarMain.Visible = true;
+            this.progressBarMain.Value = 0;
+
+            bw.RunWorkerCompleted += (s, e1) =>
+            {
+                this.dataGridViewMain.ClearSelection();
+                this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, ((KeyValuePair<int, bool>)e1.Result).Key];
+                this.toolStripLabelCount.Text = ((KeyValuePair<int, bool>)e1.Result).Key.ToString();
+                this.toolStripStatusLabel.Text = "Ready";
+                this.progressBarMain.Visible = false;
+
+                bw.Dispose();
+            };
+
+            bw.ProgressChanged += (s, e1) =>
+            {
+                if (this.progressBarMain.Value != e1.ProgressPercentage)
+                {
+                    this.progressBarMain.Value = e1.ProgressPercentage;
+                    this.toolStripStatusLabel.Text = $"Searching ... {e1.ProgressPercentage}%";
+                }
+            };
+
+            bw.DoWork += (s, e1) =>
+            {
+                ResultWrapper<KeyValuePair<int, bool>> findResult = new ResultWrapper<KeyValuePair<int, bool>>();
+                foreach (int progress in this.CurrentView.Find(f, startIndex, findResult, nextDirection))
+                {
+                    bw.ReportProgress(progress);
+                }
+
+                e1.Result = findResult.Result;
+            };
+
+            bw.RunWorkerAsync();
+        }
+
+        private void toolStripButtonCount_Click(object sender, EventArgs e)
+        {
+            if (this.CurrentView == null) return;
+            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
+
+            var bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            this.progressBarMain.Visible = true;
+            this.progressBarMain.Value = 0;
+
+            bw.RunWorkerCompleted += (s, e1) =>
+            {
+                this.toolStripLabelCount.Text = e1.Result.ToString();
+                this.toolStripStatusLabel.Text = "Ready";
+                this.progressBarMain.Visible = false;
+
+                bw.Dispose();
+            };
+
+            bw.ProgressChanged += (s, e1) =>
+            {
+                if (this.progressBarMain.Value != e1.ProgressPercentage)
+                {
+                    this.progressBarMain.Value = e1.ProgressPercentage;
+                    this.toolStripStatusLabel.Text = $"Counting ... {e1.ProgressPercentage}%";
+                }
+            };
+
+            bw.DoWork += (s, e1) =>
+            {
+                ResultWrapper<int> countResult = new ResultWrapper<int>();
+                foreach (int progress in this.CurrentView.Count(f, countResult))
+                {
+                    bw.ReportProgress(progress);
+                }
+
+                e1.Result = countResult.Result;
+            };
+
+            bw.RunWorkerAsync();
+        }
+
+        private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            if (this.CurrentView == null) return;
+            this.CurrentView.FirstDisplayedScrollingRowIndex = this.dataGridViewMain.FirstDisplayedScrollingRowIndex;
         }
     }
 }

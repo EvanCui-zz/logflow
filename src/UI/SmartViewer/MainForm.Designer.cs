@@ -34,10 +34,14 @@
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
-            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripSplitButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.highlightToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripTextBoxPattern = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripButtonFilter = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSplitButtonTag = new System.Windows.Forms.ToolStripSplitButton();
+            this.toolStripSplitButtonFind = new System.Windows.Forms.ToolStripSplitButton();
+            this.findPreviousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findNextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButtonCount = new System.Windows.Forms.ToolStripButton();
+            this.toolStripLabelCount = new System.Windows.Forms.ToolStripLabel();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +51,7 @@
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitterBottom = new System.Windows.Forms.Splitter();
             this.panelView = new System.Windows.Forms.Panel();
+            this.progressBarMain = new System.Windows.Forms.ProgressBar();
             this.dataGridViewMain = new System.Windows.Forms.DataGridView();
             this.panelDetail = new System.Windows.Forms.Panel();
             this.splitterRight = new System.Windows.Forms.Splitter();
@@ -59,7 +64,6 @@
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarStatus = new System.Windows.Forms.ToolStripProgressBar();
-            this.progressBarMain = new System.Windows.Forms.ProgressBar();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -87,45 +91,83 @@
             // 
             this.toolStripMain.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripTextBox1,
-            this.toolStripSplitButton});
+            this.toolStripTextBoxPattern,
+            this.toolStripButtonFilter,
+            this.toolStripSplitButtonTag,
+            this.toolStripSplitButtonFind,
+            this.toolStripButtonCount,
+            this.toolStripLabelCount});
             this.toolStripMain.Location = new System.Drawing.Point(0, 0);
             this.toolStripMain.Name = "toolStripMain";
-            this.toolStripMain.Size = new System.Drawing.Size(346, 25);
+            this.toolStripMain.Size = new System.Drawing.Size(553, 25);
             this.toolStripMain.TabIndex = 0;
             this.toolStripMain.Text = "toolStrip1";
             // 
-            // toolStripTextBox1
+            // toolStripTextBoxPattern
             // 
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.Size = new System.Drawing.Size(300, 25);
+            this.toolStripTextBoxPattern.Name = "toolStripTextBoxPattern";
+            this.toolStripTextBoxPattern.Size = new System.Drawing.Size(300, 25);
             // 
-            // toolStripSplitButton
+            // toolStripButtonFilter
             // 
-            this.toolStripSplitButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.filterToolStripMenuItem,
-            this.highlightToolStripMenuItem});
-            this.toolStripSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton.Image")));
-            this.toolStripSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripSplitButton.Name = "toolStripSplitButton";
-            this.toolStripSplitButton.Size = new System.Drawing.Size(32, 22);
-            this.toolStripSplitButton.Text = "toolStripSplitButton1";
-            this.toolStripSplitButton.ButtonClick += new System.EventHandler(this.toolStripSplitButton_ButtonClick);
+            this.toolStripButtonFilter.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonFilter.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonFilter.Image")));
+            this.toolStripButtonFilter.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonFilter.Name = "toolStripButtonFilter";
+            this.toolStripButtonFilter.Size = new System.Drawing.Size(37, 22);
+            this.toolStripButtonFilter.Text = "Filter";
+            this.toolStripButtonFilter.Click += new System.EventHandler(this.toolStripButtonFilter_Click);
             // 
-            // filterToolStripMenuItem
+            // toolStripSplitButtonTag
             // 
-            this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
-            this.filterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.filterToolStripMenuItem.Text = "Filter";
-            this.filterToolStripMenuItem.Click += new System.EventHandler(this.filterToolStripMenuItem_Click);
+            this.toolStripSplitButtonTag.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripSplitButtonTag.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButtonTag.Name = "toolStripSplitButtonTag";
+            this.toolStripSplitButtonTag.Size = new System.Drawing.Size(42, 22);
+            this.toolStripSplitButtonTag.Text = "Tag";
             // 
-            // highlightToolStripMenuItem
+            // toolStripSplitButtonFind
             // 
-            this.highlightToolStripMenuItem.Name = "highlightToolStripMenuItem";
-            this.highlightToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.highlightToolStripMenuItem.Text = "Highlight";
-            this.highlightToolStripMenuItem.Click += new System.EventHandler(this.highlightToolStripMenuItem_Click);
+            this.toolStripSplitButtonFind.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripSplitButtonFind.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.findPreviousToolStripMenuItem,
+            this.findNextToolStripMenuItem});
+            this.toolStripSplitButtonFind.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButtonFind.Image")));
+            this.toolStripSplitButtonFind.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButtonFind.Name = "toolStripSplitButtonFind";
+            this.toolStripSplitButtonFind.Size = new System.Drawing.Size(46, 22);
+            this.toolStripSplitButtonFind.Text = "Find";
+            // 
+            // findPreviousToolStripMenuItem
+            // 
+            this.findPreviousToolStripMenuItem.Name = "findPreviousToolStripMenuItem";
+            this.findPreviousToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.findPreviousToolStripMenuItem.Text = "Find Previous";
+            this.findPreviousToolStripMenuItem.Click += new System.EventHandler(this.findPreviousToolStripMenuItem_Click);
+            // 
+            // findNextToolStripMenuItem
+            // 
+            this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
+            this.findNextToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.findNextToolStripMenuItem.Text = "Find Next";
+            this.findNextToolStripMenuItem.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
+            // 
+            // toolStripButtonCount
+            // 
+            this.toolStripButtonCount.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonCount.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCount.Image")));
+            this.toolStripButtonCount.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonCount.Name = "toolStripButtonCount";
+            this.toolStripButtonCount.Size = new System.Drawing.Size(44, 22);
+            this.toolStripButtonCount.Text = "Count";
+            this.toolStripButtonCount.Click += new System.EventHandler(this.toolStripButtonCount_Click);
+            // 
+            // toolStripLabelCount
+            // 
+            this.toolStripLabelCount.AutoSize = false;
+            this.toolStripLabelCount.Name = "toolStripLabelCount";
+            this.toolStripLabelCount.Size = new System.Drawing.Size(70, 22);
+            this.toolStripLabelCount.Text = "0";
             // 
             // menuStripMain
             // 
@@ -211,15 +253,22 @@
             this.panelView.Size = new System.Drawing.Size(551, 322);
             this.panelView.TabIndex = 1;
             // 
+            // progressBarMain
+            // 
+            this.progressBarMain.Dock = System.Windows.Forms.DockStyle.Top;
+            this.progressBarMain.Location = new System.Drawing.Point(0, 0);
+            this.progressBarMain.Name = "progressBarMain";
+            this.progressBarMain.Size = new System.Drawing.Size(551, 5);
+            this.progressBarMain.TabIndex = 1;
+            // 
             // dataGridViewMain
             // 
             this.dataGridViewMain.AllowUserToAddRows = false;
             this.dataGridViewMain.AllowUserToDeleteRows = false;
             this.dataGridViewMain.AllowUserToOrderColumns = true;
             this.dataGridViewMain.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Blue;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.RoyalBlue;
             this.dataGridViewMain.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewMain.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridViewMain.BackgroundColor = System.Drawing.Color.White;
             this.dataGridViewMain.CausesValidation = false;
             this.dataGridViewMain.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
@@ -301,6 +350,7 @@
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 414);
             this.treeViewDoc.TabIndex = 0;
+            this.treeViewDoc.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewDoc_BeforeSelect);
             this.treeViewDoc.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewDoc_AfterSelect);
             // 
             // contextMenuStripTreeView
@@ -339,14 +389,6 @@
             this.toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
             this.toolStripProgressBarStatus.Size = new System.Drawing.Size(100, 16);
             // 
-            // progressBarMain
-            // 
-            this.progressBarMain.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBarMain.Location = new System.Drawing.Point(0, 0);
-            this.progressBarMain.Name = "progressBarMain";
-            this.progressBarMain.Size = new System.Drawing.Size(551, 5);
-            this.progressBarMain.TabIndex = 1;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -358,8 +400,8 @@
             this.Controls.Add(this.menuStripMain);
             this.MainMenuStrip = this.menuStripMain;
             this.Name = "MainForm";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Text = "Smart Viewer";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.toolStripMain.ResumeLayout(false);
@@ -401,14 +443,18 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripTreeView;
         private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItemDoc;
         private System.Windows.Forms.ToolStrip toolStripMain;
-        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
-        private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton;
-        private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem highlightToolStripMenuItem;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxPattern;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarStatus;
         private System.Windows.Forms.ProgressBar progressBarMain;
+        private System.Windows.Forms.ToolStripButton toolStripButtonFilter;
+        private System.Windows.Forms.ToolStripSplitButton toolStripSplitButtonTag;
+        private System.Windows.Forms.ToolStripSplitButton toolStripSplitButtonFind;
+        private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButtonCount;
+        private System.Windows.Forms.ToolStripLabel toolStripLabelCount;
     }
 }
 
