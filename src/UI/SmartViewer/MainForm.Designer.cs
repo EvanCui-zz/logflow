@@ -43,7 +43,6 @@
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.splitterTop = new System.Windows.Forms.Splitter();
             this.panelMain = new System.Windows.Forms.Panel();
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitterBottom = new System.Windows.Forms.Splitter();
@@ -60,6 +59,7 @@
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarStatus = new System.Windows.Forms.ToolStripProgressBar();
+            this.progressBarMain = new System.Windows.Forms.ProgressBar();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -74,30 +74,31 @@
             // 
             // panelTop
             // 
-            this.panelTop.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.panelTop.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.toolStripMain);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 24);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(921, 28);
+            this.panelTop.Size = new System.Drawing.Size(921, 30);
             this.panelTop.TabIndex = 0;
             // 
             // toolStripMain
             // 
-            this.toolStripMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolStripMain.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripTextBox1,
             this.toolStripSplitButton});
             this.toolStripMain.Location = new System.Drawing.Point(0, 0);
             this.toolStripMain.Name = "toolStripMain";
-            this.toolStripMain.Size = new System.Drawing.Size(921, 28);
+            this.toolStripMain.Size = new System.Drawing.Size(346, 25);
             this.toolStripMain.TabIndex = 0;
             this.toolStripMain.Text = "toolStrip1";
             // 
             // toolStripTextBox1
             // 
             this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.Size = new System.Drawing.Size(300, 28);
+            this.toolStripTextBox1.Size = new System.Drawing.Size(300, 25);
             // 
             // toolStripSplitButton
             // 
@@ -108,7 +109,7 @@
             this.toolStripSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton.Image")));
             this.toolStripSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton.Name = "toolStripSplitButton";
-            this.toolStripSplitButton.Size = new System.Drawing.Size(32, 25);
+            this.toolStripSplitButton.Size = new System.Drawing.Size(32, 22);
             this.toolStripSplitButton.Text = "toolStripSplitButton1";
             this.toolStripSplitButton.ButtonClick += new System.EventHandler(this.toolStripSplitButton_ButtonClick);
             // 
@@ -165,16 +166,6 @@
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.toolsToolStripMenuItem.Text = "Tool";
             // 
-            // splitterTop
-            // 
-            this.splitterTop.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.splitterTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitterTop.Location = new System.Drawing.Point(0, 52);
-            this.splitterTop.Name = "splitterTop";
-            this.splitterTop.Size = new System.Drawing.Size(921, 7);
-            this.splitterTop.TabIndex = 3;
-            this.splitterTop.TabStop = false;
-            // 
             // panelMain
             // 
             this.panelMain.Controls.Add(this.panelMiddle);
@@ -183,9 +174,9 @@
             this.panelMain.Controls.Add(this.panelRight);
             this.panelMain.Controls.Add(this.panelLeft);
             this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelMain.Location = new System.Drawing.Point(0, 59);
+            this.panelMain.Location = new System.Drawing.Point(0, 54);
             this.panelMain.Name = "panelMain";
-            this.panelMain.Size = new System.Drawing.Size(921, 409);
+            this.panelMain.Size = new System.Drawing.Size(921, 414);
             this.panelMain.TabIndex = 7;
             // 
             // panelMiddle
@@ -196,14 +187,14 @@
             this.panelMiddle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelMiddle.Location = new System.Drawing.Point(163, 0);
             this.panelMiddle.Name = "panelMiddle";
-            this.panelMiddle.Size = new System.Drawing.Size(551, 409);
+            this.panelMiddle.Size = new System.Drawing.Size(551, 414);
             this.panelMiddle.TabIndex = 4;
             // 
             // splitterBottom
             // 
             this.splitterBottom.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.splitterBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitterBottom.Location = new System.Drawing.Point(0, 310);
+            this.splitterBottom.Location = new System.Drawing.Point(0, 315);
             this.splitterBottom.Name = "splitterBottom";
             this.splitterBottom.Size = new System.Drawing.Size(551, 7);
             this.splitterBottom.TabIndex = 2;
@@ -212,11 +203,12 @@
             // panelView
             // 
             this.panelView.BackColor = System.Drawing.Color.Thistle;
+            this.panelView.Controls.Add(this.progressBarMain);
             this.panelView.Controls.Add(this.dataGridViewMain);
             this.panelView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelView.Location = new System.Drawing.Point(0, 0);
             this.panelView.Name = "panelView";
-            this.panelView.Size = new System.Drawing.Size(551, 317);
+            this.panelView.Size = new System.Drawing.Size(551, 322);
             this.panelView.TabIndex = 1;
             // 
             // dataGridViewMain
@@ -238,7 +230,7 @@
             this.dataGridViewMain.ReadOnly = true;
             this.dataGridViewMain.RowHeadersVisible = false;
             this.dataGridViewMain.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewMain.Size = new System.Drawing.Size(551, 317);
+            this.dataGridViewMain.Size = new System.Drawing.Size(551, 322);
             this.dataGridViewMain.TabIndex = 0;
             this.dataGridViewMain.VirtualMode = true;
             this.dataGridViewMain.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewMain_CellContentClick);
@@ -250,7 +242,7 @@
             // 
             this.panelDetail.BackColor = System.Drawing.SystemColors.ControlDark;
             this.panelDetail.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelDetail.Location = new System.Drawing.Point(0, 317);
+            this.panelDetail.Location = new System.Drawing.Point(0, 322);
             this.panelDetail.Name = "panelDetail";
             this.panelDetail.Size = new System.Drawing.Size(551, 92);
             this.panelDetail.TabIndex = 0;
@@ -261,7 +253,7 @@
             this.splitterRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.splitterRight.Location = new System.Drawing.Point(714, 0);
             this.splitterRight.Name = "splitterRight";
-            this.splitterRight.Size = new System.Drawing.Size(7, 409);
+            this.splitterRight.Size = new System.Drawing.Size(7, 414);
             this.splitterRight.TabIndex = 3;
             this.splitterRight.TabStop = false;
             // 
@@ -270,7 +262,7 @@
             this.splitterLeft.BackColor = System.Drawing.Color.LightSteelBlue;
             this.splitterLeft.Location = new System.Drawing.Point(156, 0);
             this.splitterLeft.Name = "splitterLeft";
-            this.splitterLeft.Size = new System.Drawing.Size(7, 409);
+            this.splitterLeft.Size = new System.Drawing.Size(7, 414);
             this.splitterLeft.TabIndex = 2;
             this.splitterLeft.TabStop = false;
             // 
@@ -280,7 +272,7 @@
             this.panelRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelRight.Location = new System.Drawing.Point(721, 0);
             this.panelRight.Name = "panelRight";
-            this.panelRight.Size = new System.Drawing.Size(200, 409);
+            this.panelRight.Size = new System.Drawing.Size(200, 414);
             this.panelRight.TabIndex = 1;
             // 
             // panelLeft
@@ -290,20 +282,24 @@
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
             this.panelLeft.Name = "panelLeft";
-            this.panelLeft.Size = new System.Drawing.Size(156, 409);
+            this.panelLeft.Size = new System.Drawing.Size(156, 414);
             this.panelLeft.TabIndex = 0;
             // 
             // treeViewDoc
             // 
+            this.treeViewDoc.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.treeViewDoc.ContextMenuStrip = this.contextMenuStripTreeView;
             this.treeViewDoc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeViewDoc.FullRowSelect = true;
+            this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
             treeNode1.Name = "Node0";
             treeNode1.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            this.treeViewDoc.Size = new System.Drawing.Size(156, 409);
+            this.treeViewDoc.ShowLines = false;
+            this.treeViewDoc.Size = new System.Drawing.Size(156, 414);
             this.treeViewDoc.TabIndex = 0;
             this.treeViewDoc.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewDoc_AfterSelect);
             // 
@@ -343,6 +339,14 @@
             this.toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
             this.toolStripProgressBarStatus.Size = new System.Drawing.Size(100, 16);
             // 
+            // progressBarMain
+            // 
+            this.progressBarMain.Dock = System.Windows.Forms.DockStyle.Top;
+            this.progressBarMain.Location = new System.Drawing.Point(0, 0);
+            this.progressBarMain.Name = "progressBarMain";
+            this.progressBarMain.Size = new System.Drawing.Size(551, 5);
+            this.progressBarMain.TabIndex = 1;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -350,7 +354,6 @@
             this.ClientSize = new System.Drawing.Size(921, 468);
             this.Controls.Add(this.statusStripMain);
             this.Controls.Add(this.panelMain);
-            this.Controls.Add(this.splitterTop);
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.menuStripMain);
             this.MainMenuStrip = this.menuStripMain;
@@ -382,7 +385,6 @@
         private System.Windows.Forms.MenuStrip menuStripMain;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
-        private System.Windows.Forms.Splitter splitterTop;
         private System.Windows.Forms.Panel panelMain;
         private System.Windows.Forms.Panel panelMiddle;
         private System.Windows.Forms.Panel panelView;
@@ -406,6 +408,7 @@
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarStatus;
+        private System.Windows.Forms.ProgressBar progressBarMain;
     }
 }
 

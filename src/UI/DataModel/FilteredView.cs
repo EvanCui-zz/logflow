@@ -8,8 +8,6 @@ namespace DataModel
 {
     public class FilteredView<T> where T : DataItemBase
     {
-        public Dictionary<string, FilteredView<T>> Children { get; } = new Dictionary<string, FilteredView<T>>();
-
         public FilteredView(Filter filter, FilteredView<T> parent, FilteredView<T> root, List<int> itemIndexes)
         {
             this.Filter = filter;
@@ -25,18 +23,33 @@ namespace DataModel
             }
         }
 
-        protected FilteredView(string name)
+        public FilteredView(Filter filter, FilteredView<T> parent, FilteredView<T> root)
         {
-            this.Name = name;
+            this.Filter = filter;
+            this.Name = this.Filter.Name;
+            this.Parent = parent;
+            this.Root = root;
+            this.ItemIndexes = new List<int>();
+            
+            if (this.Parent != null)
+            {
+                this.Parent.ItemAdded += (s, e) => { this.AddItem(e); };
+            }
         }
 
-        public IEnumerable<int> CreateChild(Filter filter, ResultWrapper<FilteredView<T>> filteredView)
+        public bool IsInitialized { get; set; }
+
+        public IEnumerable<int> Initialize()
         {
+            if (this.IsInitialized) yield break;
+
+            if (this.Parent == null) { yield return 100; yield break; }
+
+            yield return 0;
             this.Root.Suspend();
             yield return 5;
 
-            var filteredIndexes = new List<int>();
-            int total = this.ItemIndexes?.Count ?? this.Items.Count;
+            int total = this.Parent.ItemIndexes?.Count ?? this.Parent.Items.Count;
 
             for (int i = 0; i < total; i++)
             {
@@ -46,17 +59,27 @@ namespace DataModel
                     yield return 5 + (progress * 90) / 100;
                 }
 
-                int index = this.ItemIndexes?[i] ?? i;
+                int index = this.Parent.ItemIndexes?[i] ?? i;
 
-                if (filter.Match<T>(this.Root.Items[index], this.Root.Templates[this.Root.Items[index].TemplateId]))
+                if (this.Filter.Match<T>(this.Root.Items[index], this.Root.Templates[this.Root.Items[index].TemplateId]))
                 {
-                    filteredIndexes.Add(index);
+                    this.ItemIndexes.Add(index);
                 }
             }
 
-            filteredView.Result = new FilteredView<T>(filter, this, this.Root, filteredIndexes);
             this.Root.Resume();
+            this.IsInitialized = true;
             yield return 100;
+        }
+
+        protected FilteredView(string name)
+        {
+            this.Name = name;
+        }
+
+        public FilteredView<T> CreateChild(Filter filter)
+        {
+            return new FilteredView<T>(filter, this, this.Root);
         }
 
         public virtual void Suspend() { }

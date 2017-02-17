@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,7 @@ namespace SmartViewer
 
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
+            Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
             e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
@@ -34,18 +36,20 @@ namespace SmartViewer
         {
         }
 
-        private void dataGridViewMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
-        {
-            e.PaintCellsBackground(e.ClipBounds, true);
-            e.PaintCellsContent(e.ClipBounds);
-        }
-
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             var row = this.dataGridViewMain.Rows[e.RowIndex];
             if (((LogLevel)row.Cells[3].Value) == LogLevel.Warning)
             {
-                row.DefaultCellStyle.BackColor = Color.Yellow;
+                row.DefaultCellStyle.BackColor = Color.FromArgb(200, 180, 0);
+            }
+            else if (((LogLevel)row.Cells[3].Value) == LogLevel.Error)
+            {
+                row.DefaultCellStyle.BackColor = Color.FromArgb(200, 0, 0);
+            }
+            else if (((LogLevel)row.Cells[3].Value) == LogLevel.Error)
+            {
+                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 0, 0);
             }
         }
 
@@ -97,11 +101,7 @@ namespace SmartViewer
             this.dataGridViewMain.Columns.Clear();
 
             this.dataGridViewMain.Columns.AddRange(columns);
-            this.document.ItemAdded += (s, index) =>
-            { //if (this.CurrentView.TotalCount % 100 == 0) this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
-
-                //       this.dataGridViewMain.Refresh();
-            };
+            this.document.ItemAdded += this.UpdateMainGridRowCount;
             this.document.TestGenerateFakeData();
             this.treeViewDoc.SelectedNode = node;
         }
@@ -116,49 +116,64 @@ namespace SmartViewer
                 return;
             }
 
-            this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
-            this.dataGridViewMain.Refresh();
+            this.dataGridViewMain.RowCount = 0;
+
+            if (!this.CurrentView.IsInitialized)
+            {
+                this.progressBarMain.Visible = true;
+                BackgroundWorker bw = new BackgroundWorker();
+                bw.WorkerReportsProgress = true;
+
+                bw.RunWorkerCompleted += (s, e1) =>
+                {
+                    this.progressBarMain.Visible = false;
+                    this.toolStripStatusLabel.Text = "Ready";
+                    bw.Dispose();
+                };
+
+                bw.ProgressChanged += (s, e1) =>
+                {
+                    if (this.progressBarMain.Value != e1.ProgressPercentage)
+                    {
+                        this.progressBarMain.Value = e1.ProgressPercentage;
+                        this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+                        this.toolStripStatusLabel.Text = $"Filtering ... {e1.ProgressPercentage}%";
+                    }
+                };
+
+                bw.DoWork += (s, e1) =>
+                {
+                    foreach (int progress in this.CurrentView.Initialize())
+                    {
+                        bw.ReportProgress(progress);
+                    }
+                };
+
+                bw.RunWorkerAsync();
+                this.toolStripStatusLabel.Text = "Filtering ...";
+            }
+            else
+            {
+                this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+            }
+        }
+
+        private void UpdateMainGridRowCount(object sender, int index)
+        {
+            if (object.ReferenceEquals(sender, this.CurrentView))
+            {
+                this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+            }
         }
 
         private void filterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BackgroundWorker bw = new BackgroundWorker();
-            bw.RunWorkerCompleted += (s, e1) =>
-            {
-                bw.Dispose();
-            };
+            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBox1.Text));
+            childView.ItemAdded += this.UpdateMainGridRowCount;
 
-            bw.DoWork += (s, e1) =>
-            {
-                Filter f = new Filter(this.toolStripTextBox1.Text);
-
-                Action a = () => this.toolStripStatusLabel.Text = "Filtering ...";
-                this.Invoke(a);
-
-                ResultWrapper<FilteredView<DataItemBase>> result = new ResultWrapper<FilteredView<DataItemBase>>();
-                foreach (int progress in this.CurrentView.CreateChild(f, result))
-                {
-                    a = () =>
-                    {
-                        this.toolStripProgressBarStatus.Value = progress;
-                        this.toolStripStatusLabel.Text = $"Filtering ... {progress}%";
-                    };
-
-                    this.Invoke(a);
-                }
-
-                a = () =>
-                {
-                    var node = this.treeViewDoc.SelectedNode.Nodes.Add(result.Result.Name, result.Result.Name);
-                    node.Tag = result.Result;
-                    this.treeViewDoc.SelectedNode = node;
-                    this.toolStripStatusLabel.Text = "Ready";
-                };
-
-                this.Invoke(a);
-            };
-
-            bw.RunWorkerAsync();
+            var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
+            node.Tag = childView;
+            this.treeViewDoc.SelectedNode = node;
         }
 
         private void toolStripSplitButton_ButtonClick(object sender, EventArgs e)
