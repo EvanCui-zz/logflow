@@ -43,9 +43,11 @@
   <ItemGroup>
     <Compile Include="ColumnInfoAttribute.cs" />
     <Compile Include="DataItemBase.cs" />
+    <Compile Include="DataSource.cs" />
     <Compile Include="DisplayAttributes.cs" />
     <Compile Include="FilteredView.cs" />
     <Compile Include="Filter\Filter.cs" />
+    <Compile Include="IFilteredView.cs" />
     <Compile Include="LogDocument.cs" />
     <Compile Include="ParametricString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

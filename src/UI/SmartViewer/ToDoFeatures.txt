@@ -5,3 +5,11 @@
 5, Colored level or column level.
 6, Document model.
 7, selection save.
+8, scroll position save. done
+9, Find. done
+10, Tag. done
+11, Filter. done
+12, right pane features.
+13, detail pane features.
+14, enable disable status.
+15, data model refactor.
