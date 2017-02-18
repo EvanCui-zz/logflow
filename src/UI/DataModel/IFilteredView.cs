@@ -34,6 +34,8 @@ namespace DataModel
 
         IEnumerable<int> Initialize();
 
+        bool IsInitialized { get; }
+
         #endregion
 
         #region Events
@@ -57,6 +59,10 @@ namespace DataModel
         int TotalCount { get; }
 
         object GetColumnValue(int rowIndex, int columnIndex);
+
+        int GetPhysicalIndex(int logicalIndex);
+
+        IList<ColumnInfoAttribute> ColumnInfos { get; }
 
         #endregion
     }

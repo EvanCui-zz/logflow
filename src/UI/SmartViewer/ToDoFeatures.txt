@@ -13,3 +13,30 @@
 13, detail pane features.
 14, enable disable status.
 15, data model refactor.
+16, Analytical panes
+	1), Line dist / time dist
+	2), Exception summary
+	3), Warning/Errors summary
+	4), Statistical
+		template
+		threads
+		warnings
+		errors
+		process
+		files
+		lines
+		etc..
+17, Detail pane
+	1), detail
+	2), template pane
+		total
+		parameters dist
+	3), thread
+		blocking >1s >5s >10s
+
+18, Context menues
+	Filter by
+	Filter parent by
+	Filter root by
+
+19, Doc menues.

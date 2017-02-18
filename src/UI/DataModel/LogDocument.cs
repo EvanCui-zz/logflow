@@ -11,13 +11,12 @@ namespace DataModel
     {
         public LogDocument(string name) : base(name)
         {
-            this.PropertyInfos = typeof(T).GetProperties()
-                .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true)).ToList();
-            this.ColumnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
-            this.Data = this;
+            this.Data = new DataSource<T>();
         }
 
-
-
+        public void GenerateFakeData()
+        {
+            this.Data.TestGenerateFakeData();
+        }
     }
 }

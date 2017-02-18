@@ -7,8 +7,15 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    internal class DataSource<T> where T : DataItemBase
+    public class DataSource<T> where T : DataItemBase
     {
+        public DataSource()
+        {
+            this.PropertyInfos = typeof(T).GetProperties()
+                .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true)).ToList();
+            this.ColumnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
+        }
+
         public IList<T> Items { get; set; } = new List<T>();
 
         public IList<string> Templates { get; } = new List<string>();
@@ -53,17 +60,12 @@ namespace DataModel
                     this.Templates[dataItem.TemplateId],
                     dataItem.Parameters);
             }
-            else if (ci.Name == "Tag")
-            {
-                return this.Tags?.Where(kvp => kvp.Value.Match(dataItem, this.Templates[dataItem.TemplateId])).Select(kvp => kvp.Key).ToList();
-            }
             else
             {
                 return null;
             }
         }
 
-        public override int TotalCount { get { return this.Items.Count; } }
         public void TestGenerateFakeData()
         {
             Random r = new Random();

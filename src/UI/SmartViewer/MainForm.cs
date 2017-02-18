@@ -15,6 +15,7 @@ namespace SmartViewer
     public partial class MainForm : Form
     {
         private LogDocument<DataItemBase> document;
+
         private List<Color> tags = new List<Color>()
         {
             Color.Cyan,
@@ -55,6 +56,8 @@ namespace SmartViewer
 
             this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
+
+            this.openToolStripMenuItem_Click(this, null);
         }
 
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
@@ -152,7 +155,7 @@ namespace SmartViewer
 
             this.dataGridViewMain.Columns.AddRange(columns);
             this.document.ItemAdded += this.UpdateMainGridRowCount;
-            this.document.TestGenerateFakeData();
+            this.document.GenerateFakeData();
             this.treeViewDoc.SelectedNode = node;
         }
 
@@ -232,11 +235,11 @@ namespace SmartViewer
 
             if (filter == null)
             {
-                this.CurrentView.Tags.Remove(color);
+                this.CurrentView.UnTag(color);
             }
             else
             {
-                this.CurrentView.Tags[color] = filter;
+                this.CurrentView.Tag(color, filter);
             }
 
             this.dataGridViewMain.Refresh();
@@ -281,7 +284,7 @@ namespace SmartViewer
             this.Find(currentIndex, true);
         }
 
-        private void Find(int startIndex, bool nextDirection)
+        private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
             Filter f = new Filter(this.toolStripTextBoxPattern.Text);
@@ -294,8 +297,8 @@ namespace SmartViewer
             bw.RunWorkerCompleted += (s, e1) =>
             {
                 this.dataGridViewMain.ClearSelection();
-                this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, ((KeyValuePair<int, bool>)e1.Result).Key];
-                this.toolStripLabelCount.Text = ((KeyValuePair<int, bool>)e1.Result).Key.ToString();
+                this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, (int)e1.Result];
+                this.toolStripLabelCount.Text = e1.Result.ToString();
                 this.toolStripStatusLabel.Text = "Ready";
                 this.progressBarMain.Visible = false;
 
@@ -304,7 +307,7 @@ namespace SmartViewer
 
             bw.ProgressChanged += (s, e1) =>
             {
-                if (this.progressBarMain.Value != e1.ProgressPercentage)
+                if (this.progressBarMain.Value < e1.ProgressPercentage)
                 {
                     this.progressBarMain.Value = e1.ProgressPercentage;
                     this.toolStripStatusLabel.Text = $"Searching ... {e1.ProgressPercentage}%";
@@ -313,8 +316,8 @@ namespace SmartViewer
 
             bw.DoWork += (s, e1) =>
             {
-                ResultWrapper<KeyValuePair<int, bool>> findResult = new ResultWrapper<KeyValuePair<int, bool>>();
-                foreach (int progress in this.CurrentView.Find(f, startIndex, findResult, nextDirection))
+                var findResult = new ResultWrapper<int>();
+                foreach (int progress in this.CurrentView.Find(f, startIndex, direction, findResult))
                 {
                     bw.ReportProgress(progress);
                 }
