@@ -14,16 +14,16 @@ namespace DataModel
         /// <summary>
         /// Tag or replace the color's filter.
         /// </summary>
-        /// <param name="tagColor">the tag color</param>
+        /// <param name="index">the tag index</param>
         /// <param name="filter">the filter</param>
-        public void Tag(Color tagColor, Filter filter)
+        public void Tag(int index, Filter filter)
         {
-            this.Tags[tagColor] = filter;
+            this.Tags[index] = filter;
         }
 
-        public void UnTag(Color tagColor)
+        public void UnTag(int index)
         {
-            this.Tags.Remove(tagColor);
+            this.Tags.Remove(index);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace DataModel
 
         #region Properties and fields
 
-        private IDictionary<Color, Filter> Tags { get; set; } = new Dictionary<Color, Filter>();
+        private IDictionary<int, Filter> Tags { get; set; } = new Dictionary<int, Filter>();
 
         private Filter Filter { get; set; }
 

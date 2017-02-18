@@ -12,12 +12,12 @@ namespace DataModel
         #region Find, Count, Filter, Tag features.
 
         /// <summary>
-        /// Tag or replace the color's filter.
+        /// Tag or replace the tag's filter.
         /// </summary>
-        /// <param name="tagColor">the tag color</param>
+        /// <param name="index">the tag index</param>
         /// <param name="filter">the filter</param>
-        void Tag(Color tagColor, Filter filter);
-        void UnTag(Color tagColor);
+        void Tag(int index, Filter filter);
+        void UnTag(int index);
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.

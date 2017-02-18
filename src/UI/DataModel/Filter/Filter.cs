@@ -119,7 +119,7 @@ namespace DataModel
                 return false;
             }
 
-            if (this.Level.HasValue && (int)(item.Level & this.Level) == 0)
+            if (this.Level.HasValue && !this.Level.Value.HasFlag(item.Level))
             {
                 return false;
             }

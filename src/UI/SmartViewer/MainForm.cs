@@ -15,12 +15,24 @@ namespace SmartViewer
     public partial class MainForm : Form
     {
         private LogDocument<DataItemBase> document;
+        private Font boldFont;
+        private Font normalFont;
+        private SolidBrush foreColorBrush;
+        private SolidBrush selectionForeColorBrush;
+        private StringFormat defaultStringFormat;
 
-        private List<Color> tags = new List<Color>()
+        private List<Brush> levelBrushes = new List<Brush>()
         {
-            Color.Cyan,
-            Color.FromArgb(128, 128, 255),
-            Color.FromArgb(128, 255, 128),
+            new SolidBrush(Color.FromArgb(255, 0, 0)),
+            new SolidBrush(Color.FromArgb(200, 0, 0)),
+            new SolidBrush(Color.FromArgb(200, 180, 0)),
+        };
+
+        private List<Tuple<Color, SolidBrush, Pen>> tags = new List<Tuple<Color, SolidBrush, Pen>>()
+        {
+            new Tuple<Color, SolidBrush, Pen>(Color.Cyan, new SolidBrush(Color.Cyan), new Pen(Color.Cyan)),
+            new Tuple<Color, SolidBrush, Pen>(Color.FromArgb(128, 128, 255), new SolidBrush(Color.FromArgb(128, 128, 255)), new Pen(Color.FromArgb(128, 128, 255))),
+            new Tuple<Color, SolidBrush, Pen>(Color.FromArgb(128, 255, 128), new SolidBrush(Color.FromArgb(128, 255, 128)), new Pen(Color.FromArgb(128, 255, 128))),
         };
 
         public MainForm()
@@ -41,17 +53,33 @@ namespace SmartViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            var pi = this.dataGridViewMain.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            pi.SetValue(this.dataGridViewMain, true);
+
+            this.boldFont = new Font(this.dataGridViewMain.Font, FontStyle.Bold);
+            this.normalFont = this.dataGridViewMain.Font;
+
+            this.foreColorBrush = new SolidBrush(this.dataGridViewMain.DefaultCellStyle.ForeColor);
+            this.selectionForeColorBrush = new SolidBrush(this.dataGridViewMain.DefaultCellStyle.SelectionForeColor);
+
+            this.defaultStringFormat = new StringFormat(StringFormatFlags.NoWrap)
+            {
+                Trimming = StringTrimming.EllipsisCharacter,
+                LineAlignment = StringAlignment.Center,
+            };
+
             int i = 0;
             this.toolStripSplitButtonTag.DropDownItems.AddRange(this.tags.Select(t => new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
             {
+                int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
                 if (this.CurrentView == null) return;
                 var currentMenuItem = (ToolStripMenuItem)s;
                 bool tag = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
                 currentMenuItem.Checked = tag;
-                this.TagCurrentView(t, tag ? new Filter(this.toolStripTextBoxPattern.Text) : null);
+                this.TagCurrentView(index, tag ? new Filter(this.toolStripTextBoxPattern.Text) : null);
             })
             {
-                BackColor = t,
+                BackColor = t.Item1,
             }).ToArray());
 
             this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
@@ -62,21 +90,16 @@ namespace SmartViewer
 
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
-            var row = this.dataGridViewMain.Rows[e.RowIndex];
-            Debug.WriteLine("row pre paint row {0}", e.RowIndex);
+            if (e.State.HasFlag(DataGridViewElementStates.Selected)) return;
 
             var level = (LogLevel)this.CurrentView.GetColumnValue(e.RowIndex, 3);
-            if (level == LogLevel.Warning)
+            int index = level == LogLevel.Critical ? 0 : (level == LogLevel.Error ? 1 : (level == LogLevel.Warning ? 2 : 3));
+
+            if (index < this.levelBrushes.Count)
             {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(200, 180, 0);
-            }
-            else if (level == LogLevel.Error)
-            {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(200, 0, 0);
-            }
-            else if (level == LogLevel.Error)
-            {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 0, 0);
+                e.Graphics.FillRectangle(this.levelBrushes[index], e.RowBounds);
+                e.PaintParts &= ~DataGridViewPaintParts.Background;
+                e.PaintParts &= ~DataGridViewPaintParts.ContentBackground;
             }
         }
 
@@ -84,25 +107,27 @@ namespace SmartViewer
         {
             if (e.RowIndex == -1) return;
 
-            e.PaintBackground(e.CellBounds, true);
             var bound = e.CellBounds;
 
             if (e.ColumnIndex == 4)
             {
                 e.Handled = true;
-                var paramString = e.Value as ParametricString;
-                if (paramString == null) return;
+                if (e.Value == null) return;
 
-                var boldFont = new Font(e.CellStyle.Font, FontStyle.Bold);
+                bool isSelected = (e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected;
+                e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground & ~DataGridViewPaintParts.ErrorIcon);
+
+                var paramString = (ParametricString)e.Value;
 
                 foreach (var token in paramString.GetTokens())
                 {
-                    var currentFont = token.Value ? boldFont : e.CellStyle.Font;
-                    e.Graphics.DrawString(token.Key, currentFont, new SolidBrush((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected ? e.CellStyle.SelectionForeColor : e.CellStyle.ForeColor), bound, new StringFormat(StringFormatFlags.NoWrap)
-                    {
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        LineAlignment = StringAlignment.Center,
-                    });
+                    var currentFont = token.Value ? this.boldFont : this.normalFont;
+                    e.Graphics.DrawString(
+                        token.Key,
+                        currentFont,
+                        isSelected ? this.selectionForeColorBrush : this.foreColorBrush,
+                        bound,
+                        this.defaultStringFormat);
 
                     var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
                     bound.Width -= (int)length;
@@ -115,8 +140,17 @@ namespace SmartViewer
             else if (e.ColumnIndex == 5)
             {
                 e.Handled = true;
-                var colorList = e.Value as List<Color>;
-                if (colorList == null) return;
+                if (e.Value == null) return;
+
+                var colorList = (List<int>)e.Value;
+
+                //bool isSelected = (e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected;
+                e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground & ~DataGridViewPaintParts.ErrorIcon);
+                //if (e.PaintParts.HasFlag(DataGridViewPaintParts.Background))
+                //{
+                //    e.PaintBackground(e.CellBounds, isSelected);
+                //}
+                //e.Paint(e.CellBounds, DataGridViewPaintParts.Border | DataGridViewPaintParts.SelectionBackground);
 
                 var rect = e.CellBounds;
                 rect.X += 4;
@@ -124,10 +158,19 @@ namespace SmartViewer
                 rect.Height -= 8;
                 rect.Width = rect.Height;
 
-                foreach (var c in colorList)
+                int p = 0;
+
+                for (int i = 0; i < this.tags.Count; i++)
                 {
-                    //                    e.Graphics.DrawRectangle(new Pen(c), rect);
-                    e.Graphics.FillRectangle(new SolidBrush(c), rect);
+                    if (p < colorList.Count && colorList[p] == i)
+                    {
+                        e.Graphics.FillRectangle(this.tags[i].Item2, rect);
+                        p++;
+                    }
+                    else
+                    {
+                        // e.Graphics.DrawRectangle(this.tags[i].Item3, rect);
+                    }
 
                     rect.X += rect.Width + 2;
                 }
@@ -229,17 +272,17 @@ namespace SmartViewer
 
         }
 
-        private void TagCurrentView(Color color, Filter filter)
+        private void TagCurrentView(int index, Filter filter)
         {
             if (this.CurrentView == null) return;
 
             if (filter == null)
             {
-                this.CurrentView.UnTag(color);
+                this.CurrentView.UnTag(index);
             }
             else
             {
-                this.CurrentView.Tag(color, filter);
+                this.CurrentView.Tag(index, filter);
             }
 
             this.dataGridViewMain.Refresh();

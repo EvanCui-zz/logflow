@@ -85,7 +85,7 @@ namespace DataModel
                     TemplateId = r.Next(10000),
                     Parameters = new object[] { DateTime.UtcNow, i + 255 },
                     ProcessId = i / 100000,
-                    Level = (LogLevel)r.Next((int)LogLevel.Verbose) + 1,
+                    Level = (LogLevel)(1 << (r.Next(5))),
                 });
             }
         }
