@@ -19,26 +19,26 @@ namespace DataModel
 
     public class DataItemBase
     {
-        [ColumnInfo(Name = "Id")]
+        [ColumnInfo(Name = "Id", Width = 50)]
         public long Id { get; set; }
-        [ColumnInfo(Name = "Time")]
+        [ColumnInfo(Name = "Time", Width = 125)]
         public DateTime Time { get; set; }
 
-        [ColumnInfo(Name = "Tid")]
+        [ColumnInfo(Name = "Tid", Width = 50)]
         public int ThreadId { get; set; }
-        
-        [ColumnInfo(Name = "Level")]
+
+        [ColumnInfo(Name = "Level", Width = 50)]
         public LogLevel Level { get; set; }
 
-        [ColumnInfo(Name = "Text", Computed = true)]
+        [ColumnInfo(Name = "Text", Computed = true, Width = 200)]
 
         public int TemplateId { get; set; }
         public object[] Parameters { get; set; }
 
-        [ColumnInfo(Name = "Tag", Computed = true)]
+        [ColumnInfo(Name = "Tag", Computed = true, Width = 60)]
         public string FormattedText { get; set; }
 
-        [ColumnInfo(Name = "Pid")]
+        [ColumnInfo(Name = "Pid", Width = 60)]
         public int ProcessId { get; set; }
         public DisplayAttributes Display { get; set; }
     }

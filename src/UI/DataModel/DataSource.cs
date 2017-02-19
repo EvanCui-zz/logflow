@@ -70,19 +70,19 @@ namespace DataModel
         {
             Random r = new Random();
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 this.Templates.Add(string.Format("string templates {{0}}, {{1}}, testing long string, {0}", i));
             }
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 800000; i++)
             {
                 this.AddItem((T)new DataItemBase()
                 {
                     Id = i,
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
-                    TemplateId = r.Next(10000),
+                    TemplateId = r.Next(1000),
                     Parameters = new object[] { DateTime.UtcNow, i + 255 },
                     ProcessId = i / 100000,
                     Level = (LogLevel)(1 << (r.Next(5))),

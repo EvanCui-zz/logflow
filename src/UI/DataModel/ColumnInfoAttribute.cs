@@ -14,5 +14,7 @@ namespace DataModel
         }
 
         public bool Computed { get; set; }
+
+        public int Width { get; set; }
     }
 }

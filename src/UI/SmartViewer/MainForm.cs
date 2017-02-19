@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace SmartViewer
 {
@@ -47,7 +49,7 @@ namespace SmartViewer
 
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
+        //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
             e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
@@ -91,6 +93,9 @@ namespace SmartViewer
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             if (e.State.HasFlag(DataGridViewElementStates.Selected)) return;
+
+            Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
+          //  return;
 
             var level = (LogLevel)this.CurrentView.GetColumnValue(e.RowIndex, 3);
             int index = level == LogLevel.Critical ? 0 : (level == LogLevel.Error ? 1 : (level == LogLevel.Warning ? 2 : 3));
@@ -144,13 +149,7 @@ namespace SmartViewer
 
                 var colorList = (List<int>)e.Value;
 
-                //bool isSelected = (e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected;
                 e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground & ~DataGridViewPaintParts.ErrorIcon);
-                //if (e.PaintParts.HasFlag(DataGridViewPaintParts.Background))
-                //{
-                //    e.PaintBackground(e.CellBounds, isSelected);
-                //}
-                //e.Paint(e.CellBounds, DataGridViewPaintParts.Border | DataGridViewPaintParts.SelectionBackground);
 
                 var rect = e.CellBounds;
                 rect.X += 4;
@@ -166,10 +165,6 @@ namespace SmartViewer
                     {
                         e.Graphics.FillRectangle(this.tags[i].Item2, rect);
                         p++;
-                    }
-                    else
-                    {
-                        // e.Graphics.DrawRectangle(this.tags[i].Item3, rect);
                     }
 
                     rect.X += rect.Width + 2;
@@ -188,9 +183,9 @@ namespace SmartViewer
             {
                 Name = ci.Name,
                 HeaderText = ci.Name,
-                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : (string.Equals(ci.Name, "Tag") ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.DisplayedCells),
-                MinimumWidth = 60,
-                Width = 60,
+                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
+                MinimumWidth = 5,
+                Width = ci.Width,
             }).ToArray();
 
             this.dataGridViewMain.Columns.Clear();
@@ -203,6 +198,11 @@ namespace SmartViewer
         }
 
         public FilteredView<DataItemBase> CurrentView { get; set; }
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+
+
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -212,8 +212,12 @@ namespace SmartViewer
                 return;
             }
 
+            // *** DataGridView population ***
+           // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
+            Debug.WriteLine("Suspend layout");
             this.dataGridViewMain.Rows.Clear();
 
+            Debug.WriteLine("rows cleared");
             if (!this.CurrentView.IsInitialized)
             {
                 this.progressBarMain.Value = 0;
@@ -255,8 +259,13 @@ namespace SmartViewer
                 this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
             }
 
+            Debug.WriteLine("Setting scroll index");
             if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                 this.dataGridViewMain.FirstDisplayedScrollingRowIndex = this.CurrentView.FirstDisplayedScrollingRowIndex.Value;
+            // Add rows to DGV here
+          //  SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, true, 0);
+            this.dataGridViewMain.Refresh();
+            Debug.WriteLine("Resume layout");
         }
 
         private void UpdateMainGridRowCount(object sender, int index)
