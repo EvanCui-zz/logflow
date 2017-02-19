@@ -54,15 +54,21 @@ namespace DataModel
 
         int? FirstDisplayedScrollingRowIndex { get; set; }
 
+        Point? AutoScrollOffset { get; set; }
+
         string Name { get; }
 
         int TotalCount { get; }
 
         object GetColumnValue(int rowIndex, int columnIndex);
 
+        T GetRowValue(int rowIndex);
+
         int GetPhysicalIndex(int logicalIndex);
 
         IList<ColumnInfoAttribute> ColumnInfos { get; }
+
+        IList<bool> HasHacked { get; }
 
         #endregion
     }

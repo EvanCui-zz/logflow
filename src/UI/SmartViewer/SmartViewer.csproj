@@ -46,6 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FastListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="FastListView.Designer.cs">
+      <DependentUpon>FastListView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainFormListView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainFormListView.Designer.cs">
+      <DependentUpon>MainFormListView.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +66,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FastListView.resx">
+      <DependentUpon>FastListView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainFormListView.resx">
+      <DependentUpon>MainFormListView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

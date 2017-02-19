@@ -12,6 +12,10 @@ namespace DataModel
         public LogDocument(string name) : base(name)
         {
             this.Data = new DataSource<T>();
+            this.Data.ItemAdded += (s, e) =>
+            {
+                this.OnItemAdded(e);
+            };
         }
 
         public void GenerateFakeData()

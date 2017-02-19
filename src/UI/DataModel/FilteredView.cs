@@ -118,7 +118,17 @@ namespace DataModel
         {
             if (this.IsInitialized) yield break;
 
-            if (this.Parent == null) { yield return 100; this.IsInitialized = true; yield break; }
+            if (this.Parent == null)
+            {
+                this.Data.Suspend();
+                this.HasHacked = this.Data.Items.Select(i => false).ToList();
+
+                this.Data.Resume();
+
+                this.IsInitialized = true;
+                yield return 100;
+                yield break;
+            }
 
             yield return 0;
             this.Data.Suspend();
@@ -139,6 +149,7 @@ namespace DataModel
                 if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
                     this.ItemIndexes.Add(index);
+                    this.HasHacked.Add(false);
                 }
             }
 
@@ -169,16 +180,24 @@ namespace DataModel
         #region Display
 
         public int? FirstDisplayedScrollingRowIndex { get; set; }
+        public Point? AutoScrollOffset { get; set; }
 
         public string Name { get; private set; }
 
         public int TotalCount { get { return this.ItemIndexes?.Count ?? this.Data.Items.Count; } }
 
+        public T GetRowValue(int rowIndex)
+        {
+            if (rowIndex >= this.TotalCount) return null;
+            int index = this.GetPhysicalIndex(rowIndex);
+            return this.Data.Items[index];
+        }
+
         public object GetColumnValue(int rowIndex, int columnIndex)
         {
-//            if (columnIndex == 4) return null;
-  //          if (columnIndex == 5) return null;
-    //        return rowIndex;
+            //            if (columnIndex == 4) return null;
+            //          if (columnIndex == 5) return null;
+            //        return rowIndex;
 
             if (rowIndex >= this.TotalCount) return null;
             int index = this.GetPhysicalIndex(rowIndex);
@@ -192,6 +211,8 @@ namespace DataModel
 
             return this.Data.GetColumnValue(index, columnIndex);
         }
+
+        public IList<bool> HasHacked { get; private set; }
 
         public int GetPhysicalIndex(int logicalIndex)
         {
@@ -247,13 +268,14 @@ namespace DataModel
 
         #region Private methods
 
-        private void OnItemAdded(int index)
+        protected void OnItemAdded(int index)
         {
             this.ItemAdded?.Invoke(this, index);
         }
 
         private void AddItem(int index)
         {
+            this.HasHacked.Add(false);
             this.ItemIndexes.Add(index);
 
             // passing the raw index directly to the child for performance.
