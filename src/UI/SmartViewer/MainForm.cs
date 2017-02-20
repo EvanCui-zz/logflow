@@ -346,9 +346,12 @@ namespace SmartViewer
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
-                this.dataGridViewMain.ClearSelection();
-                this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, (int)e1.Result];
-                this.toolStripLabelCount.Text = e1.Result.ToString();
+                int selection = (int)e1.Result;
+                if (selection != -1)
+                {
+                    this.dataGridViewMain.ClearSelection();
+                    this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, (int)e1.Result];
+                }
                 this.toolStripStatusLabel.Text = "Ready";
                 this.progressBarMain.Visible = false;
 
@@ -366,13 +369,13 @@ namespace SmartViewer
 
             bw.DoWork += (s, e1) =>
             {
-                var findResult = new ResultWrapper<int>();
-                foreach (int progress in this.CurrentView.Find(f, startIndex, direction, findResult))
+                var currentView = this.CurrentView;
+                foreach (int progress in currentView.Find(f, startIndex, direction))
                 {
                     bw.ReportProgress(progress);
                 }
 
-                e1.Result = findResult.Result;
+                e1.Result = currentView.SelectedRowIndex ?? -1;
             };
 
             bw.RunWorkerAsync();
@@ -408,13 +411,13 @@ namespace SmartViewer
 
             bw.DoWork += (s, e1) =>
             {
-                ResultWrapper<int> countResult = new ResultWrapper<int>();
-                foreach (int progress in this.CurrentView.Count(f, countResult))
+                var currentView = this.CurrentView;
+                foreach (int progress in currentView.Count(f))
                 {
                     bw.ReportProgress(progress);
                 }
 
-                e1.Result = countResult.Result;
+                e1.Result = currentView.LastCountResult ?? 0;
             };
 
             bw.RunWorkerAsync();

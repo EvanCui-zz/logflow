@@ -31,17 +31,6 @@ namespace SmartViewer
             InitializeComponent();
         }
 
-        private void dataGridViewMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-            //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
-            e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);
@@ -108,12 +97,7 @@ namespace SmartViewer
             this.treeViewDoc.SelectedNode = node;
         }
 
-        public FilteredView<DataItemBase> CurrentView { get; set; }
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
-        private const int WM_SETREDRAW = 11;
-
-
+        public IFilteredView<DataItemBase> CurrentView { get; set; }
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -126,29 +110,17 @@ namespace SmartViewer
             // *** DataGridView population ***
             // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
             Debug.WriteLine("Suspend layout");
-            if (this.CurrentView.IsInProgress)
-            {
-                this.progressBarMain.Visible = true;
-            }
-
-            this.ChildView_ProgressChanged(this, this.CurrentView.CurrentProgress);
+            this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
+            this.fastListViewMain.VirtualListSize = 0;
 
             Debug.WriteLine("rows cleared");
             if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
             {
-                this.progressBarMain.Value = 0;
-                this.progressBarMain.Visible = true;
                 var bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
-                    if (object.ReferenceEquals(this.CurrentView, e1.UserState))
-                    {
-                        this.progressBarMain.Visible = false;
-                        this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                    }
-
                     bw.Dispose();
                 };
 
@@ -156,10 +128,7 @@ namespace SmartViewer
                 {
                     if (object.ReferenceEquals(this.CurrentView, e1.UserState))
                     {
-                        if (this.progressBarMain.Value < e1.ProgressPercentage)
-                        {
-                            this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                        }
+                        this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
                     }
                 };
 
@@ -173,20 +142,18 @@ namespace SmartViewer
                 };
 
                 bw.RunWorkerAsync();
-                this.fastListViewMain.VirtualListSize = 0;
             }
             else
             {
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                this.fastListViewMain.Refresh();
                 if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                     this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
+                if (this.CurrentView.LastCountResult.HasValue)
+                    this.toolStripLabelCount.Text = this.CurrentView.LastCountResult.Value.ToString();
+                if (this.CurrentView.SelectedRowIndex.HasValue)
+                    this.fastListViewMain.Items[this.CurrentView.SelectedRowIndex.Value].Selected = true;
             }
-
-            Debug.WriteLine("Setting scroll index");
-
-            //  SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, true, 0);
-            this.fastListViewMain.Refresh();
-            Debug.WriteLine("Resume layout");
         }
 
         private void UpdateMainGridRowCount(object sender, int index)
@@ -233,19 +200,15 @@ namespace SmartViewer
 
         private void ChildView_ProgressChanged(object sender, ProgressItem e)
         {
-            if (object.ReferenceEquals(sender, this.CurrentView))
+            this.Invoke(new Action(() =>
             {
-                if (this.progressBarMain.Value < e.Progress)
+                if (object.ReferenceEquals(sender, this.CurrentView))
                 {
                     this.progressBarMain.Value = e.Progress;
                     this.toolStripStatusLabel.Text = e.ProgressDescription;
+                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
                 }
-            }
-        }
-
-        private void toolStripSplitButtonTag_ButtonClick(object sender, EventArgs e)
-        {
-
+            }));
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -276,39 +239,33 @@ namespace SmartViewer
             Filter f = new Filter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
-            bw.WorkerReportsProgress = true;
-            this.progressBarMain.Visible = true;
-            this.progressBarMain.Value = 0;
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
-                this.fastListViewMain.SelectedIndices.Clear();
-                this.fastListViewMain.Items[(int)e1.Result].Selected = true;
-                this.toolStripLabelCount.Text = e1.Result.ToString();
-                this.toolStripStatusLabel.Text = "Ready";
-                this.progressBarMain.Visible = false;
+                var result = (Tuple<IFilteredView<DataItemBase>, int?>)e1.Result;
+                if (object.ReferenceEquals(result.Item1, this.CurrentView))
+                {
+                    if (result.Item2.HasValue)
+                    {
+                        this.fastListViewMain.SelectedIndices.Clear();
+                        this.fastListViewMain.Items[result.Item2.Value].Selected = true;
+                        this.fastListViewMain.Items[result.Item2.Value].EnsureVisible();
+                        //     this.fastListViewMain.Invalidate(this.fastListViewMain.Items[(int)e1.Result].Bounds);
+                        this.toolStripLabelCount.Text = result.Item2.ToString();
+                    }
+                }
 
                 bw.Dispose();
             };
 
-            bw.ProgressChanged += (s, e1) =>
-            {
-                if (this.progressBarMain.Value < e1.ProgressPercentage)
-                {
-                    this.progressBarMain.Value = e1.ProgressPercentage;
-                    this.toolStripStatusLabel.Text = $"Searching ... {e1.ProgressPercentage}%";
-                }
-            };
-
             bw.DoWork += (s, e1) =>
             {
-                var findResult = new ResultWrapper<int>();
-                foreach (int progress in this.CurrentView.Find(f, startIndex, direction, findResult))
+                var currentView = this.CurrentView;
+                foreach (int progress in currentView.Find(f, startIndex, direction))
                 {
-                    bw.ReportProgress(progress);
                 }
 
-                e1.Result = findResult.Result;
+                e1.Result = Tuple.Create(currentView, currentView.SelectedRowIndex);  
             };
 
             bw.RunWorkerAsync();
@@ -320,37 +277,22 @@ namespace SmartViewer
             Filter f = new Filter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
-            bw.WorkerReportsProgress = true;
-            this.progressBarMain.Visible = true;
-            this.progressBarMain.Value = 0;
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
                 this.toolStripLabelCount.Text = e1.Result.ToString();
-                this.toolStripStatusLabel.Text = "Ready";
-                this.progressBarMain.Visible = false;
 
                 bw.Dispose();
             };
 
-            bw.ProgressChanged += (s, e1) =>
-            {
-                if (this.progressBarMain.Value != e1.ProgressPercentage)
-                {
-                    this.progressBarMain.Value = e1.ProgressPercentage;
-                    this.toolStripStatusLabel.Text = $"Counting ... {e1.ProgressPercentage}%";
-                }
-            };
-
             bw.DoWork += (s, e1) =>
             {
-                ResultWrapper<int> countResult = new ResultWrapper<int>();
-                foreach (int progress in this.CurrentView.Count(f, countResult))
+                var currentView = this.CurrentView;
+                foreach (int progress in currentView.Count(f))
                 {
-                    bw.ReportProgress(progress);
                 }
 
-                e1.Result = countResult.Result;
+                e1.Result = currentView.LastCountResult ?? 0;
             };
 
             bw.RunWorkerAsync();
@@ -360,7 +302,14 @@ namespace SmartViewer
         {
             if (this.CurrentView == null) return;
             this.CurrentView.FirstDisplayedScrollingRowIndex = this.fastListViewMain.TopItem.Index;
-            this.progressBarMain.Visible = false;
+            if (this.fastListViewMain.SelectedIndices.Count > 0)
+            {
+                this.CurrentView.SelectedRowIndex = this.fastListViewMain.SelectedIndices[0];
+            }
+            else
+            {
+                this.CurrentView.SelectedRowIndex = null;
+            }
         }
 
         private void fastListViewMain_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)

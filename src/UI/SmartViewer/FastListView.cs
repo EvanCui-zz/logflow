@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace SmartViewer
 {
@@ -15,6 +16,7 @@ namespace SmartViewer
         public FastListView()
         {
             InitializeComponent();
+         //   this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             this.DoubleBuffered = true;
             this.BoldFont = new Font(this.NormalFont, FontStyle.Bold);
             this.ForeColorBrush = new SolidBrush(this.ForeColor);

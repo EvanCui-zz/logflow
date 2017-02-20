@@ -16,6 +16,6 @@ namespace DataModel
         private string ActionName { get; set; }
 
         public int Progress { get; set; }
-        public string ProgressDescription { get { return $"{ActionName} ... {Progress}%"; } }
+        public string ProgressDescription { get { return $"{ActionName}"; } }
     }
 }

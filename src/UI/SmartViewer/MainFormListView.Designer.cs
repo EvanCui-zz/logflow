@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripTextBoxPattern = new System.Windows.Forms.ToolStripTextBox();
@@ -63,6 +63,7 @@
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarStatus = new System.Windows.Forms.ToolStripProgressBar();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -347,10 +348,10 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "<no doc>";
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode2});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 414);
             this.treeViewDoc.TabIndex = 0;
@@ -373,11 +374,14 @@
             // 
             // statusStripMain
             // 
+            this.statusStripMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
             this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
-            this.toolStripProgressBarStatus});
+            this.toolStripProgressBarStatus,
+            this.toolStripStatusLabel1});
             this.statusStripMain.Location = new System.Drawing.Point(0, 446);
             this.statusStripMain.Name = "statusStripMain";
+            this.statusStripMain.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.statusStripMain.Size = new System.Drawing.Size(921, 22);
             this.statusStripMain.TabIndex = 8;
             this.statusStripMain.Text = "statusStrip1";
@@ -392,6 +396,12 @@
             // 
             this.toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
             this.toolStripProgressBarStatus.Size = new System.Drawing.Size(100, 16);
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // MainFormListView
             // 
@@ -458,6 +468,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButtonCount;
         private System.Windows.Forms.ToolStripLabel toolStripLabelCount;
         private FastListView fastListViewMain;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

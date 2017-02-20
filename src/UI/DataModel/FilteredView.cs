@@ -28,7 +28,7 @@ namespace DataModel
 
         // True if the view is in a progress of something
         public bool IsInProgress { get; private set; }
-        public ProgressItem CurrentProgress { get; private set; }
+        public ProgressItem CurrentProgress { get; private set; } = new ProgressItem("Ready");
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
@@ -39,25 +39,28 @@ namespace DataModel
         /// <param name="direction"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public IEnumerable<int> Find(Filter filter, int currentIndex, bool direction, ResultWrapper<int> result)
+        public IEnumerable<int> Find(Filter filter, int currentIndex, bool direction)
         {
-            result.Result = -2;
-            if (!this.IsInitialized) yield break;
-            this.IsInProgress = true;
+            if (!this.IsInitialized || this.IsInProgress) yield break;
+
+            this.OnReportStart("Searching");
 
             yield return 0;
+            this.OnReportProgress(0);
             this.Data.Suspend();
             yield return 5;
+            this.OnReportProgress(5);
 
             int total = this.ItemIndexes?.Count ?? this.Data.Items.Count;
 
             bool loopedBack = false;
             for (int i = 1; i < total; i++)
             {
-                int progress = (i * 100) / total;
-                if (progress % 5 == 0)
+                if (i % (total / 20) == 0)
                 {
-                    yield return 5 + (progress * 90) / 100;
+                    int progress = 5 + ((i * 100) / total) * 90 / 100;
+                    yield return progress;
+                    this.OnReportProgress(progress);
                 }
 
                 int logicalIndex = (currentIndex + (direction ? i : -i) + total) % (total);
@@ -71,26 +74,21 @@ namespace DataModel
 
                 if (filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
-                    result.Result = logicalIndex;
+                    this.SelectedRowIndex = logicalIndex;
                     break;
                 }
             }
 
-            if (result.Result == -2)
-            {
-                yield return -2;
-            }
-
-            this.IsInProgress = false;
             this.Data.Resume();
             yield return 100;
+            this.OnReportFinish();
         }
 
-        public IEnumerable<int> Count(Filter filter, ResultWrapper<int> result)
+        public IEnumerable<int> Count(Filter filter)
         {
-            result.Result = 0;
-            if (!this.IsInitialized) yield break;
-            this.IsInProgress = true;
+            if (!this.IsInitialized || this.IsInProgress) yield break;
+
+            this.OnReportStart("Counting");
 
             yield return 0;
             this.Data.Suspend();
@@ -101,10 +99,11 @@ namespace DataModel
 
             for (int i = 0; i < total; i++)
             {
-                int progress = (i * 100) / total;
-                if (progress % 5 == 0)
+                if (i % (total / 20) == 0)
                 {
-                    yield return 5 + (progress * 90) / 100;
+                    int progress = 5 + ((i * 100) / total) * 90 / 100;
+                    yield return progress;
+                    this.OnReportProgress(progress);
                 }
 
                 int index = this.GetPhysicalIndex(i);
@@ -115,18 +114,19 @@ namespace DataModel
                 }
             }
 
-            result.Result = count;
+            this.LastCountResult = count;
 
             this.Data.Resume();
             yield return 100;
 
-            this.IsInProgress = false;
+            this.OnReportFinish();
         }
+
+        public int? LastCountResult { get; private set; }
 
         public IEnumerable<int> Initialize()
         {
-            if (this.IsInitialized) yield break;
-            this.IsInProgress = true;
+            if (this.IsInitialized || this.IsInProgress) yield break;
 
             if (this.Parent == null)
             {
@@ -135,7 +135,7 @@ namespace DataModel
                 yield break;
             }
 
-            this.OnReportAction("Initializing");
+            this.OnReportStart("Initializing");
 
             yield return 0;
             this.Data.Suspend();
@@ -146,11 +146,11 @@ namespace DataModel
 
             for (int i = 0; i < total; i++)
             {
-                int progress = (i * 100) / total;
-                if (progress % 5 == 0)
+                if (i % (total / 20) == 0)
                 {
-                    yield return 5 + (progress * 90) / 100;
-            this.OnReportProgress(5 + (progress * 90) / 100);
+                    int progress = 5 + ((i * 100) / total) * 90 / 100;
+                    yield return progress;
+                    this.OnReportProgress(progress);
                 }
 
                 int index = this.Parent.GetPhysicalIndex(i);
@@ -162,11 +162,11 @@ namespace DataModel
                 }
             }
 
-            this.Data.Resume();
             this.IsInitialized = true;
+            this.Data.Resume();
             yield return 100;
             this.OnReportProgress(100);
-            this.IsInProgress = false;
+            this.OnReportFinish();
         }
 
         public bool IsInitialized { get; private set; }
@@ -191,6 +191,7 @@ namespace DataModel
         #region Display
 
         public int? FirstDisplayedScrollingRowIndex { get; set; }
+        public int? SelectedRowIndex { get; set; }
 
         public string Name { get; private set; }
 
@@ -240,12 +241,11 @@ namespace DataModel
             this.Data = data;
             this.ItemIndexes = new List<int>();
 
-            // todo: filter the item;
             if (this.Parent != null)
             {
                 this.Parent.ItemAdded += (s, e) =>
                 {
-                    if (filter.Match(this.Data.Items[e], this.Data.Templates[this.Data.Items[e].TemplateId]))
+                    if (this.IsInitialized && filter.Match(this.Data.Items[e], this.Data.Templates[this.Data.Items[e].TemplateId]))
                     {
                         this.AddItem(e);
                     }
@@ -289,9 +289,17 @@ namespace DataModel
             this.OnItemAdded(index);
         }
 
-        private void OnReportAction(string actionName)
+        private void OnReportStart(string actionName)
         {
+            this.IsInProgress = true;
             this.CurrentProgress = new ProgressItem(actionName);
+            this.OnReport(this.CurrentProgress);
+        }
+
+        private void OnReportFinish()
+        {
+            this.IsInProgress = false;
+            this.CurrentProgress = new ProgressItem("Ready");
             this.OnReport(this.CurrentProgress);
         }
 

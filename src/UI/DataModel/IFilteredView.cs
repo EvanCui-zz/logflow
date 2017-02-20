@@ -28,9 +28,9 @@ namespace DataModel
         /// <param name="direction"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        IEnumerable<int> Find(Filter filter, int currentIndex, bool direction, ResultWrapper<int> result);
+        IEnumerable<int> Find(Filter filter, int currentIndex, bool direction);
 
-        IEnumerable<int> Count(Filter filter, ResultWrapper<int> result);
+        IEnumerable<int> Count(Filter filter);
 
         IEnumerable<int> Initialize();
 
@@ -53,6 +53,8 @@ namespace DataModel
         #region Display
 
         int? FirstDisplayedScrollingRowIndex { get; set; }
+        int? SelectedRowIndex { get; set; }
+        int? LastCountResult { get; }
 
         string Name { get; }
 
