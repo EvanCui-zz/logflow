@@ -20,7 +20,6 @@ namespace SmartViewer
             this.DoubleBuffered = true;
             this.BoldFont = new Font(this.NormalFont, FontStyle.Bold);
             this.ForeColorBrush = new SolidBrush(this.ForeColor);
-            this.Columns.Add(new ColumnHeader() { Name = "WorkaroundForDrawItemBug", Text = "", Width = 0 });
         }
 
         public void SetHeight(int height)

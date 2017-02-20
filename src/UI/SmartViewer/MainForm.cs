@@ -196,11 +196,6 @@ namespace SmartViewer
         }
 
         public FilteredView<DataItemBase> CurrentView { get; set; }
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
-        private const int WM_SETREDRAW = 11;
-
-
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {

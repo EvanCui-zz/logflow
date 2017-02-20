@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -42,7 +43,7 @@ namespace DataModel
                     case 'b':
                     case 'e':
                         DateTime dt;
-                        if (!DateTime.TryParse(value, out dt))
+                        if (!DateTime.TryParse(value.Trim('"'), out dt))
                         {
                             throw new InvalidOperationException($"The pattern '{name}:{value}' is not of '{nameof(DateTime)}' format");
                         }
@@ -87,7 +88,7 @@ namespace DataModel
                         break;
 
                     case 'c':
-                        this.Texts.Value.Add(value.ToUpperInvariant());
+                        this.Texts.Value.Add(value.Trim('"').ToUpperInvariant());
                         break;
 
                     default:
@@ -109,16 +110,6 @@ namespace DataModel
 
         public bool Match<T>(T item, string template) where T : DataItemBase
         {
-            if (this.Begin.HasValue && item.Time < this.Begin)
-            {
-                return false;
-            }
-
-            if (this.End.HasValue && item.Time > this.End)
-            {
-                return false;
-            }
-
             if (this.Level.HasValue && !this.Level.Value.HasFlag(item.Level))
             {
                 return false;
@@ -140,10 +131,30 @@ namespace DataModel
                 }
             }
 
+            if (this.Begin.HasValue && item.Time < this.Begin)
+            {
+                return false;
+            }
+
+            if (this.End.HasValue && item.Time > this.End)
+            {
+                return false;
+            }
+
+
             if (this.Texts.IsValueCreated)
             {
-                string expandedText = string.Intern(string.Format(template, item.Parameters)).ToUpperInvariant();
-                return this.Texts.Value.All(t => expandedText.Contains(t));
+                var text = template.ToUpperInvariant();
+                //todo : improve the perf.
+                if (this.Texts.Value.All(t => text.Contains(t)))
+                {
+                    return true;
+                }
+                else
+                {
+                    text = string.Format(CultureInfo.InvariantCulture, template, item.Parameters).ToUpperInvariant();
+                    return this.Texts.Value.All(t => text.Contains(t));
+                }
             }
 
             return true;

@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripTextBoxPattern = new System.Windows.Forms.ToolStripTextBox();
@@ -50,7 +50,6 @@
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitterBottom = new System.Windows.Forms.Splitter();
             this.panelView = new System.Windows.Forms.Panel();
-            this.fastListViewMain = new SmartViewer.FastListView();
             this.progressBarMain = new System.Windows.Forms.ProgressBar();
             this.panelDetail = new System.Windows.Forms.Panel();
             this.splitterRight = new System.Windows.Forms.Splitter();
@@ -62,8 +61,8 @@
             this.filterToolStripMenuItemDoc = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripProgressBarStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.fastListViewMain = new SmartViewer.FastListView();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -106,6 +105,7 @@
             // 
             this.toolStripTextBoxPattern.Name = "toolStripTextBoxPattern";
             this.toolStripTextBoxPattern.Size = new System.Drawing.Size(300, 25);
+            this.toolStripTextBoxPattern.TextChanged += new System.EventHandler(this.toolStripTextBoxPattern_TextChanged);
             // 
             // toolStripButtonFilter
             // 
@@ -252,38 +252,6 @@
             this.panelView.Size = new System.Drawing.Size(551, 322);
             this.panelView.TabIndex = 1;
             // 
-            // fastListViewMain
-            // 
-            this.fastListViewMain.AllowColumnReorder = true;
-            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
-            this.fastListViewMain.AlternateBackColorBrush = null;
-            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastListViewMain.FullRowSelect = true;
-            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
-            this.fastListViewMain.GridLineColorPen = null;
-            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.fastListViewMain.HideSelection = false;
-            this.fastListViewMain.LabelWrap = false;
-            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
-            this.fastListViewMain.Name = "fastListViewMain";
-            this.fastListViewMain.OwnerDraw = true;
-            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
-            this.fastListViewMain.SelectionBackColorBrush = null;
-            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.fastListViewMain.SelectionForeColorBrush = null;
-            this.fastListViewMain.ShowGroups = false;
-            this.fastListViewMain.Size = new System.Drawing.Size(551, 317);
-            this.fastListViewMain.TabIndex = 2;
-            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
-            this.fastListViewMain.View = System.Windows.Forms.View.Details;
-            this.fastListViewMain.VirtualMode = true;
-            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
-            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
-            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
-            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
-            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
-            // 
             // progressBarMain
             // 
             this.progressBarMain.Dock = System.Windows.Forms.DockStyle.Top;
@@ -348,10 +316,10 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "<no doc>";
+            treeNode1.Name = "Node0";
+            treeNode1.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode1});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 414);
             this.treeViewDoc.TabIndex = 0;
@@ -377,7 +345,6 @@
             this.statusStripMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
             this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
-            this.toolStripProgressBarStatus,
             this.toolStripStatusLabel1});
             this.statusStripMain.Location = new System.Drawing.Point(0, 446);
             this.statusStripMain.Name = "statusStripMain";
@@ -392,16 +359,44 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.toolStripStatusLabel.Text = "Ready";
             // 
-            // toolStripProgressBarStatus
-            // 
-            this.toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
-            this.toolStripProgressBarStatus.Size = new System.Drawing.Size(100, 16);
-            // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // fastListViewMain
+            // 
+            this.fastListViewMain.AllowColumnReorder = true;
+            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
+            this.fastListViewMain.AlternateBackColorBrush = null;
+            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastListViewMain.FullRowSelect = true;
+            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
+            this.fastListViewMain.GridLineColorPen = null;
+            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.fastListViewMain.HideSelection = false;
+            this.fastListViewMain.LabelWrap = false;
+            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
+            this.fastListViewMain.Name = "fastListViewMain";
+            this.fastListViewMain.OwnerDraw = true;
+            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
+            this.fastListViewMain.SelectionBackColorBrush = null;
+            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.fastListViewMain.SelectionForeColorBrush = null;
+            this.fastListViewMain.ShowGroups = false;
+            this.fastListViewMain.Size = new System.Drawing.Size(551, 317);
+            this.fastListViewMain.TabIndex = 2;
+            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
+            this.fastListViewMain.View = System.Windows.Forms.View.Details;
+            this.fastListViewMain.VirtualMode = true;
+            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
+            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
+            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
+            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
+            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
             // 
             // MainFormListView
             // 
@@ -458,7 +453,6 @@
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxPattern;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarStatus;
         private System.Windows.Forms.ProgressBar progressBarMain;
         private System.Windows.Forms.ToolStripButton toolStripButtonFilter;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButtonTag;

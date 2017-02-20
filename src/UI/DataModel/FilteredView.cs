@@ -158,7 +158,6 @@ namespace DataModel
                 if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
                     this.ItemIndexes.Add(index);
-                    //this.HasHacked.Add(false);
                 }
             }
 

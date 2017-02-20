@@ -17,6 +17,15 @@
             {
                 components.Dispose();
             }
+
+            if (disposing)
+            {
+                this.boldFont?.Dispose();
+                this.normalFont?.Dispose();
+                this.foreColorBrush?.Dispose();
+                this.selectionForeColorBrush?.Dispose();
+            }
+
             base.Dispose(disposing);
         }
 

@@ -63,6 +63,7 @@ namespace SmartViewer
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
 
             this.openToolStripMenuItem_Click(this, null);
+            this.toolStripTextBoxPattern_TextChanged(this, null);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -98,6 +99,8 @@ namespace SmartViewer
         }
 
         public IFilteredView<DataItemBase> CurrentView { get; set; }
+
+        #region TreeView
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -156,6 +159,22 @@ namespace SmartViewer
             }
         }
 
+        private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            if (this.CurrentView == null) return;
+            this.CurrentView.FirstDisplayedScrollingRowIndex = this.fastListViewMain.TopItem?.Index;
+            if (this.fastListViewMain.SelectedIndices.Count > 0)
+            {
+                this.CurrentView.SelectedRowIndex = this.fastListViewMain.SelectedIndices[0];
+            }
+            else
+            {
+                this.CurrentView.SelectedRowIndex = null;
+            }
+        }
+
+        #endregion
+
         private void UpdateMainGridRowCount(object sender, int index)
         {
             if (object.ReferenceEquals(sender, this.CurrentView))
@@ -163,6 +182,21 @@ namespace SmartViewer
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
             }
         }
+
+        private void ChildView_ProgressChanged(object sender, ProgressItem e)
+        {
+            this.Invoke(new Action(() =>
+            {
+                if (object.ReferenceEquals(sender, this.CurrentView))
+                {
+                    this.progressBarMain.Value = e.Progress;
+                    this.toolStripStatusLabel.Text = e.ProgressDescription;
+                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
+                }
+            }));
+        }
+
+        #region Filter, Tag, Find, Count
 
         private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
@@ -196,19 +230,6 @@ namespace SmartViewer
             node.Tag = childView;
             childView.ProgressChanged += ChildView_ProgressChanged;
             this.treeViewDoc.SelectedNode = node;
-        }
-
-        private void ChildView_ProgressChanged(object sender, ProgressItem e)
-        {
-            this.Invoke(new Action(() =>
-            {
-                if (object.ReferenceEquals(sender, this.CurrentView))
-                {
-                    this.progressBarMain.Value = e.Progress;
-                    this.toolStripStatusLabel.Text = e.ProgressDescription;
-                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
-                }
-            }));
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -265,7 +286,7 @@ namespace SmartViewer
                 {
                 }
 
-                e1.Result = Tuple.Create(currentView, currentView.SelectedRowIndex);  
+                e1.Result = Tuple.Create(currentView, currentView.SelectedRowIndex);
             };
 
             bw.RunWorkerAsync();
@@ -298,19 +319,7 @@ namespace SmartViewer
             bw.RunWorkerAsync();
         }
 
-        private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
-        {
-            if (this.CurrentView == null) return;
-            this.CurrentView.FirstDisplayedScrollingRowIndex = this.fastListViewMain.TopItem.Index;
-            if (this.fastListViewMain.SelectedIndices.Count > 0)
-            {
-                this.CurrentView.SelectedRowIndex = this.fastListViewMain.SelectedIndices[0];
-            }
-            else
-            {
-                this.CurrentView.SelectedRowIndex = null;
-            }
-        }
+        #endregion
 
         private void fastListViewMain_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
         {
@@ -332,16 +341,6 @@ namespace SmartViewer
                 new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
                 new ListViewItem.ListViewSubItem(),
             }.ToArray());
-
-            //{
-            //    new ListViewItem.ListViewSubItem() { Text = item.Id.ToString() },
-            //    new ListViewItem.ListViewSubItem() { Text = item.Time.ToString() },
-            //    new ListViewItem.ListViewSubItem() { Text = item.ThreadId.ToString() },
-            //    new ListViewItem.ListViewSubItem() { Text = item.Level.ToString() },
-            //    new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 4) },
-            //    new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
-            //    new ListViewItem.ListViewSubItem() { Text = item.ProcessId.ToString() },
-            //}.ToArray());
         }
 
         private void fastListViewMain_DrawItem(object sender, DrawListViewItemEventArgs e)
@@ -454,6 +453,38 @@ namespace SmartViewer
                 default:
                     e.Graphics.DrawString(item.GetColumnText(e.ColumnIndex), e.SubItem.Font, foreBrush, bound, format);
                     break;
+            }
+        }
+
+        private void toolStripTextBoxPattern_TextChanged(object sender, EventArgs e)
+        {
+            bool enabled = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
+            this.toolStripButtonFilter.Enabled = enabled;
+            this.toolStripButtonCount.Enabled = enabled;
+            this.toolStripSplitButtonFind.Enabled = enabled;
+            this.toolStripSplitButtonTag.Enabled = enabled;
+        }
+
+        private void fastListViewMain_Resize(object sender, EventArgs e)
+        {
+            var textWidth = this.fastListViewMain.Width;
+            ColumnHeader textCol = null;
+
+            foreach (ColumnHeader col in this.fastListViewMain.Columns)
+            {
+                if (string.Equals(col.Name, "Text"))
+                {
+                    textCol = col;
+                }
+                else
+                {
+                    textWidth -= col.Width;
+                }
+            }
+
+            if (textCol != null)
+            {
+                textCol.Width = textWidth < 0 ? 10 : textWidth;
             }
         }
     }
