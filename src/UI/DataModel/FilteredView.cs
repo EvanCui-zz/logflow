@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
+    public class FilteredView<T> : Progress<ProgressItem>, IFilteredView<T> where T : DataItemBase
     {
         #region Find, Count, Filter, Tag features.
 
@@ -26,6 +26,10 @@ namespace DataModel
             this.Tags.Remove(index);
         }
 
+        // True if the view is in a progress of something
+        public bool IsInProgress { get; private set; }
+        public ProgressItem CurrentProgress { get; private set; }
+
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
         /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all items.
@@ -39,6 +43,7 @@ namespace DataModel
         {
             result.Result = -2;
             if (!this.IsInitialized) yield break;
+            this.IsInProgress = true;
 
             yield return 0;
             this.Data.Suspend();
@@ -76,6 +81,7 @@ namespace DataModel
                 yield return -2;
             }
 
+            this.IsInProgress = false;
             this.Data.Resume();
             yield return 100;
         }
@@ -84,6 +90,7 @@ namespace DataModel
         {
             result.Result = 0;
             if (!this.IsInitialized) yield break;
+            this.IsInProgress = true;
 
             yield return 0;
             this.Data.Suspend();
@@ -112,27 +119,28 @@ namespace DataModel
 
             this.Data.Resume();
             yield return 100;
+
+            this.IsInProgress = false;
         }
 
         public IEnumerable<int> Initialize()
         {
             if (this.IsInitialized) yield break;
+            this.IsInProgress = true;
 
             if (this.Parent == null)
             {
-                this.Data.Suspend();
-                this.HasHacked = this.Data.Items.Select(i => false).ToList();
-
-                this.Data.Resume();
-
                 this.IsInitialized = true;
                 yield return 100;
                 yield break;
             }
 
+            this.OnReportAction("Initializing");
+
             yield return 0;
             this.Data.Suspend();
             yield return 5;
+            this.OnReportProgress(5);
 
             int total = this.Parent.TotalCount;
 
@@ -142,6 +150,7 @@ namespace DataModel
                 if (progress % 5 == 0)
                 {
                     yield return 5 + (progress * 90) / 100;
+            this.OnReportProgress(5 + (progress * 90) / 100);
                 }
 
                 int index = this.Parent.GetPhysicalIndex(i);
@@ -149,13 +158,15 @@ namespace DataModel
                 if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
                     this.ItemIndexes.Add(index);
-                    this.HasHacked.Add(false);
+                    //this.HasHacked.Add(false);
                 }
             }
 
             this.Data.Resume();
             this.IsInitialized = true;
             yield return 100;
+            this.OnReportProgress(100);
+            this.IsInProgress = false;
         }
 
         public bool IsInitialized { get; private set; }
@@ -180,7 +191,6 @@ namespace DataModel
         #region Display
 
         public int? FirstDisplayedScrollingRowIndex { get; set; }
-        public Point? AutoScrollOffset { get; set; }
 
         public string Name { get; private set; }
 
@@ -211,8 +221,6 @@ namespace DataModel
 
             return this.Data.GetColumnValue(index, columnIndex);
         }
-
-        public IList<bool> HasHacked { get; private set; }
 
         public int GetPhysicalIndex(int logicalIndex)
         {
@@ -275,11 +283,22 @@ namespace DataModel
 
         private void AddItem(int index)
         {
-            this.HasHacked.Add(false);
             this.ItemIndexes.Add(index);
 
             // passing the raw index directly to the child for performance.
             this.OnItemAdded(index);
+        }
+
+        private void OnReportAction(string actionName)
+        {
+            this.CurrentProgress = new ProgressItem(actionName);
+            this.OnReport(this.CurrentProgress);
+        }
+
+        private void OnReportProgress(int progress)
+        {
+            this.CurrentProgress.Progress = progress;
+            this.OnReport(this.CurrentProgress);
         }
 
         #endregion

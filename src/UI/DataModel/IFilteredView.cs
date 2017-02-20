@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public interface IFilteredView<T> where T : DataItemBase
+    public interface IFilteredView<T> : IProgress<ProgressItem> where T : DataItemBase
     {
         #region Find, Count, Filter, Tag features.
 
@@ -54,8 +54,6 @@ namespace DataModel
 
         int? FirstDisplayedScrollingRowIndex { get; set; }
 
-        Point? AutoScrollOffset { get; set; }
-
         string Name { get; }
 
         int TotalCount { get; }
@@ -68,7 +66,9 @@ namespace DataModel
 
         IList<ColumnInfoAttribute> ColumnInfos { get; }
 
-        IList<bool> HasHacked { get; }
+        // True if the view is in a progress of something
+        bool IsInProgress { get; }
+        ProgressItem CurrentProgress { get; }
 
         #endregion
     }

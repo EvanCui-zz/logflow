@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
@@ -51,8 +50,8 @@
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitterBottom = new System.Windows.Forms.Splitter();
             this.panelView = new System.Windows.Forms.Panel();
+            this.fastListViewMain = new SmartViewer.FastListView();
             this.progressBarMain = new System.Windows.Forms.ProgressBar();
-            this.dataGridViewMain = new System.Windows.Forms.DataGridView();
             this.panelDetail = new System.Windows.Forms.Panel();
             this.splitterRight = new System.Windows.Forms.Splitter();
             this.splitterLeft = new System.Windows.Forms.Splitter();
@@ -64,14 +63,12 @@
             this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarStatus = new System.Windows.Forms.ToolStripProgressBar();
-            this.fastListViewMain = new SmartViewer.FastListView();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.panelMain.SuspendLayout();
             this.panelMiddle.SuspendLayout();
             this.panelView.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMain)).BeginInit();
             this.panelLeft.SuspendLayout();
             this.contextMenuStripTreeView.SuspendLayout();
             this.statusStripMain.SuspendLayout();
@@ -248,12 +245,43 @@
             this.panelView.BackColor = System.Drawing.Color.Thistle;
             this.panelView.Controls.Add(this.fastListViewMain);
             this.panelView.Controls.Add(this.progressBarMain);
-            this.panelView.Controls.Add(this.dataGridViewMain);
             this.panelView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelView.Location = new System.Drawing.Point(0, 0);
             this.panelView.Name = "panelView";
             this.panelView.Size = new System.Drawing.Size(551, 322);
             this.panelView.TabIndex = 1;
+            // 
+            // fastListViewMain
+            // 
+            this.fastListViewMain.AllowColumnReorder = true;
+            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
+            this.fastListViewMain.AlternateBackColorBrush = null;
+            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastListViewMain.FullRowSelect = true;
+            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
+            this.fastListViewMain.GridLineColorPen = null;
+            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.fastListViewMain.HideSelection = false;
+            this.fastListViewMain.LabelWrap = false;
+            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
+            this.fastListViewMain.Name = "fastListViewMain";
+            this.fastListViewMain.OwnerDraw = true;
+            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
+            this.fastListViewMain.SelectionBackColorBrush = null;
+            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.fastListViewMain.SelectionForeColorBrush = null;
+            this.fastListViewMain.ShowGroups = false;
+            this.fastListViewMain.Size = new System.Drawing.Size(551, 317);
+            this.fastListViewMain.TabIndex = 2;
+            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
+            this.fastListViewMain.View = System.Windows.Forms.View.Details;
+            this.fastListViewMain.VirtualMode = true;
+            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
+            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
+            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
+            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
             // 
             // progressBarMain
             // 
@@ -262,31 +290,6 @@
             this.progressBarMain.Name = "progressBarMain";
             this.progressBarMain.Size = new System.Drawing.Size(551, 5);
             this.progressBarMain.TabIndex = 1;
-            // 
-            // dataGridViewMain
-            // 
-            this.dataGridViewMain.AllowUserToAddRows = false;
-            this.dataGridViewMain.AllowUserToDeleteRows = false;
-            this.dataGridViewMain.AllowUserToOrderColumns = true;
-            this.dataGridViewMain.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.RoyalBlue;
-            this.dataGridViewMain.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewMain.BackgroundColor = System.Drawing.Color.White;
-            this.dataGridViewMain.CausesValidation = false;
-            this.dataGridViewMain.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
-            this.dataGridViewMain.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewMain.Location = new System.Drawing.Point(6, 11);
-            this.dataGridViewMain.Name = "dataGridViewMain";
-            this.dataGridViewMain.ReadOnly = true;
-            this.dataGridViewMain.RowHeadersVisible = false;
-            this.dataGridViewMain.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewMain.Size = new System.Drawing.Size(235, 279);
-            this.dataGridViewMain.TabIndex = 0;
-            this.dataGridViewMain.VirtualMode = true;
-            this.dataGridViewMain.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewMain_CellContentClick);
-            this.dataGridViewMain.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGridViewMain_CellPainting);
-            this.dataGridViewMain.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dataGridViewMain_CellValueNeeded);
-            this.dataGridViewMain.RowPrePaint += new System.Windows.Forms.DataGridViewRowPrePaintEventHandler(this.dataGridViewMain_RowPrePaint);
             // 
             // panelDetail
             // 
@@ -390,38 +393,6 @@
             this.toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
             this.toolStripProgressBarStatus.Size = new System.Drawing.Size(100, 16);
             // 
-            // fastListViewMain
-            // 
-            this.fastListViewMain.AllowColumnReorder = true;
-            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
-            this.fastListViewMain.AlternateBackColorBrush = null;
-            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.fastListViewMain.FullRowSelect = true;
-            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
-            this.fastListViewMain.GridLineColorPen = null;
-            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.fastListViewMain.HideSelection = false;
-            this.fastListViewMain.LabelWrap = false;
-            this.fastListViewMain.Location = new System.Drawing.Point(247, 11);
-            this.fastListViewMain.Name = "fastListViewMain";
-            this.fastListViewMain.OwnerDraw = true;
-            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
-            this.fastListViewMain.SelectionBackColorBrush = null;
-            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.fastListViewMain.SelectionForeColorBrush = null;
-            this.fastListViewMain.ShowGroups = false;
-            this.fastListViewMain.Size = new System.Drawing.Size(290, 279);
-            this.fastListViewMain.TabIndex = 2;
-            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
-            this.fastListViewMain.View = System.Windows.Forms.View.Details;
-            this.fastListViewMain.VirtualMode = true;
-            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
-            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
-            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
-            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
-            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
-            this.fastListViewMain.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fastListViewMain_MouseMove);
-            // 
             // MainFormListView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -444,7 +415,6 @@
             this.panelMain.ResumeLayout(false);
             this.panelMiddle.ResumeLayout(false);
             this.panelView.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMain)).EndInit();
             this.panelLeft.ResumeLayout(false);
             this.contextMenuStripTreeView.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
@@ -469,7 +439,6 @@
         private System.Windows.Forms.Panel panelRight;
         private System.Windows.Forms.Panel panelLeft;
         private System.Windows.Forms.Splitter splitterBottom;
-        private System.Windows.Forms.DataGridView dataGridViewMain;
         private System.Windows.Forms.TreeView treeViewDoc;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;

@@ -17,10 +17,6 @@ namespace SmartViewer
     public partial class MainFormListView : Form
     {
         private LogDocument<DataItemBase> document;
-        private Font boldFont;
-        private Font normalFont;
-        private SolidBrush foreColorBrush;
-        private SolidBrush selectionForeColorBrush;
         private StringFormat defaultStringFormat;
 
         private List<Tuple<Color, SolidBrush, Pen>> tags = new List<Tuple<Color, SolidBrush, Pen>>()
@@ -48,20 +44,11 @@ namespace SmartViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            var pi = this.dataGridViewMain.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            pi.SetValue(this.dataGridViewMain, true);
-
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);
             this.fastListViewMain.SelectionBackColorBrush = new SolidBrush(this.fastListViewMain.SelectionBackColor);
             this.fastListViewMain.AlternateBackColorBrush = new SolidBrush(this.fastListViewMain.AlternateBackColor);
             this.fastListViewMain.GridLineColorPen = new Pen(this.fastListViewMain.GridLineColor);
             this.fastListViewMain.SetHeight(21);
-
-            this.boldFont = new Font(this.dataGridViewMain.Font, FontStyle.Bold);
-            this.normalFont = this.dataGridViewMain.Font;
-
-            this.foreColorBrush = new SolidBrush(this.dataGridViewMain.DefaultCellStyle.ForeColor);
-            this.selectionForeColorBrush = new SolidBrush(this.dataGridViewMain.DefaultCellStyle.SelectionForeColor);
 
             this.defaultStringFormat = new StringFormat(StringFormatFlags.NoWrap)
             {
@@ -89,93 +76,12 @@ namespace SmartViewer
             this.openToolStripMenuItem_Click(this, null);
         }
 
-        private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
-        {
-            if (e.State.HasFlag(DataGridViewElementStates.Selected)) return;
-
-            Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
-            //  return;
-
-            var level = (LogLevel)this.CurrentView.GetColumnValue(e.RowIndex, 3);
-            int index = level == LogLevel.Critical ? 0 : (level == LogLevel.Error ? 1 : (level == LogLevel.Warning ? 2 : 3));
-
-            if (index < this.fastListViewMain.LevelBrushes.Count)
-            {
-                e.Graphics.FillRectangle(this.fastListViewMain.LevelBrushes[index], e.RowBounds);
-                e.PaintParts &= ~DataGridViewPaintParts.Background;
-                e.PaintParts &= ~DataGridViewPaintParts.ContentBackground;
-            }
-        }
-
-        private void dataGridViewMain_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
-        {
-            if (e.RowIndex == -1) return;
-
-            var bound = e.CellBounds;
-
-            if (e.ColumnIndex == 4)
-            {
-                e.Handled = true;
-                if (e.Value == null) return;
-
-                bool isSelected = (e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected;
-                e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground & ~DataGridViewPaintParts.ErrorIcon);
-
-                var paramString = (ParametricString)e.Value;
-
-                foreach (var token in paramString.GetTokens())
-                {
-                    var currentFont = token.Value ? this.boldFont : this.normalFont;
-                    e.Graphics.DrawString(
-                        token.Key,
-                        currentFont,
-                        isSelected ? this.selectionForeColorBrush : this.foreColorBrush,
-                        bound,
-                        this.defaultStringFormat);
-
-                    var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
-                    bound.Width -= (int)length;
-                    if (bound.Width <= 0) break;
-                    bound.X += (int)length;
-                }
-
-                e.Handled = true;
-            }
-            else if (e.ColumnIndex == 5)
-            {
-                e.Handled = true;
-                if (e.Value == null) return;
-
-                var colorList = (List<int>)e.Value;
-
-                e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground & ~DataGridViewPaintParts.ErrorIcon);
-
-                var rect = e.CellBounds;
-                rect.X += 4;
-                rect.Y += 4;
-                rect.Height -= 8;
-                rect.Width = rect.Height;
-
-                int p = 0;
-
-                for (int i = 0; i < this.tags.Count; i++)
-                {
-                    if (p < colorList.Count && colorList[p] == i)
-                    {
-                        e.Graphics.FillRectangle(this.tags[i].Item2, rect);
-                        p++;
-                    }
-
-                    rect.X += rect.Width + 2;
-                }
-            }
-        }
-
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.document = new LogDocument<DataItemBase>("loaded test");
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
+            this.document.ProgressChanged += ChildView_ProgressChanged;
             node.Tag = this.document;
 
             var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
@@ -187,18 +93,12 @@ namespace SmartViewer
                 Width = ci.Width,
             }).ToArray();
 
-            var headers = this.document.ColumnInfos.Select(ci => new ColumnHeader()
+            var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(this.document.ColumnInfos.Select(ci => new ColumnHeader()
             {
                 Name = ci.Name,
                 Text = ci.Name,
                 Width = ci.Width,
-            }).ToArray();
-
-
-            this.dataGridViewMain.Columns.Clear();
-            this.dataGridViewMain.Rows.Clear();
-
-            this.dataGridViewMain.Columns.AddRange(columns);
+            })).ToArray();
 
             this.fastListViewMain.Columns.Clear();
             this.fastListViewMain.Items.Clear();
@@ -226,10 +126,15 @@ namespace SmartViewer
             // *** DataGridView population ***
             // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
             Debug.WriteLine("Suspend layout");
-            this.dataGridViewMain.Rows.Clear();
+            if (this.CurrentView.IsInProgress)
+            {
+                this.progressBarMain.Visible = true;
+            }
+
+            this.ChildView_ProgressChanged(this, this.CurrentView.CurrentProgress);
 
             Debug.WriteLine("rows cleared");
-            if (!this.CurrentView.IsInitialized)
+            if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
             {
                 this.progressBarMain.Value = 0;
                 this.progressBarMain.Visible = true;
@@ -238,50 +143,48 @@ namespace SmartViewer
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
-                    this.progressBarMain.Visible = false;
-                    this.toolStripStatusLabel.Text = "Ready";
-                    this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
-                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                    if (object.ReferenceEquals(this.CurrentView, e1.UserState))
+                    {
+                        this.progressBarMain.Visible = false;
+                        this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                    }
+
                     bw.Dispose();
                 };
 
                 bw.ProgressChanged += (s, e1) =>
                 {
-                    if (this.progressBarMain.Value != e1.ProgressPercentage)
+                    if (object.ReferenceEquals(this.CurrentView, e1.UserState))
                     {
-                        this.progressBarMain.Value = e1.ProgressPercentage;
-                        this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                        this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
-                        this.toolStripStatusLabel.Text = $"Filtering ... {e1.ProgressPercentage}%";
+                        if (this.progressBarMain.Value < e1.ProgressPercentage)
+                        {
+                            this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                        }
                     }
                 };
 
                 bw.DoWork += (s, e1) =>
                 {
-                    foreach (int progress in this.CurrentView.Initialize())
+                    var view = this.CurrentView;
+                    foreach (int progress in view.Initialize())
                     {
-                        bw.ReportProgress(progress);
+                        bw.ReportProgress(progress, view);
                     }
                 };
 
                 bw.RunWorkerAsync();
-                this.toolStripStatusLabel.Text = "Filtering ...";
+                this.fastListViewMain.VirtualListSize = 0;
             }
             else
             {
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+                if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
+                    this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
             }
 
             Debug.WriteLine("Setting scroll index");
 
-            if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
-                this.dataGridViewMain.FirstDisplayedScrollingRowIndex = this.CurrentView.FirstDisplayedScrollingRowIndex.Value;
-            if (this.CurrentView.AutoScrollOffset.HasValue)
-                this.fastListViewMain.AutoScrollOffset = this.CurrentView.AutoScrollOffset.Value;
-            // Add rows to DGV here
             //  SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, true, 0);
-            this.dataGridViewMain.Refresh();
             this.fastListViewMain.Refresh();
             Debug.WriteLine("Resume layout");
         }
@@ -290,7 +193,7 @@ namespace SmartViewer
         {
             if (object.ReferenceEquals(sender, this.CurrentView))
             {
-                this.dataGridViewMain.RowCount = this.CurrentView.TotalCount;
+                this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
             }
         }
 
@@ -312,7 +215,7 @@ namespace SmartViewer
                 this.CurrentView.Tag(index, filter);
             }
 
-            this.dataGridViewMain.Refresh();
+            this.fastListViewMain.Refresh();
         }
 
         private void toolStripButtonFilter_Click(object sender, EventArgs e)
@@ -324,7 +227,20 @@ namespace SmartViewer
 
             var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
             node.Tag = childView;
+            childView.ProgressChanged += ChildView_ProgressChanged;
             this.treeViewDoc.SelectedNode = node;
+        }
+
+        private void ChildView_ProgressChanged(object sender, ProgressItem e)
+        {
+            if (object.ReferenceEquals(sender, this.CurrentView))
+            {
+                if (this.progressBarMain.Value < e.Progress)
+                {
+                    this.progressBarMain.Value = e.Progress;
+                    this.toolStripStatusLabel.Text = e.ProgressDescription;
+                }
+            }
         }
 
         private void toolStripSplitButtonTag_ButtonClick(object sender, EventArgs e)
@@ -334,10 +250,10 @@ namespace SmartViewer
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int currentIndex = this.dataGridViewMain.RowCount - 1;
-            if (this.dataGridViewMain.SelectedRows.Count > 0)
+            int currentIndex = this.fastListViewMain.VirtualListSize - 1;
+            if (this.fastListViewMain.SelectedIndices.Count > 0)
             {
-                currentIndex = this.dataGridViewMain.SelectedRows[this.dataGridViewMain.SelectedRows.Count - 1].Index;
+                currentIndex = this.fastListViewMain.SelectedIndices[0];
             }
 
             this.Find(currentIndex, false);
@@ -346,9 +262,9 @@ namespace SmartViewer
         private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int currentIndex = 0;
-            if (this.dataGridViewMain.SelectedRows.Count > 0)
+            if (this.fastListViewMain.SelectedIndices.Count > 0)
             {
-                currentIndex = this.dataGridViewMain.SelectedRows[0].Index;
+                currentIndex = this.fastListViewMain.SelectedIndices[this.fastListViewMain.SelectedIndices.Count - 1];
             }
 
             this.Find(currentIndex, true);
@@ -366,8 +282,8 @@ namespace SmartViewer
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
-                this.dataGridViewMain.ClearSelection();
-                this.dataGridViewMain.CurrentCell = this.dataGridViewMain[0, (int)e1.Result];
+                this.fastListViewMain.SelectedIndices.Clear();
+                this.fastListViewMain.Items[(int)e1.Result].Selected = true;
                 this.toolStripLabelCount.Text = e1.Result.ToString();
                 this.toolStripStatusLabel.Text = "Ready";
                 this.progressBarMain.Visible = false;
@@ -443,7 +359,8 @@ namespace SmartViewer
         private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
             if (this.CurrentView == null) return;
-            this.CurrentView.FirstDisplayedScrollingRowIndex = this.dataGridViewMain.FirstDisplayedScrollingRowIndex;
+            this.CurrentView.FirstDisplayedScrollingRowIndex = this.fastListViewMain.TopItem.Index;
+            this.progressBarMain.Visible = false;
         }
 
         private void fastListViewMain_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
@@ -454,17 +371,28 @@ namespace SmartViewer
         {
             e.Item = new ListViewItem();
             var item = this.CurrentView.GetRowValue(e.ItemIndex);
-            e.Item.Text = item.Id.ToString();
+
+            e.Item.Text = "";
             e.Item.Tag = item;
-            e.Item.SubItems.AddRange(new List<ListViewItem.ListViewSubItem>(this.CurrentView.ColumnInfos.Count)
-            {
-                new ListViewItem.ListViewSubItem() { Text = item.Time.ToString() },
-                new ListViewItem.ListViewSubItem() { Text = item.ThreadId.ToString() },
-                new ListViewItem.ListViewSubItem() { Text = item.Level.ToString() },
-                new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 4) },
-                new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
-                new ListViewItem.ListViewSubItem() { Text = item.ProcessId.ToString() },
+            e.Item.SubItems.AddRange(new List<ListViewItem.ListViewSubItem>(this.CurrentView.ColumnInfos.Count) {
+                new ListViewItem.ListViewSubItem(),
+                new ListViewItem.ListViewSubItem(),
+                new ListViewItem.ListViewSubItem(),
+                new ListViewItem.ListViewSubItem(),
+                new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) },
+                new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
+                new ListViewItem.ListViewSubItem(),
             }.ToArray());
+
+            //{
+            //    new ListViewItem.ListViewSubItem() { Text = item.Id.ToString() },
+            //    new ListViewItem.ListViewSubItem() { Text = item.Time.ToString() },
+            //    new ListViewItem.ListViewSubItem() { Text = item.ThreadId.ToString() },
+            //    new ListViewItem.ListViewSubItem() { Text = item.Level.ToString() },
+            //    new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 4) },
+            //    new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
+            //    new ListViewItem.ListViewSubItem() { Text = item.ProcessId.ToString() },
+            //}.ToArray());
         }
 
         private void fastListViewMain_DrawItem(object sender, DrawListViewItemEventArgs e)
@@ -502,6 +430,7 @@ namespace SmartViewer
             e.Graphics.DrawLine(this.fastListViewMain.GridLineColorPen, bound.X, bound.Y + bound.Height - 1, bound.X + bound.Width, bound.Y + bound.Height - 1);
 
             e.DrawFocusRectangle();
+
         }
 
         private void fastListViewMain_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
@@ -518,6 +447,7 @@ namespace SmartViewer
             // draw contents.
             var bound = e.Bounds;
             DataItemBase item = (DataItemBase)e.Item.Tag;
+            if (item == null) return;
             bool isSelected = e.Item.Selected;
             StringFormat format = new StringFormat(StringFormatFlags.NoWrap)
             {
@@ -530,15 +460,15 @@ namespace SmartViewer
 
             switch (e.ColumnIndex)
             {
-                case 4:
+                case 5:
                     var paramString = (ParametricString)e.SubItem.Tag;
                     foreach (var token in paramString.GetTokens())
                     {
-                        var currentFont = token.Value ? this.boldFont : this.normalFont;
+                        var currentFont = token.Value ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
                         e.Graphics.DrawString(
                             token.Key,
                             currentFont,
-                            isSelected ? this.selectionForeColorBrush : this.foreColorBrush,
+                            isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
                             bound,
                             this.defaultStringFormat);
 
@@ -549,7 +479,7 @@ namespace SmartViewer
                     }
                     break;
 
-                case 5:
+                case 6:
                     var colorList = (List<int>)e.SubItem.Tag;
 
                     var rect = e.Bounds;
@@ -573,19 +503,8 @@ namespace SmartViewer
                     break;
 
                 default:
-                    e.Graphics.DrawString(e.SubItem.Text, e.SubItem.Font, foreBrush, bound, format);
+                    e.Graphics.DrawString(item.GetColumnText(e.ColumnIndex), e.SubItem.Font, foreBrush, bound, format);
                     break;
-            }
-        }
-
-        private void fastListViewMain_MouseMove(object sender, MouseEventArgs e)
-        {
-            var item = this.fastListViewMain.GetItemAt(e.X, e.Y);
-            if (item != null && !this.CurrentView.HasHacked[item.Index])
-            {
-                Debug.WriteLine("Mouse move hack {0}", item.Index);
-                this.CurrentView.HasHacked[item.Index] = true;
-                this.fastListViewMain.Invalidate(item.Bounds);
             }
         }
     }
