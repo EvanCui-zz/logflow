@@ -458,7 +458,7 @@ namespace SmartViewer
 
         private void toolStripTextBoxPattern_TextChanged(object sender, EventArgs e)
         {
-            bool enabled = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
+            bool enabled = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text) && this.CurrentView != null;
             this.toolStripButtonFilter.Enabled = enabled;
             this.toolStripButtonCount.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
