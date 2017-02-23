@@ -130,6 +130,11 @@ namespace DataModel
 
             if (this.Parent == null)
             {
+                for (int i = 0; i < this.Data.Items.Count; i++)
+                {
+                    this.Statistics.Sample(this.Data.Items[i], this.Data.Templates[this.Data.Items[i].TemplateId]);
+                }
+
                 this.IsInitialized = true;
                 yield return 100;
                 yield break;
@@ -157,6 +162,7 @@ namespace DataModel
 
                 if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
+                    this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                     this.ItemIndexes.Add(index);
                 }
             }
@@ -230,6 +236,7 @@ namespace DataModel
         public IList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
 
         public IList<string> Templates { get { return this.Data.Templates; } }
+        public FilteredViewStatistics Statistics { get; private set; } = new FilteredViewStatistics();
 
         #endregion
 

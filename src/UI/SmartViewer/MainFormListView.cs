@@ -110,6 +110,7 @@ namespace SmartViewer
                 return;
             }
 
+
             // *** DataGridView population ***
             // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
             Debug.WriteLine("Suspend layout");
@@ -124,6 +125,7 @@ namespace SmartViewer
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
+                    this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
                     bw.Dispose();
                 };
 
@@ -149,6 +151,7 @@ namespace SmartViewer
             else
             {
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
                 this.fastListViewMain.Refresh();
                 if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                     this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
@@ -157,6 +160,7 @@ namespace SmartViewer
                 if (this.CurrentView.SelectedRowIndex.HasValue)
                     this.fastListViewMain.Items[this.CurrentView.SelectedRowIndex.Value].Selected = true;
             }
+
         }
 
         private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
@@ -500,7 +504,11 @@ namespace SmartViewer
                 this.labelProcessId.Text = item.ProcessId.ToString();
                 this.labelLevel.Text = item.Level.ToString();
                 this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters);
-                this.panelDetail.Visible = true;
+                this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView.TotalCount}";
+            }
+            else
+            {
+                this.toolStripStatusLabelSelected.Text = $"-1, {this.CurrentView.TotalCount}";
             }
         }
     }

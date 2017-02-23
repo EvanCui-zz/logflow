@@ -47,6 +47,7 @@
     <Compile Include="DataItemBaseExtension.cs" />
     <Compile Include="DisplayAttributes.cs" />
     <Compile Include="FilteredView.cs" />
+    <Compile Include="FilteredViewStatistics.cs" />
     <Compile Include="Filter\Filter.cs" />
     <Compile Include="IFilteredView.cs" />
     <Compile Include="LogDocument.cs" />

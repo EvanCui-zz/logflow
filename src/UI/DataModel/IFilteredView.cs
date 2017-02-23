@@ -74,6 +74,8 @@ namespace DataModel
 
         IList<string> Templates { get; }
 
+        FilteredViewStatistics Statistics { get; }
+
         #endregion
     }
 }
