@@ -72,6 +72,8 @@ namespace DataModel
         bool IsInProgress { get; }
         ProgressItem CurrentProgress { get; }
 
+        IList<string> Templates { get; }
+
         #endregion
     }
 }

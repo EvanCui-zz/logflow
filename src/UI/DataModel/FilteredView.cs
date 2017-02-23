@@ -229,6 +229,8 @@ namespace DataModel
 
         public IList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
 
+        public IList<string> Templates { get { return this.Data.Templates; } }
+
         #endregion
 
         #region Constructors

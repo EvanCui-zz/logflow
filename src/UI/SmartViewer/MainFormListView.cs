@@ -487,5 +487,21 @@ namespace SmartViewer
                 textCol.Width = textWidth < 0 ? 10 : textWidth;
             }
         }
+
+        private void fastListViewMain_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count > 0)
+            {
+                var firstSelectedIndex = this.fastListViewMain.SelectedIndices[0];
+                var item = (DataItemBase)this.fastListViewMain.Items[firstSelectedIndex].Tag;
+                this.labelId.Text = item.Id.ToString();
+                this.labelTime.Text = item.Time.ToString();
+                this.labelThreadId.Text = item.ThreadId.ToString();
+                this.labelProcessId.Text = item.ProcessId.ToString();
+                this.labelLevel.Text = item.Level.ToString();
+                this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters);
+                this.panelDetail.Visible = true;
+            }
+        }
     }
 }
