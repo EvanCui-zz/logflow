@@ -77,6 +77,7 @@ namespace DataModel
 
             for (int i = 0; i < 800000; i++)
             {
+                var rand = r.Next(100);
                 this.AddItem((T)new DataItemBase()
                 {
                     Id = i,
@@ -85,7 +86,7 @@ namespace DataModel
                     TemplateId = r.Next(1000),
                     Parameters = new object[] { DateTime.UtcNow, i + 255 },
                     ProcessId = i / 100000,
-                    Level = (LogLevel)(1 << (r.Next(5))),
+                    Level = (LogLevel)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
                 });
             }
         }

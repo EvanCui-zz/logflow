@@ -110,9 +110,6 @@ namespace SmartViewer
                 return;
             }
 
-
-            // *** DataGridView population ***
-            // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
             Debug.WriteLine("Suspend layout");
             this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
             this.fastListViewMain.VirtualListSize = 0;
@@ -126,6 +123,13 @@ namespace SmartViewer
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
                     this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
+                    this.chartTimeLine.Series.Clear();
+                    var series = this.chartTimeLine.Series.Add("timeline");
+                    foreach (var y in this.CurrentView.Statistics.Timeline)
+                    {
+                        series.Points.AddY(y);
+                    }
+
                     bw.Dispose();
                 };
 
@@ -152,6 +156,12 @@ namespace SmartViewer
             {
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
                 this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
+                this.chartTimeLine.Series.Clear();
+                var series = this.chartTimeLine.Series.Add("timeline");
+                foreach (var y in this.CurrentView.Statistics.Timeline)
+                {
+                    series.Points.AddY(y);
+                }
                 this.fastListViewMain.Refresh();
                 if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                     this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
@@ -160,7 +170,6 @@ namespace SmartViewer
                 if (this.CurrentView.SelectedRowIndex.HasValue)
                     this.fastListViewMain.Items[this.CurrentView.SelectedRowIndex.Value].Selected = true;
             }
-
         }
 
         private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)

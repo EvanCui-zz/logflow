@@ -130,9 +130,13 @@ namespace DataModel
 
             if (this.Parent == null)
             {
-                for (int i = 0; i < this.Data.Items.Count; i++)
+                if (this.Data.Items.Count > 0)
                 {
-                    this.Statistics.Sample(this.Data.Items[i], this.Data.Templates[this.Data.Items[i].TemplateId]);
+                    this.Statistics.SetFirstLast(this.Data.Items[0], this.Data.Items[this.Data.Items.Count - 1]);
+                    for (int i = 0; i < this.Data.Items.Count; i++)
+                    {
+                        this.Statistics.Sample(this.Data.Items[i], this.Data.Templates[this.Data.Items[i].TemplateId]);
+                    }
                 }
 
                 this.IsInitialized = true;
@@ -162,8 +166,18 @@ namespace DataModel
 
                 if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
-                    this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                     this.ItemIndexes.Add(index);
+                }
+            }
+
+            if (this.ItemIndexes.Count > 0)
+            {
+                this.Statistics.SetFirstLast(this.Data.Items[this.ItemIndexes[0]], this.Data.Items[this.ItemIndexes[this.ItemIndexes.Count - 1]]);
+
+                for (int i = 0; i < this.ItemIndexes.Count; i++)
+                {
+                    int index = this.ItemIndexes[i];
+                    this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                 }
             }
 
