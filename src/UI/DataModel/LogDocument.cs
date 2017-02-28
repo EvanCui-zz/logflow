@@ -7,20 +7,11 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public class LogDocument<T> : FilteredView<T> where T : DataItemBase
+    public class RootView<T> : FilteredView<T> where T : DataItemBase
     {
-        public LogDocument(string name) : base(name)
+        public RootView(string name, ILogSource<T> logSource, IFilter filter = null) : base(name)
         {
-            this.Data = new DataSource<T>();
-            this.Data.ItemAdded += (s, e) =>
-            {
-                this.OnItemAdded(e);
-            };
-        }
-
-        public void GenerateFakeData()
-        {
-            this.Data.TestGenerateFakeData();
+            this.Data = logSource;
         }
     }
 }

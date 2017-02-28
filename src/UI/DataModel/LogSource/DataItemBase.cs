@@ -17,6 +17,7 @@ namespace DataModel
         Verbose = 0x10,
     }
 
+    // Consider change it to struct and compact the integers.
     public class DataItemBase
     {
         [ColumnInfo(Name = "Id", Width = 50)]
@@ -40,6 +41,5 @@ namespace DataModel
 
         [ColumnInfo(Name = "Pid", Width = 60)]
         public int ProcessId { get; set; }
-        public DisplayAttributes Display { get; set; }
     }
 }

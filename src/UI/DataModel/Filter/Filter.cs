@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public class Filter
+    public class Filter : IFilter
     {
         private readonly Regex FilterPattern = new Regex(
             @"(?<name>b|begin|e|end|t|thread|p|process|l|level|c|content):(?<value>[^\s""]+|""[^""]*"")|(?<content>[^\s]+)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
@@ -108,7 +108,7 @@ namespace DataModel
         public Lazy<HashSet<int>> ProcessIds { get; set; } = new Lazy<HashSet<int>>();
         public Lazy<HashSet<string>> Texts { get; set; } = new Lazy<HashSet<string>>();
 
-        public bool Match<T>(T item, string template) where T : DataItemBase
+        public virtual bool Match<T>(T item, string template) where T : DataItemBase
         {
             if (this.Level.HasValue && !this.Level.Value.HasFlag(item.Level))
             {

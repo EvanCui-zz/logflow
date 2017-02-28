@@ -16,7 +16,7 @@ namespace SmartViewer
 {
     public partial class MainForm : Form
     {
-        private LogDocument<DataItemBase> document;
+        private RootView<DataItemBase> document;
         private Font boldFont;
         private Font normalFont;
         private SolidBrush foreColorBrush;
@@ -172,7 +172,7 @@ namespace SmartViewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new LogDocument<DataItemBase>("loaded test");
+            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource("loaded test"));
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;
@@ -191,7 +191,6 @@ namespace SmartViewer
 
             this.dataGridViewMain.Columns.AddRange(columns);
             this.document.ItemAdded += this.UpdateMainGridRowCount;
-            this.document.GenerateFakeData();
             this.treeViewDoc.SelectedNode = node;
         }
 

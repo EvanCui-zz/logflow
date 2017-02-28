@@ -16,6 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                this.backgroundWorker1.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -30,8 +31,8 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripTextBoxPattern = new System.Windows.Forms.ToolStripTextBox();
@@ -85,6 +86,7 @@
             this.splitterLeft = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
             this.splitContainerStatistics = new System.Windows.Forms.SplitContainer();
+            this.chartTimeLine = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.propertyGridStatistics = new System.Windows.Forms.PropertyGrid();
             this.splitterPlaceHolder = new System.Windows.Forms.Splitter();
             this.panelLeft = new System.Windows.Forms.Panel();
@@ -97,9 +99,9 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSelected = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.chartTimeLine = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.fastListViewMain = new SmartViewer.FastListView();
             this.timeline1 = new SmartViewer.Timeline();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -122,10 +124,10 @@
             this.splitContainerStatistics.Panel1.SuspendLayout();
             this.splitContainerStatistics.Panel2.SuspendLayout();
             this.splitContainerStatistics.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartTimeLine)).BeginInit();
             this.panelLeft.SuspendLayout();
             this.contextMenuStripTreeView.SuspendLayout();
             this.statusStripMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTimeLine)).BeginInit();
             this.SuspendLayout();
             // 
             // panelTop
@@ -646,6 +648,21 @@
             this.splitContainerStatistics.SplitterWidth = 8;
             this.splitContainerStatistics.TabIndex = 0;
             // 
+            // chartTimeLine
+            // 
+            this.chartTimeLine.BorderlineColor = System.Drawing.Color.Black;
+            this.chartTimeLine.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
+            this.chartTimeLine.CausesValidation = false;
+            chartArea2.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea2.Name = "ChartArea1";
+            this.chartTimeLine.ChartAreas.Add(chartArea2);
+            this.chartTimeLine.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartTimeLine.Location = new System.Drawing.Point(0, 0);
+            this.chartTimeLine.Name = "chartTimeLine";
+            this.chartTimeLine.Size = new System.Drawing.Size(156, 137);
+            this.chartTimeLine.TabIndex = 1;
+            this.chartTimeLine.Text = "Timeline";
+            // 
             // propertyGridStatistics
             // 
             this.propertyGridStatistics.DisabledItemForeColor = System.Drawing.SystemColors.MenuHighlight;
@@ -683,10 +700,10 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "<no doc>";
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode2});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 485);
             this.treeViewDoc.TabIndex = 0;
@@ -753,21 +770,6 @@
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(13, 17);
             this.toolStripStatusLabel2.Text = "  ";
             // 
-            // chartTimeLine
-            // 
-            this.chartTimeLine.BorderlineColor = System.Drawing.Color.Black;
-            this.chartTimeLine.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
-            this.chartTimeLine.CausesValidation = false;
-            chartArea1.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea1.Name = "ChartArea1";
-            this.chartTimeLine.ChartAreas.Add(chartArea1);
-            this.chartTimeLine.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartTimeLine.Location = new System.Drawing.Point(0, 0);
-            this.chartTimeLine.Name = "chartTimeLine";
-            this.chartTimeLine.Size = new System.Drawing.Size(156, 137);
-            this.chartTimeLine.TabIndex = 1;
-            this.chartTimeLine.Text = "Timeline";
-            // 
             // fastListViewMain
             // 
             this.fastListViewMain.AllowColumnReorder = true;
@@ -812,6 +814,11 @@
             this.timeline1.Size = new System.Drawing.Size(156, 137);
             this.timeline1.TabIndex = 0;
             // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.backgroundWorker1.WorkerSupportsCancellation = true;
+            // 
             // MainFormListView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -852,11 +859,11 @@
             this.splitContainerStatistics.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerStatistics)).EndInit();
             this.splitContainerStatistics.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.chartTimeLine)).EndInit();
             this.panelLeft.ResumeLayout(false);
             this.contextMenuStripTreeView.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
             this.statusStripMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTimeLine)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -932,6 +939,7 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Splitter splitterPlaceHolder;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTimeLine;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

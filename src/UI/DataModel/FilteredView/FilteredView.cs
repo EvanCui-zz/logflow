@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public class FilteredView<T> : Progress<ProgressItem>, IFilteredView<T> where T : DataItemBase
+    public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
     {
         #region Find, Count, Filter, Tag features.
 
@@ -44,12 +44,7 @@ namespace DataModel
             if (!this.IsInitialized || this.IsInProgress) yield break;
 
             this.OnReportStart("Searching");
-
             yield return 0;
-            this.OnReportProgress(0);
-            this.Data.Suspend();
-            yield return 5;
-            this.OnReportProgress(5);
 
             int total = this.ItemIndexes?.Count ?? this.Data.Items.Count;
 
@@ -79,7 +74,6 @@ namespace DataModel
                 }
             }
 
-            this.Data.Resume();
             yield return 100;
             this.OnReportFinish();
         }
@@ -89,10 +83,7 @@ namespace DataModel
             if (!this.IsInitialized || this.IsInProgress) yield break;
 
             this.OnReportStart("Counting");
-
             yield return 0;
-            this.Data.Suspend();
-            yield return 5;
 
             int total = this.TotalCount;
             int count = 0;
@@ -116,9 +107,7 @@ namespace DataModel
 
             this.LastCountResult = count;
 
-            this.Data.Resume();
             yield return 100;
-
             this.OnReportFinish();
         }
 
@@ -128,63 +117,60 @@ namespace DataModel
         {
             if (this.IsInitialized || this.IsInProgress) yield break;
 
+            this.OnReportStart("Initializing");
+            yield return 0;
+
             if (this.Parent == null)
             {
-                if (this.Data.Items.Count > 0)
+                foreach (int progress in this.Data.Load(this.Filter))
                 {
-                    this.Statistics.SetFirstLast(this.Data.Items[0], this.Data.Items[this.Data.Items.Count - 1]);
-                    for (int i = 0; i < this.Data.Items.Count; i++)
+                    int p = progress * 90 / 100;
+                    this.OnReportProgress(p);
+                    yield return p;
+                }
+
+                this.Data.ItemAdded += (s, e) =>
+                {
+                    this.OnItemAdded(e);
+                };
+            }
+            else
+            {
+                int total = this.Parent.TotalCount;
+
+                for (int i = 0; i < total; i++)
+                {
+                    if (i % (total / 20) == 0)
                     {
-                        this.Statistics.Sample(this.Data.Items[i], this.Data.Templates[this.Data.Items[i].TemplateId]);
+                        int progress = ((i * 100) / total) * 90 / 100;
+                        yield return progress;
+                        this.OnReportProgress(progress);
+                    }
+
+                    int index = this.Parent.GetPhysicalIndex(i);
+
+                    if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
+                    {
+                        this.ItemIndexes.Add(index);
                     }
                 }
-
-                this.IsInitialized = true;
-                yield return 100;
-                yield break;
             }
 
-            this.OnReportStart("Initializing");
-
-            yield return 0;
-            this.Data.Suspend();
-            yield return 5;
-            this.OnReportProgress(5);
-
-            int total = this.Parent.TotalCount;
-
-            for (int i = 0; i < total; i++)
+            if (this.TotalCount > 0)
             {
-                if (i % (total / 20) == 0)
+                int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
+                this.Statistics.SetFirstLast(this.Data.Items[firstIndex], this.Data.Items[lastIndex]);
+
+                for (int i = 0; i < this.TotalCount; i++)
                 {
-                    int progress = 5 + ((i * 100) / total) * 90 / 100;
-                    yield return progress;
-                    this.OnReportProgress(progress);
-                }
-
-                int index = this.Parent.GetPhysicalIndex(i);
-
-                if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
-                {
-                    this.ItemIndexes.Add(index);
-                }
-            }
-
-            if (this.ItemIndexes.Count > 0)
-            {
-                this.Statistics.SetFirstLast(this.Data.Items[this.ItemIndexes[0]], this.Data.Items[this.ItemIndexes[this.ItemIndexes.Count - 1]]);
-
-                for (int i = 0; i < this.ItemIndexes.Count; i++)
-                {
-                    int index = this.ItemIndexes[i];
+                    int index = this.GetPhysicalIndex(i);
                     this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                 }
             }
 
             this.IsInitialized = true;
-            this.Data.Resume();
+
             yield return 100;
-            this.OnReportProgress(100);
             this.OnReportFinish();
         }
 
@@ -200,7 +186,7 @@ namespace DataModel
 
         #region Child
 
-        public FilteredView<T> CreateChild(Filter filter)
+        public IFilteredView<T> CreateChild(Filter filter)
         {
             return new FilteredView<T>(filter, this, this.Data);
         }
@@ -209,6 +195,7 @@ namespace DataModel
 
         #region Display
 
+        public event EventHandler<ProgressItem> ProgressChanged;
         public int? FirstDisplayedScrollingRowIndex { get; set; }
         public int? SelectedRowIndex { get; set; }
 
@@ -247,16 +234,16 @@ namespace DataModel
             return this.ItemIndexes?[logicalIndex] ?? logicalIndex;
         }
 
-        public IList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
+        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
 
-        public IList<string> Templates { get { return this.Data.Templates; } }
+        public IReadOnlyList<string> Templates { get { return this.Data.Templates; } }
         public FilteredViewStatistics Statistics { get; private set; } = new FilteredViewStatistics();
 
         #endregion
 
         #region Constructors
 
-        internal FilteredView(Filter filter, FilteredView<T> parent, DataSource<T> data) : this(filter.Name)
+        internal FilteredView(Filter filter, FilteredView<T> parent, ILogSource<T> data) : this(filter.Name)
         {
             this.Filter = filter;
             this.Parent = parent;
@@ -290,7 +277,7 @@ namespace DataModel
 
         private FilteredView<T> Parent { get; set; }
 
-        internal DataSource<T> Data { get; set; }
+        internal ILogSource<T> Data { get; set; }
 
         private List<int> ItemIndexes { get; set; }
 
@@ -321,7 +308,7 @@ namespace DataModel
         private void OnReportFinish()
         {
             this.IsInProgress = false;
-            this.CurrentProgress = new ProgressItem("Ready");
+            this.CurrentProgress = new ProgressItem("Ready") { Progress = 100 };
             this.OnReport(this.CurrentProgress);
         }
 
@@ -329,6 +316,11 @@ namespace DataModel
         {
             this.CurrentProgress.Progress = progress;
             this.OnReport(this.CurrentProgress);
+        }
+
+        private void OnReport(ProgressItem item)
+        {
+            this.ProgressChanged?.Invoke(this, item);
         }
 
         #endregion

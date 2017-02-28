@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public interface IFilteredView<T> : IProgress<ProgressItem> where T : DataItemBase
+    public interface IFilteredView<out T> where T : DataItemBase
     {
         #region Find, Count, Filter, Tag features.
 
@@ -46,12 +46,13 @@ namespace DataModel
 
         #region Child
 
-        FilteredView<T> CreateChild(Filter filter);
+        IFilteredView<T> CreateChild(Filter filter);
 
         #endregion
 
         #region Display
 
+        event EventHandler<ProgressItem> ProgressChanged;
         int? FirstDisplayedScrollingRowIndex { get; set; }
         int? SelectedRowIndex { get; set; }
         int? LastCountResult { get; }
@@ -66,13 +67,13 @@ namespace DataModel
 
         int GetPhysicalIndex(int logicalIndex);
 
-        IList<ColumnInfoAttribute> ColumnInfos { get; }
+        IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }
 
         // True if the view is in a progress of something
         bool IsInProgress { get; }
         ProgressItem CurrentProgress { get; }
 
-        IList<string> Templates { get; }
+        IReadOnlyList<string> Templates { get; }
 
         FilteredViewStatistics Statistics { get; }
 

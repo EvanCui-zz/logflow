@@ -41,16 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColumnInfoAttribute.cs" />
-    <Compile Include="DataItemBase.cs" />
-    <Compile Include="DataSource.cs" />
-    <Compile Include="DataItemBaseExtension.cs" />
-    <Compile Include="DisplayAttributes.cs" />
-    <Compile Include="FilteredView.cs" />
-    <Compile Include="FilteredViewStatistics.cs" />
+    <Compile Include="LogSource\ColumnInfoAttribute.cs" />
+    <Compile Include="LogSource\DataItemBase.cs" />
+    <Compile Include="Filter\IFilter.cs" />
+    <Compile Include="LogSource\FakeLogSource.cs" />
+    <Compile Include="LogSource\LogSourceBase.cs" />
+    <Compile Include="LogSource\DataItemBaseExtension.cs" />
+    <Compile Include="FilteredView\FilteredView.cs" />
+    <Compile Include="FilteredView\FilteredViewStatistics.cs" />
     <Compile Include="Filter\Filter.cs" />
-    <Compile Include="IFilteredView.cs" />
+    <Compile Include="FilteredView\IFilteredView.cs" />
+    <Compile Include="LogSource\ILogSource.cs" />
     <Compile Include="LogDocument.cs" />
+    <Compile Include="LogSource\LogSourceManager.cs" />
     <Compile Include="ParametricString.cs" />
     <Compile Include="ProgressState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

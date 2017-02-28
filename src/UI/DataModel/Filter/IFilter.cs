@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DataModel
 {
-    public class DisplayAttributes
+    public interface IFilter
     {
-        public Color? HighlightColor { get; set; }
+        bool Match<T>(T item, string template) where T : DataItemBase;
     }
 }

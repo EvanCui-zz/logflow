@@ -16,7 +16,7 @@ namespace SmartViewer
 {
     public partial class MainFormListView : Form
     {
-        private LogDocument<DataItemBase> document;
+        private RootView<DataItemBase> document;
         private StringFormat defaultStringFormat;
 
         private List<Tuple<Color, SolidBrush, Pen>> tags = new List<Tuple<Color, SolidBrush, Pen>>()
@@ -68,10 +68,9 @@ namespace SmartViewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new LogDocument<DataItemBase>("loaded test");
+            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource("testing"));
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
-            this.document.ProgressChanged += ChildView_ProgressChanged;
             node.Tag = this.document;
 
             var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
@@ -93,8 +92,8 @@ namespace SmartViewer
             this.fastListViewMain.Columns.Clear();
             this.fastListViewMain.Items.Clear();
             this.fastListViewMain.Columns.AddRange(headers);
+            this.document.ProgressChanged += ChildView_ProgressChanged;
             this.document.ItemAdded += this.UpdateMainGridRowCount;
-            this.document.GenerateFakeData();
             this.treeViewDoc.SelectedNode = node;
         }
 
@@ -119,7 +118,7 @@ namespace SmartViewer
             {
                 var bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
-
+                
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
                     this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
@@ -198,14 +197,20 @@ namespace SmartViewer
 
         private void ChildView_ProgressChanged(object sender, ProgressItem e)
         {
+            if (this.IsDisposed) return;
             this.Invoke(new Action(() =>
             {
-                if (object.ReferenceEquals(sender, this.CurrentView))
+                try
                 {
-                    this.progressBarMain.Value = e.Progress;
-                    this.toolStripStatusLabel.Text = e.ProgressDescription;
-                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
+                    if (object.ReferenceEquals(sender, this.CurrentView))
+                    {
+                        this.progressBarMain.Value = e.Progress;
+                        this.toolStripStatusLabel.Text = e.ProgressDescription;
+                        this.progressBarMain.Visible = this.CurrentView.IsInProgress;
+                        Application.DoEvents();
+                    }
                 }
+                catch (ObjectDisposedException) { }
             }));
         }
 
@@ -284,7 +289,6 @@ namespace SmartViewer
                         this.fastListViewMain.SelectedIndices.Clear();
                         this.fastListViewMain.Items[result.Item2.Value].Selected = true;
                         this.fastListViewMain.Items[result.Item2.Value].EnsureVisible();
-                        //     this.fastListViewMain.Invalidate(this.fastListViewMain.Items[(int)e1.Result].Bounds);
                         this.toolStripLabelCount.Text = result.Item2.ToString();
                     }
                 }
