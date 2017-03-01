@@ -62,39 +62,41 @@ namespace SmartViewer
             this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
 
-            this.openToolStripMenuItem_Click(this, null);
             this.toolStripTextBoxPattern_TextChanged(this, null);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(@"P:\github\smartviewer\src\HpcSoaDiagMon_000000.bin"));
-            this.treeViewDoc.Nodes.Clear();
-            var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
-            node.Tag = this.document;
-
-            var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
+            if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                Name = ci.Name,
-                HeaderText = ci.Name,
-                AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
-                MinimumWidth = 5,
-                Width = ci.Width,
-            }).ToArray();
+                this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(this.openFileDialog1.FileName));
+                this.treeViewDoc.Nodes.Clear();
+                var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
+                node.Tag = this.document;
 
-            var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(this.document.ColumnInfos.Select(ci => new ColumnHeader()
-            {
-                Name = ci.Name,
-                Text = ci.Name,
-                Width = ci.Width,
-            })).ToArray();
+                var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
+                {
+                    Name = ci.Name,
+                    HeaderText = ci.Name,
+                    AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
+                    MinimumWidth = 5,
+                    Width = ci.Width,
+                }).ToArray();
 
-            this.fastListViewMain.Columns.Clear();
-            this.fastListViewMain.Items.Clear();
-            this.fastListViewMain.Columns.AddRange(headers);
-            this.document.ProgressChanged += ChildView_ProgressChanged;
-            this.document.ItemAdded += this.UpdateMainGridRowCount;
-            this.treeViewDoc.SelectedNode = node;
+                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(this.document.ColumnInfos.Select(ci => new ColumnHeader()
+                {
+                    Name = ci.Name,
+                    Text = ci.Name,
+                    Width = ci.Width,
+                })).ToArray();
+
+                this.fastListViewMain.Columns.Clear();
+                this.fastListViewMain.Items.Clear();
+                this.fastListViewMain.Columns.AddRange(headers);
+                this.document.ProgressChanged += ChildView_ProgressChanged;
+                this.document.ItemAdded += this.UpdateMainGridRowCount;
+                this.treeViewDoc.SelectedNode = node;
+            }
         }
 
         public IFilteredView<DataItemBase> CurrentView { get; set; }

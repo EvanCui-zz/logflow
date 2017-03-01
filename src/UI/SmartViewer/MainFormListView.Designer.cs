@@ -16,7 +16,6 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
-                this.backgroundWorker1.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -55,6 +54,7 @@
             this.panelMain = new System.Windows.Forms.Panel();
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitContainerDetails = new System.Windows.Forms.SplitContainer();
+            this.fastListViewMain = new SmartViewer.FastListView();
             this.progressBarMain = new System.Windows.Forms.ProgressBar();
             this.tabControlDetail = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -87,6 +87,7 @@
             this.panelRight = new System.Windows.Forms.Panel();
             this.splitContainerStatistics = new System.Windows.Forms.SplitContainer();
             this.chartTimeLine = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.timeline1 = new SmartViewer.Timeline();
             this.propertyGridStatistics = new System.Windows.Forms.PropertyGrid();
             this.splitterPlaceHolder = new System.Windows.Forms.Splitter();
             this.panelLeft = new System.Windows.Forms.Panel();
@@ -99,9 +100,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSelected = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.fastListViewMain = new SmartViewer.FastListView();
-            this.timeline1 = new SmartViewer.Timeline();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -333,6 +332,40 @@
             this.splitContainerDetails.Size = new System.Drawing.Size(691, 485);
             this.splitContainerDetails.SplitterDistance = 284;
             this.splitContainerDetails.TabIndex = 2;
+            // 
+            // fastListViewMain
+            // 
+            this.fastListViewMain.AllowColumnReorder = true;
+            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
+            this.fastListViewMain.AlternateBackColorBrush = null;
+            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastListViewMain.FullRowSelect = true;
+            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
+            this.fastListViewMain.GridLineColorPen = null;
+            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.fastListViewMain.HideSelection = false;
+            this.fastListViewMain.LabelWrap = false;
+            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
+            this.fastListViewMain.Name = "fastListViewMain";
+            this.fastListViewMain.OwnerDraw = true;
+            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
+            this.fastListViewMain.SelectionBackColorBrush = null;
+            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.fastListViewMain.SelectionForeColorBrush = null;
+            this.fastListViewMain.ShowGroups = false;
+            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
+            this.fastListViewMain.TabIndex = 2;
+            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
+            this.fastListViewMain.View = System.Windows.Forms.View.Details;
+            this.fastListViewMain.VirtualMode = true;
+            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
+            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
+            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
+            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
+            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
+            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
             // 
             // progressBarMain
             // 
@@ -663,6 +696,16 @@
             this.chartTimeLine.TabIndex = 1;
             this.chartTimeLine.Text = "Timeline";
             // 
+            // timeline1
+            // 
+            this.timeline1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.timeline1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.timeline1.Location = new System.Drawing.Point(0, 0);
+            this.timeline1.Name = "timeline1";
+            this.timeline1.Plots = ((System.Collections.Generic.IList<double>)(resources.GetObject("timeline1.Plots")));
+            this.timeline1.Size = new System.Drawing.Size(156, 137);
+            this.timeline1.TabIndex = 0;
+            // 
             // propertyGridStatistics
             // 
             this.propertyGridStatistics.DisabledItemForeColor = System.Drawing.SystemColors.MenuHighlight;
@@ -770,54 +813,10 @@
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(13, 17);
             this.toolStripStatusLabel2.Text = "  ";
             // 
-            // fastListViewMain
+            // openFileDialog1
             // 
-            this.fastListViewMain.AllowColumnReorder = true;
-            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
-            this.fastListViewMain.AlternateBackColorBrush = null;
-            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastListViewMain.FullRowSelect = true;
-            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
-            this.fastListViewMain.GridLineColorPen = null;
-            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.fastListViewMain.HideSelection = false;
-            this.fastListViewMain.LabelWrap = false;
-            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
-            this.fastListViewMain.Name = "fastListViewMain";
-            this.fastListViewMain.OwnerDraw = true;
-            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
-            this.fastListViewMain.SelectionBackColorBrush = null;
-            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.fastListViewMain.SelectionForeColorBrush = null;
-            this.fastListViewMain.ShowGroups = false;
-            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
-            this.fastListViewMain.TabIndex = 2;
-            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
-            this.fastListViewMain.View = System.Windows.Forms.View.Details;
-            this.fastListViewMain.VirtualMode = true;
-            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
-            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
-            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
-            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
-            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
-            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
-            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
-            // 
-            // timeline1
-            // 
-            this.timeline1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.timeline1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timeline1.Location = new System.Drawing.Point(0, 0);
-            this.timeline1.Name = "timeline1";
-            this.timeline1.Plots = ((System.Collections.Generic.IList<double>)(resources.GetObject("timeline1.Plots")));
-            this.timeline1.Size = new System.Drawing.Size(156, 137);
-            this.timeline1.TabIndex = 0;
-            // 
-            // backgroundWorker1
-            // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.WorkerSupportsCancellation = true;
+            this.openFileDialog1.Filter = "Cosmos files|*.bin|All files|*.*";
+            this.openFileDialog1.Title = "Select the log file";
             // 
             // MainFormListView
             // 
@@ -939,7 +938,7 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Splitter splitterPlaceHolder;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTimeLine;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }
 
