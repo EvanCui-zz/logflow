@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataModel
+namespace LogFlow.DataModel
 {
     public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
     {

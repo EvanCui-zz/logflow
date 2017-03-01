@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using LogFlow.DataModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -68,7 +68,7 @@ namespace SmartViewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource("testing"));
+            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(@"P:\github\smartviewer\src\HpcSoaDiagMon_000000.bin"));
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;
@@ -118,7 +118,7 @@ namespace SmartViewer
             {
                 var bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
-                
+
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
                     this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
@@ -416,7 +416,7 @@ namespace SmartViewer
             bool isSelected = e.Item.Selected;
             StringFormat format = new StringFormat(StringFormatFlags.NoWrap)
             {
-                Alignment = StringAlignment.Center,
+                //   Alignment = StringAlignment.Center,
                 Trimming = StringTrimming.EllipsisCharacter,
                 LineAlignment = StringAlignment.Center,
             };
@@ -429,13 +429,39 @@ namespace SmartViewer
                     var paramString = (ParametricString)e.SubItem.Tag;
                     foreach (var token in paramString.GetTokens())
                     {
+                        int multiLineSignWidth = 25;
+                        var str = token.Key.Trim(Environment.NewLine.ToArray());
+                        int pos = str.IndexOf(Environment.NewLine);
+                        if (pos > 0)
+                        {
+                            str = str.Substring(0, pos);
+                            bound.Width -= multiLineSignWidth;
+                        }
+
                         var currentFont = token.Value ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
                         e.Graphics.DrawString(
-                            token.Key,
+                            str,
                             currentFont,
                             isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
                             bound,
                             this.defaultStringFormat);
+
+                        if (pos > 0)
+                        {
+                            bound = e.Bounds;
+                            bound.X += bound.Width - multiLineSignWidth;
+                            bound.Width = multiLineSignWidth;
+
+                            // draw a >> sign to indicate multiline
+                            e.Graphics.DrawString(
+                                "↓↓↓",
+                                currentFont,
+                                Brushes.Moccasin,
+                                bound,
+                                this.defaultStringFormat);
+
+                            break;
+                        }
 
                         var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
                         bound.Width -= (int)length;

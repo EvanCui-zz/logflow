@@ -109,6 +109,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\LogSourceBase\LogSourceBase.csproj">
+      <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
+      <Name>LogSourceBase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataModel\DataModel.csproj">
       <Project>{ce966e0f-5b72-423a-9d2a-d4b6b23ce1b4}</Project>
       <Name>DataModel</Name>

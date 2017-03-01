@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataModel
+namespace LogFlow.DataModel
 {
     public class RootView<T> : FilteredView<T> where T : DataItemBase
     {

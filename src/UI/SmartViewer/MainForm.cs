@@ -1,4 +1,4 @@
-﻿using DataModel;
+﻿using LogFlow.DataModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

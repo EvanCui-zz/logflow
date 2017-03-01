@@ -7,7 +7,7 @@
     <ProjectGuid>{CE966E0F-5B72-423A-9D2A-D4B6B23CE1B4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DataModel</RootNamespace>
+    <RootNamespace>LogFlow.DataModel</RootNamespace>
     <AssemblyName>DataModel</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,23 +41,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LogSource\ColumnInfoAttribute.cs" />
-    <Compile Include="LogSource\DataItemBase.cs" />
-    <Compile Include="Filter\IFilter.cs" />
-    <Compile Include="LogSource\FakeLogSource.cs" />
-    <Compile Include="LogSource\LogSourceBase.cs" />
-    <Compile Include="LogSource\DataItemBaseExtension.cs" />
     <Compile Include="FilteredView\FilteredView.cs" />
     <Compile Include="FilteredView\FilteredViewStatistics.cs" />
     <Compile Include="Filter\Filter.cs" />
     <Compile Include="FilteredView\IFilteredView.cs" />
-    <Compile Include="LogSource\ILogSource.cs" />
     <Compile Include="LogDocument.cs" />
+    <Compile Include="LogSource\FakeLogSource.cs" />
     <Compile Include="LogSource\LogSourceManager.cs" />
-    <Compile Include="ParametricString.cs" />
     <Compile Include="ProgressState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\LogSourceBase\LogSourceBase.csproj">
+      <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
+      <Name>LogSourceBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LogSource\LogParserWrapper\LogParserWrapper.vcxproj">
+      <Project>{a5ec814b-ed75-4997-b127-8d8b8ac8ee3e}</Project>
+      <Name>LogParserWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

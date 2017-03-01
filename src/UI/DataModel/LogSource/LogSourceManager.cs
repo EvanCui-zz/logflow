@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataModel
+namespace LogFlow.DataModel
 {
     public class LogSourceManager
     {
@@ -17,7 +17,9 @@ namespace DataModel
 
         public ILogSource<DataItemBase> GetLogSource(string sourceInitializationData)
         {
-            return new FakeLogSource(true);
+            // TODO: make the sources dynamic load.
+            return new CosmosLogSource(sourceInitializationData);
+            //return new FakeLogSource();
         }
 
         public static LogSourceManager Instance { get { return instance.Value; } }
