@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LogFlow.DataModel
 {
-    public interface ILogSource <out T> where T:DataItemBase
+    public interface ILogSource<out T> where T : DataItemBase
     {
         IReadOnlyList<T> Items { get; }
         IReadOnlyList<string> Templates { get; }

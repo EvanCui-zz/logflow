@@ -6,13 +6,23 @@ using System.Threading.Tasks;
 
 namespace LogFlow.DataModel
 {
-    public abstract class CosmosLogSourceBase<T> : LogSourceBase<T> where T : DataItemBase
+    public abstract class CosmosLogSourceBase<T> : LogSourceBase<T>, IDisposable where T : DataItemBase
     {
+        protected Dictionary<IntPtr, int> templateMap = new Dictionary<IntPtr, int>();
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void Dispose(bool isDisposing);
+
         public override IEnumerable<int> Load(IFilter filter)
         {
             int lastReportedProgress = 0;
             yield return lastReportedProgress;
-            lastReportedProgress += 5;
+            lastReportedProgress += 20;
 
             while (true)
             {
@@ -31,7 +41,7 @@ namespace LogFlow.DataModel
                 if (progress >= lastReportedProgress)
                 {
                     yield return lastReportedProgress;
-                    lastReportedProgress += 5;
+                    lastReportedProgress += 20;
                 }
             }
         }

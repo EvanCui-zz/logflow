@@ -44,3 +44,13 @@
 21, List view logic refactor.
 22, consider structs
 23, consider size.
+24, support cosmos
+25, regex
+26, multi-file
+27, search files
+28, exceptions list
+29, Other tools analysis:
+	1), LogParser, multiple source
+	2), Message analyzer, column search.
+30, Ctrl + G
+31, 

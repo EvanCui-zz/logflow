@@ -45,7 +45,7 @@
     <Compile Include="FilteredView\FilteredViewStatistics.cs" />
     <Compile Include="Filter\Filter.cs" />
     <Compile Include="FilteredView\IFilteredView.cs" />
-    <Compile Include="LogDocument.cs" />
+    <Compile Include="FilteredView\RootView.cs" />
     <Compile Include="LogSource\FakeLogSource.cs" />
     <Compile Include="LogSource\LogSourceManager.cs" />
     <Compile Include="ProgressState.cs" />

@@ -19,10 +19,15 @@ CosmosLogSource::CosmosLogSource(String^ initializationData)
 	}
 }
 
+CosmosLogSource::!CosmosLogSource()
+{
+    this->reader->CloseReader();
+    delete this->reader;
+}
+
 CosmosLogSource::~CosmosLogSource()
 {
-	this->reader->CloseReader();
-	delete this->reader;
+    this->!CosmosLogSource();
 }
 
 // Debug,Info,Status,Warning,Error,AppAlert,Assert
@@ -52,9 +57,20 @@ DataItemBase^ CosmosLogSource::ReadLogEntry()
 		CHAR parameters[MAX_LOG_ENTRY_SIZE];
         Size_t indexWidthLength[MAX_PARAMETER_COUNT * 3];
         int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
-		//this->reader->getFormatedText(formattedEntry);
-		//node->Content=gcnew String(formattedEntry);
+
+        // TODO: one possible optimization is to map the raw point
         node->TemplateId = this->AddTemplate(gcnew String(formattedEntry));
+
+        
+        //PCSTR format = NULL;
+        //int count = this->reader->GetFormatDataCStyle(format, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
+
+        //if (!this->templateMap->TryGetValue(IntPtr((void*)format), node->TemplateId))
+        //{
+        //    node->TemplateId = this->AddTemplate(gcnew String(format));
+        //    this->templateMap->Add(IntPtr((void*)format), node->TemplateId);
+        //}
+
         node->Parameters = gcnew array<Object^>(count);
         int currentPosition = 0;
         for (int i = 0; i < count; i++)

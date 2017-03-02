@@ -17,6 +17,9 @@ namespace LogFlow {
 			~CosmosLogSource();
 			Tuple<DataItemBase^, int>^ LoadItem(IFilter^ filter) override;
 
+        protected:
+            !CosmosLogSource();
+
 		private:
 			DataItemBase^ ReadLogEntry();
 

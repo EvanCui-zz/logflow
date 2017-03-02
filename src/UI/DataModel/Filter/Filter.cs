@@ -23,6 +23,8 @@ namespace LogFlow.DataModel
             {'v', LogLevel.Verbose },
         };
 
+        private HashSet<int> matchedTemplateIds = new HashSet<int>();
+
         public Filter(string pattern)
         {
             this.Name = pattern;
@@ -144,10 +146,16 @@ namespace LogFlow.DataModel
 
             if (this.Texts.IsValueCreated)
             {
+                if (this.matchedTemplateIds.Contains(item.TemplateId))
+                {
+                    return true;
+                }
+
                 var text = template.ToUpperInvariant();
                 //todo : improve the perf.
                 if (this.Texts.Value.All(t => text.Contains(t)))
                 {
+                    this.matchedTemplateIds.Add(item.TemplateId);
                     return true;
                 }
                 else

@@ -16,7 +16,6 @@ namespace SmartViewer
 {
     public partial class MainFormListView : Form
     {
-        private RootView<DataItemBase> document;
         private StringFormat defaultStringFormat;
 
         private List<Tuple<Color, SolidBrush, Pen>> tags = new List<Tuple<Color, SolidBrush, Pen>>()
@@ -69,33 +68,10 @@ namespace SmartViewer
         {
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(this.openFileDialog1.FileName));
+                var document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(this.openFileDialog1.FileName));
                 this.treeViewDoc.Nodes.Clear();
-                var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
-                node.Tag = this.document;
 
-                var columns = this.document.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
-                {
-                    Name = ci.Name,
-                    HeaderText = ci.Name,
-                    AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
-                    MinimumWidth = 5,
-                    Width = ci.Width,
-                }).ToArray();
-
-                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(this.document.ColumnInfos.Select(ci => new ColumnHeader()
-                {
-                    Name = ci.Name,
-                    Text = ci.Name,
-                    Width = ci.Width,
-                })).ToArray();
-
-                this.fastListViewMain.Columns.Clear();
-                this.fastListViewMain.Items.Clear();
-                this.fastListViewMain.Columns.AddRange(headers);
-                this.document.ProgressChanged += ChildView_ProgressChanged;
-                this.document.ItemAdded += this.UpdateMainGridRowCount;
-                this.treeViewDoc.SelectedNode = node;
+                this.AddView(document);
             }
         }
 
@@ -108,8 +84,13 @@ namespace SmartViewer
             this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
             if (this.CurrentView == null)
             {
+                this.closeToolStripMenuItem.Enabled = false;
+                this.filterToolStripMenuItemDoc.Enabled = false;
                 return;
             }
+
+            this.closeToolStripMenuItem.Enabled = true;
+            this.filterToolStripMenuItemDoc.Enabled = true;
 
             Debug.WriteLine("Suspend layout");
             this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
@@ -120,16 +101,24 @@ namespace SmartViewer
             {
                 var bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
+                var watch = Stopwatch.StartNew();
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
-                    this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
-                    this.chartTimeLine.Series.Clear();
-                    var series = this.chartTimeLine.Series.Add("timeline");
-                    foreach (var y in this.CurrentView.Statistics.Timeline)
+                    var currentView = this.CurrentView;
+                    if (currentView != null)
                     {
-                        series.Points.AddY(y);
+                        this.propertyGridStatistics.SelectedObject = currentView.Statistics;
+                        this.chartTimeLine.Series.Clear();
+                        var series = this.chartTimeLine.Series.Add("timeline");
+                        foreach (var y in currentView.Statistics.Timeline)
+                        {
+                            series.Points.AddY(y);
+                        }
                     }
+
+                    watch.Stop();
+                    this.toolStripStatusLabel1.Text = $"Used: {watch.Elapsed}";
 
                     bw.Dispose();
                 };
@@ -152,6 +141,7 @@ namespace SmartViewer
                 };
 
                 bw.RunWorkerAsync();
+
             }
             else
             {
@@ -220,7 +210,7 @@ namespace SmartViewer
 
         private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show("Hello, you will see a dialog box for filter/tag/search/count operations.", "To be implemented", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void TagCurrentView(int index, Filter filter)
@@ -244,12 +234,52 @@ namespace SmartViewer
             if (this.CurrentView == null) return;
 
             var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBoxPattern.Text));
-            childView.ItemAdded += this.UpdateMainGridRowCount;
+            this.AddView(childView);
+        }
 
-            var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
-            node.Tag = childView;
+        private void AddView(IFilteredView<DataItemBase> childView)
+        {
+            childView.ItemAdded += this.UpdateMainGridRowCount;
             childView.ProgressChanged += ChildView_ProgressChanged;
+
+            TreeNode node;
+            if (this.treeViewDoc.Nodes.Count == 0)
+            {
+                var columns = childView.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
+                {
+                    Name = ci.Name,
+                    HeaderText = ci.Name,
+                    AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
+                    MinimumWidth = 5,
+                    Width = ci.Width,
+                }).ToArray();
+
+                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(childView.ColumnInfos.Select(ci => new ColumnHeader()
+                {
+                    Name = ci.Name,
+                    Text = ci.Name,
+                    Width = ci.Width,
+                })).ToArray();
+
+                this.fastListViewMain.Columns.Clear();
+                this.fastListViewMain.Items.Clear();
+                this.fastListViewMain.Columns.AddRange(headers);
+                node = this.treeViewDoc.Nodes.Add(childView.Name, childView.Name);
+            }
+            else
+            {
+                node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
+            }
+
+            node.Tag = childView;
             this.treeViewDoc.SelectedNode = node;
+        }
+
+        private void RemoveView(IFilteredView<DataItemBase> view)
+        {
+            view.ItemAdded -= this.UpdateMainGridRowCount;
+            view.ProgressChanged -= this.ChildView_ProgressChanged;
+
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -347,6 +377,7 @@ namespace SmartViewer
         private void fastListViewMain_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
             e.Item = new ListViewItem();
+            if (this.CurrentView == null) { return; }
             var item = this.CurrentView.GetRowValue(e.ItemIndex);
 
             e.Item.Text = "";
@@ -551,6 +582,34 @@ namespace SmartViewer
             {
                 this.toolStripStatusLabelSelected.Text = $"-1, {this.CurrentView.TotalCount}";
             }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var nodeParent = this.treeViewDoc.SelectedNode?.Parent;
+            this.treeViewDoc.SelectedNode?.Remove();
+
+            if (nodeParent == null)
+            {
+                this.fastListViewMain.BeginUpdate();
+                this.fastListViewMain.Clear();
+                this.RemoveView(this.CurrentView);
+                this.CurrentView = null;
+                this.fastListViewMain.VirtualListSize = 0;
+                this.progressBarMain.Visible = false;
+                this.toolStripStatusLabel.Text = "Ready";
+                this.fastListViewMain.EndUpdate();
+                this.chartTimeLine.Series.Clear();
+                this.propertyGridStatistics.SelectedObject = null;
+                GC.Collect();
+            }
+
+            this.treeViewDoc.SelectedNode = nodeParent;
+        }
+
+        private void openToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.openToolStripMenuItem_Click(sender, e);
         }
     }
 }
