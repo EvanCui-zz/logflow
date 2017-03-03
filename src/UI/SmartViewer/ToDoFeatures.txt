@@ -1,19 +1,14 @@
 ﻿1, Highlight the parameters. done
-2, Context operations.
-3, Thread indent.
-4, Configurations.
-5, Colored level or column level.
 6, Document model. done
 7, selection save. done
 8, scroll position save. done
 9, Find. done
 10, Tag. done
 11, Filter. done
-12, right pane features.
-13, detail pane features.
+12, right pane features. done
 14, enable disable status. done
 15, data model refactor. done
-16, Analytical panes
+16, Analytical panes. done
 	1), Line dist / time dist
 	2), Exception summary
 	3), Warning/Errors summary
@@ -26,6 +21,17 @@
 		files
 		lines
 		etc..
+24, support cosmos. Done
+31, One click install. Done
+3, Thread indent.
+50, Memory usage.
+
+2, Context operations. Most done
+
+4, Configurations.
+5, Colored level or column level.
+
+13, detail pane features.
 17, Detail pane
 	1), detail
 	2), template pane
@@ -43,14 +49,30 @@
 20, List view perf
 21, List view logic refactor.
 22, consider structs
-23, consider size.
-24, support cosmos
+23, consider size compact.
 25, regex
 26, multi-file
-27, search files
+27, search files/findstr
 28, exceptions list
 29, Other tools analysis:
 	1), LogParser, multiple source
 	2), Message analyzer, column search.
 30, Ctrl + G
-31, 
+32, Hot keys
+33, Highlight find content.
+34, Parsable filter string
+35, Favorite filters
+36, Load from log parser
+37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
+38, File name column for multiple file
+39, Recover last opened / recent opened list
+40, Exception statistics
+41, Plugin system
+42, UI icons, layout, decoration
+43, Version, history
+44, Help, about
+45, Bug on Selected row and reloading
+46, Drag and drop
+47, Add/hide columns
+48, Double click the column, rendering is wrong.
+49, hardcoded value.

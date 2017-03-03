@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
 
-namespace SmartViewer
+namespace LogFlow.Viewer
 {
     public partial class MainFormListView : Form
     {
@@ -32,6 +33,7 @@ namespace SmartViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.timerMemory.Start();
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);
             this.fastListViewMain.SelectionBackColorBrush = new SolidBrush(this.fastListViewMain.SelectionBackColor);
             this.fastListViewMain.AlternateBackColorBrush = new SolidBrush(this.fastListViewMain.AlternateBackColor);
@@ -50,9 +52,9 @@ namespace SmartViewer
                 int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
                 if (this.CurrentView == null) return;
                 var currentMenuItem = (ToolStripMenuItem)s;
-                bool tag = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
+                bool tag = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text);
                 currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new Filter(this.toolStripTextBoxPattern.Text) : null);
+                this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
             })
             {
                 BackColor = t.Item1,
@@ -61,7 +63,7 @@ namespace SmartViewer
             this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
 
-            this.toolStripTextBoxPattern_TextChanged(this, null);
+            this.toolStripComboBoxString_TextChanged(this, null);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -233,7 +235,7 @@ namespace SmartViewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBoxPattern.Text));
+            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripComboBoxString.Text));
             this.AddView(childView);
         }
 
@@ -307,7 +309,7 @@ namespace SmartViewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
+            Filter f = new Filter(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -344,7 +346,7 @@ namespace SmartViewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
+            Filter f = new Filter(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -459,7 +461,15 @@ namespace SmartViewer
             switch (e.ColumnIndex)
             {
                 case 5:
+                    bool isIndented = this.CurrentView?.IsThreadIndented(item.ThreadId) ?? false;
+                    if (isIndented)
+                    {
+                        bound.Width -= 100;
+                        bound.X += 100;
+                    }
+
                     var paramString = (ParametricString)e.SubItem.Tag;
+
                     foreach (var token in paramString.GetTokens())
                     {
                         int multiLineSignWidth = 25;
@@ -532,9 +542,9 @@ namespace SmartViewer
             }
         }
 
-        private void toolStripTextBoxPattern_TextChanged(object sender, EventArgs e)
+        private void toolStripComboBoxString_TextChanged(object sender, EventArgs e)
         {
-            bool enabled = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text) && this.CurrentView != null;
+            bool enabled = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text) && this.CurrentView != null;
             this.toolStripButtonFilter.Enabled = enabled;
             this.toolStripButtonCount.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
@@ -571,7 +581,7 @@ namespace SmartViewer
                 var firstSelectedIndex = this.fastListViewMain.SelectedIndices[0];
                 var item = (DataItemBase)this.fastListViewMain.Items[firstSelectedIndex].Tag;
                 this.labelId.Text = item.Id.ToString();
-                this.labelTime.Text = item.Time.ToString();
+                this.labelTime.Text = item.Time.ToString(CultureInfo.InvariantCulture);
                 this.labelThreadId.Text = item.ThreadId.ToString();
                 this.labelProcessId.Text = item.ProcessId.ToString();
                 this.labelLevel.Text = item.Level.ToString();
@@ -610,6 +620,84 @@ namespace SmartViewer
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             this.openToolStripMenuItem_Click(sender, e);
+        }
+
+        private void filterWithTheSameThreadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                return;
+            }
+
+            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+
+            Filter f = new Filter($"t:{threadId}");
+            var childView = this.CurrentView.CreateChild(f);
+
+            this.AddView(childView);
+        }
+
+        private void indentTheThreadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                return;
+            }
+
+            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+
+            this.CurrentView.IndentThread(threadId);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void unindentAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.CurrentView?.UnIndentAll();
+            this.fastListViewMain.Refresh();
+        }
+
+        private void unindentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                return;
+            }
+
+            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+
+            this.CurrentView.UnIndentThread(threadId);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void findTheLineFromParentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FindInNode(this.treeViewDoc.SelectedNode?.Parent);
+        }
+
+        private void goToToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FindInNode(this.treeViewDoc.Nodes[0]);
+        }
+
+        private void FindInNode(TreeNode node)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null || node == null)
+            {
+                return;
+            }
+
+            int itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
+
+            this.treeViewDoc.SelectedNode = node;
+            int logicalId = this.CurrentView.GetLogicalIndexOfItem(itemId);
+            this.fastListViewMain.Items[logicalId].Selected = this.fastListViewMain.Items[logicalId].Focused = true;
+            this.fastListViewMain.Items[logicalId].EnsureVisible();
+        }
+
+        private void timerMemory_Tick(object sender, EventArgs e)
+        {
+            double memoryMb = ((double)GC.GetTotalMemory(false) / 1024) / 1024;
+            this.toolStripStatusLabelMemory.Text = $"{memoryMb:0.##}MB";
         }
     }
 }

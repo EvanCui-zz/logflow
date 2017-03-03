@@ -9,7 +9,39 @@ namespace LogFlow.DataModel
 {
     public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
     {
-        #region Find, Count, Filter, Tag features.
+        #region Find, Count, Filter, Tag, Indent features.
+
+        public int GetLogicalIndexOfItem(int itemId)
+        {
+            if (this.ItemIndexes != null)
+            {
+                return this.ItemIndexes.BinarySearch(itemId);
+            }
+            else
+            {
+                return itemId;
+            }
+        }
+
+        public void UnIndentThread(int threadId)
+        {
+            this.indentedThreads.Remove(threadId);
+        }
+
+        public void UnIndentAll()
+        {
+            this.indentedThreads.Clear();
+        }
+
+        public void IndentThread(int threadId)
+        {
+            this.indentedThreads.Add(threadId);
+        }
+
+        public bool IsThreadIndented(int threadId)
+        {
+            return this.indentedThreads.Contains(threadId);
+        }
 
         /// <summary>
         /// Tag or replace the color's filter.
@@ -280,6 +312,8 @@ namespace LogFlow.DataModel
         internal ILogSource<T> Data { get; set; }
 
         private List<int> ItemIndexes { get; set; }
+
+        private HashSet<int> indentedThreads = new HashSet<int>();
 
         #endregion
 

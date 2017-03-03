@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SmartViewer
+namespace LogFlow.Viewer
 {
     public partial class Timeline : UserControl
     {

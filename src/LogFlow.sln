@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartViewer", "UI\SmartViewer\SmartViewer.csproj", "{66DD84F8-C54C-4010-8974-0B4143FDE508}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFlow", "UI\SmartViewer\LogFlow.csproj", "{66DD84F8-C54C-4010-8974-0B4143FDE508}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModel", "UI\DataModel\DataModel.csproj", "{CE966E0F-5B72-423A-9D2A-D4B6B23CE1B4}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "logParser", "LogSource\logParser\logParser.vcxproj", "{B4C0BE71-C006-4DE3-8C69-41253C47C393}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogParserWrapper", "LogSource\LogParserWrapper\LogParserWrapper.vcxproj", "{A5EC814B-ED75-4997-B127-8D8B8AC8EE3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosLogSource", "LogSource\CosmosLogSource\CosmosLogSource.csproj", "{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,18 @@ Global
 		{A5EC814B-ED75-4997-B127-8D8B8AC8EE3E}.Release|x64.Build.0 = Release|x64
 		{A5EC814B-ED75-4997-B127-8D8B8AC8EE3E}.Release|x86.ActiveCfg = Release|Win32
 		{A5EC814B-ED75-4997-B127-8D8B8AC8EE3E}.Release|x86.Build.0 = Release|Win32
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|x64.Build.0 = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Debug|x86.Build.0 = Debug|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x64.ActiveCfg = Release|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x64.Build.0 = Release|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x86.ActiveCfg = Release|Any CPU
+		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

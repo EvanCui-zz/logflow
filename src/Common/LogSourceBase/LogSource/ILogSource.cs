@@ -18,5 +18,7 @@ namespace LogFlow.DataModel
         object GetColumnValue(int rowIndex, int columnIndex);
 
         IEnumerable<int> Load(IFilter filter = null);
+
+        IReadOnlyList<KeyValuePair<string, List<int>>> GroupIndexes { get; }
     }
 }

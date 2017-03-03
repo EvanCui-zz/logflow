@@ -3,12 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LowFlow.DataModel;
 
 namespace LogFlow.DataModel
 {
-    public abstract class CosmosLogSourceBase<T> : LogSourceBase<T>, IDisposable where T : DataItemBase
+    public abstract class CosmosLogSourceBase : LogSourceBase<CosmosDataItem>, IDisposable
     {
         protected Dictionary<IntPtr, int> templateMap = new Dictionary<IntPtr, int>();
+        protected List<string> fileNames;
+
+        public override object GetColumnValue(int rowIndex, int columnIndex)
+        {
+            if (columnIndex == this.ColumnInfos.Count - 1)
+            {
+                return this.fileNames[this.Items[rowIndex].FileIndex];
+            }
+            else
+            {
+                return base.GetColumnValue(rowIndex, columnIndex);
+            }
+        }
 
         public void Dispose()
         {
@@ -35,8 +49,8 @@ namespace LogFlow.DataModel
                     yield break;
                 }
 
-                item.Id = ++this.currentId;
                 this.AddItem(item);
+                this.InnerGroupIndexes[item.FileIndex].Value.Add(item.Id);
 
                 if (progress >= lastReportedProgress)
                 {
@@ -47,6 +61,6 @@ namespace LogFlow.DataModel
         }
 
         // todo : refactor the template passing.
-        protected abstract Tuple<T, int> LoadItem(IFilter filter);
+        protected abstract Tuple<CosmosDataItem, int> LoadItem(IFilter filter);
     }
 }

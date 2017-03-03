@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9786AEEC-16CA-47D6-B125-B4E5BD7CA2A0}</ProjectGuid>
+    <ProjectGuid>{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LogFlow.DataModel</RootNamespace>
-    <AssemblyName>LogSourceBase</AssemblyName>
+    <RootNamespace>LowFlow.DataModel</RootNamespace>
+    <AssemblyName>CosmosLogSource</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,17 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LogSource\ColumnInfoAttribute.cs" />
-    <Compile Include="LogSource\DataItemBase.cs" />
-    <Compile Include="LogSource\DataItemBaseExtension.cs" />
-    <Compile Include="Filter\IFilter.cs" />
-    <Compile Include="LogSource\ILogSource.cs" />
-    <Compile Include="LogSource\LogSourceBase.cs" />
-    <Compile Include="LogSource\ParametricString.cs" />
+    <Compile Include="CosmosDataItem.cs" />
+    <Compile Include="CosmosLogSourceBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DataItem\" />
+    <ProjectReference Include="..\..\Common\LogSourceBase\LogSourceBase.csproj">
+      <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
+      <Name>LogSourceBase</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace LogFlow.DataModel
                 case 1:
                     return item.Id.ToString();
                 case 2:
-                    return item.Time.ToString();
+                    return item.Time.ToString(CultureInfo.InvariantCulture);
                 case 3:
                     return item.ThreadId.ToString();
                 case 4:

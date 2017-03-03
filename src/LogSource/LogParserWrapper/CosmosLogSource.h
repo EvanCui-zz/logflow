@@ -15,16 +15,22 @@ namespace LogFlow {
 		public:
 			CosmosLogSource(String^ initializationData);
 			~CosmosLogSource();
+            
 			Tuple<DataItemBase^, int>^ LoadItem(IFilter^ filter) override;
 
         protected:
             !CosmosLogSource();
 
 		private:
-			DataItemBase^ ReadLogEntry();
+			DataItemBase^ ReadLogEntry(int i);
 
+            List<DateItemBase^>^ heap;
+
+            int fileCount = 0;
 			BinaryLogReader *reader;
-			bool needsRefresh = true;
+			BinaryLogReader **readers;
+            bool* needsRefresh;
+//			bool needsRefresh = true;
 		};
 	}
 }

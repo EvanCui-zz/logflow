@@ -12,7 +12,7 @@ namespace LogFlow.DataModel
     public class Filter : IFilter
     {
         private readonly Regex FilterPattern = new Regex(
-            @"(?<name>b|begin|e|end|t|thread|p|process|l|level|c|content):(?<value>[^\s""]+|""[^""]*"")|(?<content>[^\s]+)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+            @"(?<name>b|begin|e|end|t|thread|p|process|l|level|c|content):(?<value>[^\s""]+|""[^""]*"")|(?<content>[^\s""]+|""[^""]*"")", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
         private Dictionary<char, LogLevel> LogLevelMap = new Dictionary<char, LogLevel>()
         {

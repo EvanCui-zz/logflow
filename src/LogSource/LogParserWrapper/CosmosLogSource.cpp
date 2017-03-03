@@ -4,25 +4,40 @@
 #include <vcclr.h>
 
 using namespace LogFlow::DataModel;
+using namespace System::IO;
 
 CosmosLogSource::CosmosLogSource(String^ initializationData)
 {
-	this->reader = new BinaryLogReader();
+    auto filenames = initializationData->Split(gcnew array<wchar_t>(1) { ',' });
+    this->fileCount = filenames->Length;
+    this->readers = new BinaryLogReader*[fileCount];
+    this->needsRefresh = new bool[fileCount];
 
-	pin_ptr<const WCHAR> wch = PtrToStringChars(initializationData);
-	WCHAR wcstring[MAX_PATH];
-	wcscpy_s(wcstring, wch);
-	DWORD err = this->reader->OpenReader(wcstring);
-	if (err != NO_ERROR)
-	{
-		return;
-	}
+    for (int i = 0; i < fileCount; i++)
+    {
+        pin_ptr<const WCHAR> wch = PtrToStringChars(filenames[i]);
+        WCHAR wcstring[MAX_PATH];
+        wcscpy_s(wcstring, wch);
+        this->readers[i] = new BinaryLogReader();
+        this->needsRefresh[i] = true;
+        DWORD err = this->readers[i]->OpenReader(wcstring);
+        if (err != NO_ERROR)
+        {
+            throw gcnew IOException(String::Format("Cannot open file {0}", filenames[i]), err);
+        }
+    }
 }
 
 CosmosLogSource::!CosmosLogSource()
 {
-    this->reader->CloseReader();
-    delete this->reader;
+    for (int i = 0; i < fileCount; i++)
+    {
+        this->readers[i]->CloseReader();
+        delete this->readers[i];
+    }
+
+    delete[] this->readers;
+    delete[] this->needsRefresh;
 }
 
 CosmosLogSource::~CosmosLogSource()
@@ -42,7 +57,7 @@ static LogFlow::DataModel::LogLevel	Levels[] =
 	LogFlow::DataModel::LogLevel::Critical,
 };
 
-DataItemBase^ CosmosLogSource::ReadLogEntry()
+DataItemBase^ CosmosLogSource::ReadLogEntry(int i)
 {
 	DWORD err;
 	if ((err = this->reader->MoveNext()) == NO_ERROR)

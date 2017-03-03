@@ -23,7 +23,6 @@ namespace LogFlow.DataModel
                 var rand = r.Next(100);
                 this.AddItem(new DataItemBase()
                 {
-                    Id = i,
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
                     TemplateId = r.Next(this.Templates.Count),
@@ -49,7 +48,6 @@ namespace LogFlow.DataModel
                 var rand = r.Next(100);
                 this.AddItem(new DataItemBase()
                 {
-                    Id = i,
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
                     TemplateId = r.Next(this.Templates.Count),

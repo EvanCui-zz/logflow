@@ -16,6 +16,6 @@ namespace LogFlow.DataModel
         private string ActionName { get; set; }
 
         public int Progress { get; set; }
-        public string ProgressDescription { get { return $"{ActionName}"; } }
+        public string ProgressDescription => this.ActionName;
     }
 }

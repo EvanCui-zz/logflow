@@ -22,7 +22,7 @@ namespace LogFlow.DataModel
     public class DataItemBase
     {
         [ColumnInfo(Name = "Id", Width = 50)]
-        public long Id { get; set; }
+        public int Id { get; set; }
         [ColumnInfo(Name = "Time", Width = 125)]
         public DateTime Time { get; set; }
 

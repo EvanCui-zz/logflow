@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 
-namespace SmartViewer
+namespace LogFlow.Viewer
 {
     public partial class FastListView : ListView
     {

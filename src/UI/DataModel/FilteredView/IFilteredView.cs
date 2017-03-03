@@ -9,7 +9,17 @@ namespace LogFlow.DataModel
 {
     public interface IFilteredView<out T> where T : DataItemBase
     {
-        #region Find, Count, Filter, Tag features.
+        #region Find, Count, Filter, Tag, Indent features.
+
+        int GetLogicalIndexOfItem(int itemId);
+
+        void UnIndentThread(int threadId);
+
+        void UnIndentAll();
+
+        void IndentThread(int threadId);
+
+        bool IsThreadIndented(int threadId);
 
         /// <summary>
         /// Tag or replace the tag's filter.

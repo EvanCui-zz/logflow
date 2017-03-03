@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
 
-namespace SmartViewer
+namespace LogFlow.Viewer
 {
     public partial class MainForm : Form
     {

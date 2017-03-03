@@ -9,28 +9,29 @@ namespace LogFlow.DataModel
 {
     public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
     {
-        public LogSourceBase()
+        protected LogSourceBase()
         {
             this.propertyInfos = typeof(T).GetProperties()
                 .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true)).ToList();
             this.columnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
         }
-        public IReadOnlyList<T> Items
-        {
-            get { return this.items; }
-        }
+
+        public IReadOnlyList<T> Items => this.items;
 
         protected List<T> items = new List<T>();
 
-        public IReadOnlyList<string> Templates { get { return this.templates; } }
+        public IReadOnlyList<string> Templates => this.templates;
         private List<string> templates = new List<string>();
         private Dictionary<string, int> templatesIndex = new Dictionary<string, int>();
 
-        public IReadOnlyList<PropertyInfo> PropertyInfos { get { return this.propertyInfos; } }
+        public IReadOnlyList<PropertyInfo> PropertyInfos => this.propertyInfos;
         private List<PropertyInfo> propertyInfos;
 
-        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get { return this.columnInfos; } }
+        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.columnInfos;
         private List<ColumnInfoAttribute> columnInfos;
+
+        public IReadOnlyList<KeyValuePair<string, List<int>>> GroupIndexes => this.InnerGroupIndexes;
+        protected List<KeyValuePair<string, List<int>>> InnerGroupIndexes = null;
 
         // for performance, only pass int value
         public event EventHandler<int> ItemAdded;
@@ -42,7 +43,8 @@ namespace LogFlow.DataModel
         protected void AddItem(T item)
         {
             this.items.Add(item);
-            this.OnItemAdded(this.Items.Count - 1);
+            item.Id = this.items.Count - 1;
+            this.OnItemAdded(item.Id);
         }
 
         protected int AddTemplate(string template)
