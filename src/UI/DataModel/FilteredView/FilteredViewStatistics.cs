@@ -55,9 +55,9 @@ namespace LogFlow.DataModel
             this.Timeline[chunk]++;
 
             this.TotalCount++;
-            if (item.Level.HasFlag(LogLevel.Error)) { this.Errors++; }
-            if (item.Level.HasFlag(LogLevel.Warning)) { this.Warnings++; }
-            if (item.Level.HasFlag(LogLevel.Critical)) { this.Criticals++; }
+            if (item.Level.HasFlag(LogLevels.Error)) { this.Errors++; }
+            if (item.Level.HasFlag(LogLevels.Warning)) { this.Warnings++; }
+            if (item.Level.HasFlag(LogLevels.Critical)) { this.Criticals++; }
             var text = string.Format(template, item.Parameters);
             if (text.ToLower().Contains("exception"))
             {

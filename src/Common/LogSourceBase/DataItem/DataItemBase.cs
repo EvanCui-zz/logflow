@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LogFlow.DataModel
 {
     [Flags]
-    public enum LogLevel
+    public enum LogLevels
     {
         None = 0x0,
         Critical = 0x1,
@@ -30,11 +30,11 @@ namespace LogFlow.DataModel
         public int ThreadId { get; set; }
 
         [ColumnInfo(Name = "Level", Width = 50)]
-        public LogLevel Level { get; set; }
+        public LogLevels Level { get; set; }
 
         [ColumnInfo(Name = "Text", Computed = true, Width = 200)]
 
-        public int TemplateId { get; set; }
+        public int TemplateId { get; set; } = -1;
         public object[] Parameters { get; set; }
 
         [ColumnInfo(Name = "Tag", Computed = true, Width = 60)]

@@ -8,6 +8,8 @@ namespace LogFlow.DataModel
 {
     internal class FakeLogSource : LogSourceBase<DataItemBase>
     {
+        public override string Name => "Faked Log";
+
         protected override IEnumerable<int> LoadFirst(IFilter filter)
         {
             Random r = new Random();
@@ -28,7 +30,7 @@ namespace LogFlow.DataModel
                     TemplateId = r.Next(this.Templates.Count),
                     Parameters = new object[] { DateTime.UtcNow, i + 255 },
                     ProcessId = i / 100000,
-                    Level = (LogLevel)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
+                    Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
                 });
 
                 if (i % (totalCount / 20) == 0)
@@ -53,7 +55,7 @@ namespace LogFlow.DataModel
                     TemplateId = r.Next(this.Templates.Count),
                     Parameters = new object[] { DateTime.UtcNow, i + 255 },
                     ProcessId = i / 100000,
-                    Level = (LogLevel)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
+                    Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
                 });
 
                 yield return i * 100 / 2;

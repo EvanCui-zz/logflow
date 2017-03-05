@@ -30,8 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripComboBoxString = new System.Windows.Forms.ToolStripComboBox();
@@ -90,6 +90,8 @@
             this.showTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showStatisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fastRenderingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.detectNewLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoScrollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -166,11 +168,10 @@
             this.toolStripStatusLabelMemory = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.timerMemory = new System.Windows.Forms.Timer(this.components);
+            this.showFilenameColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.timeline1 = new LogFlow.Viewer.Timeline();
-            this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.autoScrollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.detectNewLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -462,19 +463,19 @@
             // jVToolStripMenuItem
             // 
             this.jVToolStripMenuItem.Name = "jVToolStripMenuItem";
-            this.jVToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.jVToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.jVToolStripMenuItem.Text = "[JV]";
             // 
             // policyToolStripMenuItem
             // 
             this.policyToolStripMenuItem.Name = "policyToolStripMenuItem";
-            this.policyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.policyToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.policyToolStripMenuItem.Text = "[Policy]";
             // 
             // rCToolStripMenuItem
             // 
             this.rCToolStripMenuItem.Name = "rCToolStripMenuItem";
-            this.rCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.rCToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.rCToolStripMenuItem.Text = "[RC]";
             // 
             // selectionToolStripMenuItem
@@ -489,13 +490,13 @@
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             // 
             // sendViaEmailToolStripMenuItem
             // 
             this.sendViaEmailToolStripMenuItem.Name = "sendViaEmailToolStripMenuItem";
-            this.sendViaEmailToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sendViaEmailToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.sendViaEmailToolStripMenuItem.Text = "Send via Email";
             // 
             // toolsToolStripMenuItem
@@ -596,6 +597,7 @@
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.boldParametersToolStripMenuItem,
             this.showLevelColumnToolStripMenuItem,
+            this.showFilenameColumnToolStripMenuItem,
             this.highlightLevelsToolStripMenuItem,
             this.showTagsToolStripMenuItem,
             this.showStatisticsToolStripMenuItem,
@@ -612,48 +614,60 @@
             // 
             this.boldParametersToolStripMenuItem.CheckOnClick = true;
             this.boldParametersToolStripMenuItem.Name = "boldParametersToolStripMenuItem";
-            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.boldParametersToolStripMenuItem.Text = "Bold Parameters";
             // 
             // showLevelColumnToolStripMenuItem
             // 
             this.showLevelColumnToolStripMenuItem.Name = "showLevelColumnToolStripMenuItem";
-            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showLevelColumnToolStripMenuItem.Text = "Show Level Column";
             // 
             // highlightLevelsToolStripMenuItem
             // 
             this.highlightLevelsToolStripMenuItem.Name = "highlightLevelsToolStripMenuItem";
-            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.highlightLevelsToolStripMenuItem.Text = "Highlight Levels";
             // 
             // showTagsToolStripMenuItem
             // 
             this.showTagsToolStripMenuItem.Name = "showTagsToolStripMenuItem";
-            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showTagsToolStripMenuItem.Text = "Show Tags";
             // 
             // showStatisticsToolStripMenuItem
             // 
             this.showStatisticsToolStripMenuItem.Name = "showStatisticsToolStripMenuItem";
-            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showStatisticsToolStripMenuItem.Text = "Show Statistics";
             // 
             // fastRenderingToolStripMenuItem
             // 
             this.fastRenderingToolStripMenuItem.Name = "fastRenderingToolStripMenuItem";
-            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.fastRenderingToolStripMenuItem.Text = "Fast Rendering";
+            // 
+            // detectNewLogsToolStripMenuItem
+            // 
+            this.detectNewLogsToolStripMenuItem.Name = "detectNewLogsToolStripMenuItem";
+            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.detectNewLogsToolStripMenuItem.Text = "Detect New Logs";
+            // 
+            // autoScrollToolStripMenuItem
+            // 
+            this.autoScrollToolStripMenuItem.Name = "autoScrollToolStripMenuItem";
+            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.autoScrollToolStripMenuItem.Text = "Auto Scroll";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(176, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
             // 
             // allSettingsToolStripMenuItem
             // 
             this.allSettingsToolStripMenuItem.Name = "allSettingsToolStripMenuItem";
-            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.allSettingsToolStripMenuItem.Text = "All Settings...";
             // 
             // helpToolStripMenuItem
@@ -1174,9 +1188,9 @@
             this.chartTimeLine.BorderlineColor = System.Drawing.Color.Black;
             this.chartTimeLine.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
             this.chartTimeLine.CausesValidation = false;
-            chartArea2.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea2.Name = "ChartArea1";
-            this.chartTimeLine.ChartAreas.Add(chartArea2);
+            chartArea1.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea1.Name = "ChartArea1";
+            this.chartTimeLine.ChartAreas.Add(chartArea1);
             this.chartTimeLine.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartTimeLine.Location = new System.Drawing.Point(0, 0);
             this.chartTimeLine.Name = "chartTimeLine";
@@ -1221,10 +1235,10 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "<no doc>";
+            treeNode1.Name = "Node0";
+            treeNode1.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode1});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 485);
             this.treeViewDoc.TabIndex = 0;
@@ -1330,7 +1344,19 @@
             // openFileDialog1
             // 
             this.openFileDialog1.Filter = "Cosmos files|*.bin|All files|*.*";
+            this.openFileDialog1.Multiselect = true;
             this.openFileDialog1.Title = "Select the log file";
+            // 
+            // timerMemory
+            // 
+            this.timerMemory.Interval = 1000;
+            this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
+            // 
+            // showFilenameColumnToolStripMenuItem
+            // 
+            this.showFilenameColumnToolStripMenuItem.Name = "showFilenameColumnToolStripMenuItem";
+            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showFilenameColumnToolStripMenuItem.Text = "Show Filename Column";
             // 
             // fastListViewMain
             // 
@@ -1377,23 +1403,6 @@
             this.timeline1.Size = new System.Drawing.Size(156, 137);
             this.timeline1.TabIndex = 0;
             // 
-            // timerMemory
-            // 
-            this.timerMemory.Interval = 1000;
-            this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
-            // 
-            // autoScrollToolStripMenuItem
-            // 
-            this.autoScrollToolStripMenuItem.Name = "autoScrollToolStripMenuItem";
-            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.autoScrollToolStripMenuItem.Text = "Auto Scroll";
-            // 
-            // detectNewLogsToolStripMenuItem
-            // 
-            this.detectNewLogsToolStripMenuItem.Name = "detectNewLogsToolStripMenuItem";
-            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.detectNewLogsToolStripMenuItem.Text = "Detect New Logs";
-            // 
             // MainFormListView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1406,7 +1415,7 @@
             this.DoubleBuffered = true;
             this.MainMenuStrip = this.menuStripMain;
             this.Name = "MainFormListView";
-            this.Text = "Smart Viewer";
+            this.Text = "LogFlow";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
@@ -1586,6 +1595,7 @@
         private System.Windows.Forms.ToolStripMenuItem detectNewLogsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScrollToolStripMenuItem;
         private System.Windows.Forms.Timer timerMemory;
+        private System.Windows.Forms.ToolStripMenuItem showFilenameColumnToolStripMenuItem;
     }
 }
 

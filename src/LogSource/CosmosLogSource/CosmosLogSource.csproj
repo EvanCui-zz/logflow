@@ -7,7 +7,7 @@
     <ProjectGuid>{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LowFlow.DataModel</RootNamespace>
+    <RootNamespace>LogFlow.DataModel</RootNamespace>
     <AssemblyName>CosmosLogSource</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -40,9 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileFilter.cs" />
+    <Compile Include="CosmosLogFileBase.cs" />
+    <Compile Include="BinaryLogReaderWrapperBase.cs" />
     <Compile Include="CosmosDataItem.cs" />
     <Compile Include="CosmosLogSourceBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FullCosmosDataItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\LogSourceBase\LogSourceBase.csproj">

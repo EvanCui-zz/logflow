@@ -14,13 +14,13 @@ namespace LogFlow.DataModel
         private readonly Regex FilterPattern = new Regex(
             @"(?<name>b|begin|e|end|t|thread|p|process|l|level|c|content):(?<value>[^\s""]+|""[^""]*"")|(?<content>[^\s""]+|""[^""]*"")", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
-        private Dictionary<char, LogLevel> LogLevelMap = new Dictionary<char, LogLevel>()
+        private Dictionary<char, LogLevels> LogLevelMap = new Dictionary<char, LogLevels>()
         {
-            {'c', LogLevel.Critical },
-            {'e', LogLevel.Error },
-            {'w', LogLevel.Warning },
-            {'i', LogLevel.Info },
-            {'v', LogLevel.Verbose },
+            {'c', LogLevels.Critical },
+            {'e', LogLevels.Error },
+            {'w', LogLevels.Warning },
+            {'i', LogLevels.Info },
+            {'v', LogLevels.Verbose },
         };
 
         private HashSet<int> matchedTemplateIds = new HashSet<int>();
@@ -72,14 +72,14 @@ namespace LogFlow.DataModel
                         break;
 
                     case 'l':
-                        this.Level = LogLevel.None;
+                        this.Level = LogLevels.None;
                         foreach (char c in value)
                         {
-                            LogLevel level;
+                            LogLevels level;
 
                             if (!this.LogLevelMap.TryGetValue(c, out level))
                             {
-                                throw new InvalidOperationException($"The pattern '{name}:{value}' is not of '{nameof(LogLevel)}' format");
+                                throw new InvalidOperationException($"The pattern '{name}:{value}' is not of '{nameof(LogLevels)}' format");
                             }
                             else
                             {
@@ -104,7 +104,7 @@ namespace LogFlow.DataModel
 
         public DateTime? Begin { get; set; }
         public DateTime? End { get; set; }
-        public LogLevel? Level { get; set; }
+        public LogLevels? Level { get; set; }
 
         public Lazy<HashSet<int>> ThreadIds { get; set; } = new Lazy<HashSet<int>>();
         public Lazy<HashSet<int>> ProcessIds { get; set; } = new Lazy<HashSet<int>>();
@@ -155,7 +155,11 @@ namespace LogFlow.DataModel
                 //todo : improve the perf.
                 if (this.Texts.Value.All(t => text.Contains(t)))
                 {
-                    this.matchedTemplateIds.Add(item.TemplateId);
+                    if (item.TemplateId != -1)
+                    {
+                        this.matchedTemplateIds.Add(item.TemplateId);
+                    }
+
                     return true;
                 }
                 else

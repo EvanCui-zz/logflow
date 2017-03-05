@@ -76,3 +76,6 @@
 47, Add/hide columns
 48, Double click the column, rendering is wrong.
 49, hardcoded value.
+51, Filename column display option
+52, Context filter start and end.
+53, Solve the native memory usage.

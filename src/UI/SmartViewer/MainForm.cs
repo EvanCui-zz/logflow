@@ -95,8 +95,8 @@ namespace LogFlow.Viewer
             Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
           //  return;
 
-            var level = (LogLevel)this.CurrentView.GetColumnValue(e.RowIndex, 3);
-            int index = level == LogLevel.Critical ? 0 : (level == LogLevel.Error ? 1 : (level == LogLevel.Warning ? 2 : 3));
+            var level = (LogLevels)this.CurrentView.GetColumnValue(e.RowIndex, 3);
+            int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
 
             if (index < this.levelBrushes.Count)
             {
@@ -172,7 +172,7 @@ namespace LogFlow.Viewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource("loaded test"));
+            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"));
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;
@@ -273,7 +273,7 @@ namespace LogFlow.Viewer
 
         }
 
-        private void TagCurrentView(int index, Filter filter)
+        private void TagCurrentView(int index, IFilter filter)
         {
             if (this.CurrentView == null) return;
 
@@ -331,7 +331,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
+            var f = new Filter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;
@@ -378,7 +378,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripTextBoxPattern.Text);
+            IFilter f = new Filter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;

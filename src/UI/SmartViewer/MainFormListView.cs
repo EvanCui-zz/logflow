@@ -70,7 +70,7 @@ namespace LogFlow.Viewer
         {
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                var document = new RootView<DataItemBase>("loaded test", LogSourceManager.Instance.GetLogSource(this.openFileDialog1.FileName));
+                var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", this.openFileDialog1.FileNames)));
                 this.treeViewDoc.Nodes.Clear();
 
                 this.AddView(document);
@@ -88,8 +88,11 @@ namespace LogFlow.Viewer
             {
                 this.closeToolStripMenuItem.Enabled = false;
                 this.filterToolStripMenuItemDoc.Enabled = false;
+                this.Text = Product.GetTitle();
                 return;
             }
+
+            this.Text = $"{Product.GetTitle()} - {this.CurrentView.Name}";
 
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
@@ -127,7 +130,7 @@ namespace LogFlow.Viewer
 
                 bw.ProgressChanged += (s, e1) =>
                 {
-                    if (object.ReferenceEquals(this.CurrentView, e1.UserState))
+                    if (object.ReferenceEquals(this.CurrentView, e1.UserState) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize)
                     {
                         this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
                     }
@@ -143,7 +146,6 @@ namespace LogFlow.Viewer
                 };
 
                 bw.RunWorkerAsync();
-
             }
             else
             {
@@ -155,6 +157,7 @@ namespace LogFlow.Viewer
                 {
                     series.Points.AddY(y);
                 }
+
                 this.fastListViewMain.Refresh();
                 if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                     this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
@@ -183,7 +186,7 @@ namespace LogFlow.Viewer
 
         private void UpdateMainGridRowCount(object sender, int index)
         {
-            if (object.ReferenceEquals(sender, this.CurrentView))
+            if (object.ReferenceEquals(sender, this.CurrentView) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize)
             {
                 this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
             }
@@ -215,7 +218,7 @@ namespace LogFlow.Viewer
             MessageBox.Show("Hello, you will see a dialog box for filter/tag/search/count operations.", "To be implemented", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void TagCurrentView(int index, Filter filter)
+        private void TagCurrentView(int index, IFilter filter)
         {
             if (this.CurrentView == null) return;
 
@@ -239,7 +242,7 @@ namespace LogFlow.Viewer
             this.AddView(childView);
         }
 
-        private void AddView(IFilteredView<DataItemBase> childView)
+        private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true)
         {
             childView.ItemAdded += this.UpdateMainGridRowCount;
             childView.ProgressChanged += ChildView_ProgressChanged;
@@ -263,9 +266,12 @@ namespace LogFlow.Viewer
                     Width = ci.Width,
                 })).ToArray();
 
+                this.fastListViewMain.BeginUpdate();
                 this.fastListViewMain.Columns.Clear();
                 this.fastListViewMain.Items.Clear();
                 this.fastListViewMain.Columns.AddRange(headers);
+                this.fastListViewMain.EndUpdate();
+
                 node = this.treeViewDoc.Nodes.Add(childView.Name, childView.Name);
             }
             else
@@ -274,7 +280,21 @@ namespace LogFlow.Viewer
             }
 
             node.Tag = childView;
-            this.treeViewDoc.SelectedNode = node;
+
+            if (activateView)
+            {
+                this.treeViewDoc.SelectedNode = node;
+            }
+
+            if (childView.Children != null)
+            {
+                foreach (var v in childView.Children)
+                {
+                    this.AddView(v, false);
+                }
+            }
+
+            if (!node.IsExpanded) node.Expand();
         }
 
         private void RemoveView(IFilteredView<DataItemBase> view)
@@ -309,7 +329,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripComboBoxString.Text);
+            var f = new Filter(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -346,7 +366,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            Filter f = new Filter(this.toolStripComboBoxString.Text);
+            var f = new Filter(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -384,15 +404,19 @@ namespace LogFlow.Viewer
 
             e.Item.Text = "";
             e.Item.Tag = item;
-            e.Item.SubItems.AddRange(new List<ListViewItem.ListViewSubItem>(this.CurrentView.ColumnInfos.Count) {
-                new ListViewItem.ListViewSubItem(),
-                new ListViewItem.ListViewSubItem(),
-                new ListViewItem.ListViewSubItem(),
-                new ListViewItem.ListViewSubItem(),
-                new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) },
-                new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 5) },
-                new ListViewItem.ListViewSubItem(),
-            }.ToArray());
+
+            var count = this.CurrentView.ColumnInfos.Count;
+            var subItems = new ListViewItem.ListViewSubItem[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                subItems[i] = new ListViewItem.ListViewSubItem();
+            }
+
+            subItems[4] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) };
+            subItems[5] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 5) };
+
+            e.Item.SubItems.AddRange(subItems);
         }
 
         private void fastListViewMain_DrawItem(object sender, DrawListViewItemEventArgs e)
@@ -414,7 +438,7 @@ namespace LogFlow.Viewer
             {
                 // level background
                 var level = item.Level;
-                int index = level == LogLevel.Critical ? 0 : (level == LogLevel.Error ? 1 : (level == LogLevel.Warning ? 2 : 3));
+                int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
 
                 if (index < this.fastListViewMain.LevelBrushes.Count)
                 {
@@ -431,14 +455,6 @@ namespace LogFlow.Viewer
 
             e.DrawFocusRectangle();
 
-        }
-
-        private void fastListViewMain_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
-        {
-            e.DrawBackground();
-            e.DrawText(TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
-            var bound = e.Bounds;
-            e.Graphics.DrawLine(this.fastListViewMain.GridLineColorPen, bound.X, bound.Y + bound.Height - 1, bound.X + bound.Width, bound.Y + bound.Height - 1);
         }
 
         private void fastListViewMain_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
@@ -537,9 +553,17 @@ namespace LogFlow.Viewer
                     break;
 
                 default:
-                    e.Graphics.DrawString(item.GetColumnText(e.ColumnIndex), e.SubItem.Font, foreBrush, bound, format);
+                    e.Graphics.DrawString(this.CurrentView?.GetColumnValue(e.ItemIndex, e.ColumnIndex - 1).ToString(), e.SubItem.Font, foreBrush, bound, format);
                     break;
             }
+        }
+
+        private void fastListViewMain_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            e.DrawBackground();
+            e.DrawText(TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            var bound = e.Bounds;
+            e.Graphics.DrawLine(this.fastListViewMain.GridLineColorPen, bound.X, bound.Y + bound.Height - 1, bound.X + bound.Width, bound.Y + bound.Height - 1);
         }
 
         private void toolStripComboBoxString_TextChanged(object sender, EventArgs e)
@@ -631,7 +655,7 @@ namespace LogFlow.Viewer
 
             int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
-            Filter f = new Filter($"t:{threadId}");
+            var f = new Filter($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
 
             this.AddView(childView);

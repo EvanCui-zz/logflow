@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace LogFlow.DataModel
 {
     public interface IFilteredView<out T> where T : DataItemBase
-    {
+    {        
         #region Find, Count, Filter, Tag, Indent features.
 
         int GetLogicalIndexOfItem(int itemId);
@@ -26,7 +26,7 @@ namespace LogFlow.DataModel
         /// </summary>
         /// <param name="index">the tag index</param>
         /// <param name="filter">the filter</param>
-        void Tag(int index, Filter filter);
+        void Tag(int index, IFilter filter);
         void UnTag(int index);
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace LogFlow.DataModel
         /// <param name="direction"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        IEnumerable<int> Find(Filter filter, int currentIndex, bool direction);
+        IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction);
 
-        IEnumerable<int> Count(Filter filter);
+        IEnumerable<int> Count(IFilter filter);
 
         IEnumerable<int> Initialize();
 
@@ -56,11 +56,13 @@ namespace LogFlow.DataModel
 
         #region Child
 
-        IFilteredView<T> CreateChild(Filter filter);
+        IFilteredView<T> CreateChild(IFilter filter);
 
         #endregion
 
         #region Display
+
+        IReadOnlyList<IFilteredView<T>> Children { get; }
 
         event EventHandler<ProgressItem> ProgressChanged;
         int? FirstDisplayedScrollingRowIndex { get; set; }

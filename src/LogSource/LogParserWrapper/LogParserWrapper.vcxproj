@@ -81,6 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -162,12 +163,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryLogReaderWrapper.h" />
+    <ClInclude Include="CosmosLogFile.h" />
     <ClInclude Include="CosmosLogSource.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="BinaryLogReaderWrapper.cpp" />
+    <ClCompile Include="CosmosLogFile.cpp" />
     <ClCompile Include="CosmosLogSource.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -185,6 +190,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\LogSourceBase\LogSourceBase.csproj">
       <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\CosmosLogSource\CosmosLogSource.csproj">
+      <Project>{ecec5b7f-fb49-4a27-9e47-7691b519ac1b}</Project>
     </ProjectReference>
     <ProjectReference Include="..\logParser\logParser.vcxproj">
       <Project>{b4c0be71-c006-4de3-8c69-41253c47c393}</Project>

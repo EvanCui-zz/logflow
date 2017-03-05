@@ -57,6 +57,10 @@
       <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
       <Name>LogSourceBase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\LogSource\CosmosLogSource\CosmosLogSource.csproj">
+      <Project>{ecec5b7f-fb49-4a27-9e47-7691b519ac1b}</Project>
+      <Name>CosmosLogSource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\LogSource\LogParserWrapper\LogParserWrapper.vcxproj">
       <Project>{a5ec814b-ed75-4997-b127-8d8b8ac8ee3e}</Project>
       <Name>LogParserWrapper</Name>

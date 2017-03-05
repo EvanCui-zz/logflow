@@ -40,18 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\HeapMerger.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
-    <Compile Include="LogSource\DataItemBase.cs" />
-    <Compile Include="LogSource\DataItemBaseExtension.cs" />
+    <Compile Include="DataItem\DataItemBase.cs" />
+    <Compile Include="DataItem\DataItemBaseExtension.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="LogSource\ILogSource.cs" />
+    <Compile Include="LogSource\InnerGroupData.cs" />
     <Compile Include="LogSource\LogSourceBase.cs" />
-    <Compile Include="LogSource\ParametricString.cs" />
+    <Compile Include="CustomizedDataType\ParametricString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DataItem\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

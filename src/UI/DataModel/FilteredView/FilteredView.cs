@@ -48,7 +48,7 @@ namespace LogFlow.DataModel
         /// </summary>
         /// <param name="index">the tag index</param>
         /// <param name="filter">the filter</param>
-        public void Tag(int index, Filter filter)
+        public void Tag(int index, IFilter filter)
         {
             this.Tags[index] = filter;
         }
@@ -71,7 +71,7 @@ namespace LogFlow.DataModel
         /// <param name="direction"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public IEnumerable<int> Find(Filter filter, int currentIndex, bool direction)
+        public IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction)
         {
             if (!this.IsInitialized || this.IsInProgress) yield break;
 
@@ -99,7 +99,7 @@ namespace LogFlow.DataModel
 
                 int index = this.GetPhysicalIndex(logicalIndex);
 
-                if (filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
+                if (filter.Match(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
                     this.SelectedRowIndex = logicalIndex;
                     break;
@@ -110,7 +110,7 @@ namespace LogFlow.DataModel
             this.OnReportFinish();
         }
 
-        public IEnumerable<int> Count(Filter filter)
+        public IEnumerable<int> Count(IFilter filter)
         {
             if (!this.IsInitialized || this.IsInProgress) yield break;
 
@@ -131,7 +131,7 @@ namespace LogFlow.DataModel
 
                 int index = this.GetPhysicalIndex(i);
 
-                if (filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
+                if (filter.Match(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                 {
                     count++;
                 }
@@ -181,7 +181,7 @@ namespace LogFlow.DataModel
 
                     int index = this.Parent.GetPhysicalIndex(i);
 
-                    if (this.Filter.Match<T>(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
+                    if (this.Filter.Match(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                     {
                         this.ItemIndexes.Add(index);
                     }
@@ -218,7 +218,7 @@ namespace LogFlow.DataModel
 
         #region Child
 
-        public IFilteredView<T> CreateChild(Filter filter)
+        public IFilteredView<T> CreateChild(IFilter filter)
         {
             return new FilteredView<T>(filter, this, this.Data);
         }
@@ -226,6 +226,7 @@ namespace LogFlow.DataModel
         #endregion
 
         #region Display
+        public IReadOnlyList<IFilteredView<T>> Children => this.children;
 
         public event EventHandler<ProgressItem> ProgressChanged;
         public int? FirstDisplayedScrollingRowIndex { get; set; }
@@ -275,7 +276,7 @@ namespace LogFlow.DataModel
 
         #region Constructors
 
-        internal FilteredView(Filter filter, FilteredView<T> parent, ILogSource<T> data) : this(filter.Name)
+        internal FilteredView(IFilter filter, FilteredView<T> parent, ILogSource<T> data) : this(filter.Name)
         {
             this.Filter = filter;
             this.Parent = parent;
@@ -299,13 +300,27 @@ namespace LogFlow.DataModel
             this.Name = name;
         }
 
+        internal FilteredView(string name, FilteredView<T> parent, InnerGroupData groupData, ILogSource<T> data) : this(name)
+        {
+            this.Parent = parent;
+            this.GroupData = groupData;
+            // Change this to filter design.
+            this.ItemIndexes = groupData.InnerGroupIndexes;
+            this.Data = data;
+            this.IsInitialized = true;
+        }
+
         #endregion
 
         #region Properties and fields
 
-        private IDictionary<int, Filter> Tags { get; set; } = new Dictionary<int, Filter>();
+        protected List<IFilteredView<T>> children;
 
-        private Filter Filter { get; set; }
+        private InnerGroupData GroupData { get; set; }
+
+        private IDictionary<int, IFilter> Tags { get; set; } = new Dictionary<int, IFilter>();
+
+        private IFilter Filter { get; set; }
 
         private FilteredView<T> Parent { get; set; }
 

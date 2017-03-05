@@ -11,10 +11,22 @@ namespace LogFlow.DataModel
     {
         protected LogSourceBase()
         {
-            this.propertyInfos = typeof(T).GetProperties()
-                .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true)).ToList();
+            var currentType = typeof(T);
+
+            this.propertyInfos = new List<PropertyInfo>(0);
+
+            while (currentType != null)
+            {
+                this.propertyInfos = currentType.GetProperties()
+                    .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true) && f.DeclaringType == currentType).Concat(this.propertyInfos).ToList();
+
+                currentType = currentType.BaseType;
+            }
+
             this.columnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
         }
+
+        public abstract string Name { get; }
 
         public IReadOnlyList<T> Items => this.items;
 
@@ -30,8 +42,11 @@ namespace LogFlow.DataModel
         public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.columnInfos;
         private List<ColumnInfoAttribute> columnInfos;
 
-        public IReadOnlyList<KeyValuePair<string, List<int>>> GroupIndexes => this.InnerGroupIndexes;
-        protected List<KeyValuePair<string, List<int>>> InnerGroupIndexes = null;
+        public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
+        protected List<IFilter> InnerGroupFilters = null;
+
+        //public IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData => this.InnerGroupData;
+        //protected List<KeyValuePair<string, InnerGroupData>> InnerGroupData = null;
 
         // for performance, only pass int value
         public event EventHandler<int> ItemAdded;

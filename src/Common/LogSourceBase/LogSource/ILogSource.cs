@@ -9,6 +9,7 @@ namespace LogFlow.DataModel
 {
     public interface ILogSource<out T> where T : DataItemBase
     {
+        string Name { get; }
         IReadOnlyList<T> Items { get; }
         IReadOnlyList<string> Templates { get; }
         IReadOnlyList<PropertyInfo> PropertyInfos { get; }
@@ -19,6 +20,7 @@ namespace LogFlow.DataModel
 
         IEnumerable<int> Load(IFilter filter = null);
 
-        IReadOnlyList<KeyValuePair<string, List<int>>> GroupIndexes { get; }
+        IReadOnlyList<IFilter> GroupFilters { get; }
+//        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }
     }
 }

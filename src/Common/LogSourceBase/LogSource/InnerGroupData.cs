@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace LogFlow.DataModel
 {
-    public interface IFilter
+    public class InnerGroupData
     {
-        string Name { get; }
-        bool Match<T>(T item, string template) where T : DataItemBase;
+        public List<int> InnerGroupIndexes { get; set; } = new List<int>();
+        public int Percentage { get; set; }
     }
 }
