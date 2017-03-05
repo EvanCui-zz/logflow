@@ -13,9 +13,9 @@ namespace LogFlow.DataModel
 
         public int GetLogicalIndexOfItem(int itemId)
         {
-            if (this.ItemIndexes != null)
+            if (this.ItemIndices != null)
             {
-                return this.ItemIndexes.BinarySearch(itemId);
+                return this.ItemIndices.BinarySearch(itemId);
             }
             else
             {
@@ -78,7 +78,7 @@ namespace LogFlow.DataModel
             this.OnReportStart("Searching");
             yield return 0;
 
-            int total = this.ItemIndexes?.Count ?? this.Data.Items.Count;
+            int total = this.ItemIndices?.Count ?? this.Data.Items.Count;
 
             bool loopedBack = false;
             for (int i = 1; i < total; i++)
@@ -183,7 +183,9 @@ namespace LogFlow.DataModel
 
                     if (this.Filter.Match(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                     {
-                        this.ItemIndexes.Add(index);
+                        // we don't use this.AddItem here, to avoid flushing many events when initialize.
+                        // only initialized is true, we fire events.
+                        this.ItemIndices.Add(index);
                     }
                 }
             }
@@ -234,7 +236,7 @@ namespace LogFlow.DataModel
 
         public string Name { get; private set; }
 
-        public int TotalCount { get { return this.ItemIndexes?.Count ?? this.Data.Items.Count; } }
+        public int TotalCount { get { return this.ItemIndices?.Count ?? this.Data.Items.Count; } }
 
         public T GetRowValue(int rowIndex)
         {
@@ -264,7 +266,7 @@ namespace LogFlow.DataModel
 
         public int GetPhysicalIndex(int logicalIndex)
         {
-            return this.ItemIndexes?[logicalIndex] ?? logicalIndex;
+            return this.ItemIndices?[logicalIndex] ?? logicalIndex;
         }
 
         public IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
@@ -281,7 +283,7 @@ namespace LogFlow.DataModel
             this.Filter = filter;
             this.Parent = parent;
             this.Data = data;
-            this.ItemIndexes = new List<int>();
+            this.ItemIndices = new List<int>();
 
             if (this.Parent != null)
             {
@@ -305,7 +307,7 @@ namespace LogFlow.DataModel
             this.Parent = parent;
             this.GroupData = groupData;
             // Change this to filter design.
-            this.ItemIndexes = groupData.InnerGroupIndexes;
+            this.ItemIndices = groupData.InnerGroupIndexes;
             this.Data = data;
             this.IsInitialized = true;
         }
@@ -326,7 +328,7 @@ namespace LogFlow.DataModel
 
         internal ILogSource<T> Data { get; set; }
 
-        private List<int> ItemIndexes { get; set; }
+        private List<int> ItemIndices { get; set; }
 
         private HashSet<int> indentedThreads = new HashSet<int>();
 
@@ -341,7 +343,7 @@ namespace LogFlow.DataModel
 
         private void AddItem(int index)
         {
-            this.ItemIndexes.Add(index);
+            this.ItemIndices.Add(index);
 
             // passing the raw index directly to the child for performance.
             this.OnItemAdded(index);

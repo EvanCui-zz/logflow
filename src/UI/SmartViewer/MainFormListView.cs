@@ -71,9 +71,9 @@ namespace LogFlow.Viewer
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", this.openFileDialog1.FileNames)));
-                this.treeViewDoc.Nodes.Clear();
+                //   this.treeViewDoc.Nodes.Clear();
 
-                this.AddView(document);
+                this.AddView(document, true, true);
             }
         }
 
@@ -84,6 +84,9 @@ namespace LogFlow.Viewer
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
             this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
+
+            this.UpdateDocDisplay();
+
             if (this.CurrentView == null)
             {
                 this.closeToolStripMenuItem.Enabled = false;
@@ -99,7 +102,6 @@ namespace LogFlow.Viewer
 
             Debug.WriteLine("Suspend layout");
             this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
-            this.fastListViewMain.VirtualListSize = 0;
 
             Debug.WriteLine("rows cleared");
             if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
@@ -110,17 +112,7 @@ namespace LogFlow.Viewer
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
-                    var currentView = this.CurrentView;
-                    if (currentView != null)
-                    {
-                        this.propertyGridStatistics.SelectedObject = currentView.Statistics;
-                        this.chartTimeLine.Series.Clear();
-                        var series = this.chartTimeLine.Series.Add("timeline");
-                        foreach (var y in currentView.Statistics.Timeline)
-                        {
-                            series.Points.AddY(y);
-                        }
-                    }
+                    this.UpdateStatistics();
 
                     watch.Stop();
                     this.toolStripStatusLabel1.Text = $"Used: {watch.Elapsed}";
@@ -130,10 +122,8 @@ namespace LogFlow.Viewer
 
                 bw.ProgressChanged += (s, e1) =>
                 {
-                    if (object.ReferenceEquals(this.CurrentView, e1.UserState) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize)
-                    {
-                        this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                    }
+                    // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
+                    this.UpdateMainGridRowCount(e1.UserState, this.CurrentView.TotalCount);
                 };
 
                 bw.DoWork += (s, e1) =>
@@ -149,16 +139,6 @@ namespace LogFlow.Viewer
             }
             else
             {
-                this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
-                this.propertyGridStatistics.SelectedObject = this.CurrentView.Statistics;
-                this.chartTimeLine.Series.Clear();
-                var series = this.chartTimeLine.Series.Add("timeline");
-                foreach (var y in this.CurrentView.Statistics.Timeline)
-                {
-                    series.Points.AddY(y);
-                }
-
-                this.fastListViewMain.Refresh();
                 if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                     this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
                 if (this.CurrentView.LastCountResult.HasValue)
@@ -242,36 +222,66 @@ namespace LogFlow.Viewer
             this.AddView(childView);
         }
 
-        private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true)
+        private void UpdateDocDisplay()
         {
-            childView.ItemAdded += this.UpdateMainGridRowCount;
-            childView.ProgressChanged += ChildView_ProgressChanged;
+            this.UpdateFastListViewColumns();
+            this.UpdateDetailedPane();
+            this.UpdateStatistics();
+        }
 
-            TreeNode node;
-            if (this.treeViewDoc.Nodes.Count == 0)
+        private void UpdateStatistics()
+        {
+            this.propertyGridStatistics.SelectedObject = this.CurrentView?.Statistics;
+
+            this.chartTimeLine.Series.Clear();
+            var currentView = this.CurrentView;
+            if (currentView != null)
             {
-                var columns = childView.ColumnInfos.Select(ci => new DataGridViewTextBoxColumn()
+                var series = this.chartTimeLine.Series.Add("timeline");
+                if (currentView.IsInitialized)
                 {
-                    Name = ci.Name,
-                    HeaderText = ci.Name,
-                    AutoSizeMode = string.Equals(ci.Name, "Text") ? DataGridViewAutoSizeColumnMode.Fill : DataGridViewAutoSizeColumnMode.None,
-                    MinimumWidth = 5,
-                    Width = ci.Width,
-                }).ToArray();
+                    foreach (var y in currentView.Statistics.Timeline)
+                    {
+                        series.Points.AddY(y);
+                    }
+                }
+            }
+        }
 
-                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(childView.ColumnInfos.Select(ci => new ColumnHeader()
+        private void UpdateFastListViewColumns()
+        {
+            var view = this.CurrentView;
+
+            this.fastListViewMain.BeginUpdate();
+            this.fastListViewMain.Columns.Clear();
+            this.fastListViewMain.Items.Clear();
+            this.fastListViewMain.VirtualListSize = 0;
+
+            if (view != null)
+            {
+                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
                 {
                     Name = ci.Name,
                     Text = ci.Name,
                     Width = ci.Width,
                 })).ToArray();
 
-                this.fastListViewMain.BeginUpdate();
-                this.fastListViewMain.Columns.Clear();
-                this.fastListViewMain.Items.Clear();
                 this.fastListViewMain.Columns.AddRange(headers);
-                this.fastListViewMain.EndUpdate();
+                this.fastListViewMain_Resize(this, null);
+                this.fastListViewMain.VirtualListSize = view.TotalCount;
+            }
 
+            this.fastListViewMain.EndUpdate();
+        }
+
+        private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true, bool toRoot = false)
+        {
+            childView.ItemAdded += this.UpdateMainGridRowCount;
+            childView.ProgressChanged += ChildView_ProgressChanged;
+
+            TreeNode node;
+            if (this.treeViewDoc.Nodes.Count == 0 || toRoot)
+            {
                 node = this.treeViewDoc.Nodes.Add(childView.Name, childView.Name);
             }
             else
@@ -290,7 +300,7 @@ namespace LogFlow.Viewer
             {
                 foreach (var v in childView.Children)
                 {
-                    this.AddView(v, false);
+                    this.AddView(v, false, false);
                 }
             }
 
@@ -301,7 +311,6 @@ namespace LogFlow.Viewer
         {
             view.ItemAdded -= this.UpdateMainGridRowCount;
             view.ProgressChanged -= this.ChildView_ProgressChanged;
-
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -394,6 +403,7 @@ namespace LogFlow.Viewer
 
         private void fastListViewMain_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
         {
+            // todo, enable cache when we do data virtualization.
         }
 
         private void fastListViewMain_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -598,7 +608,7 @@ namespace LogFlow.Viewer
             }
         }
 
-        private void fastListViewMain_SelectedIndexChanged(object sender, EventArgs e)
+        private void UpdateDetailedPane()
         {
             if (this.fastListViewMain.SelectedIndices.Count > 0)
             {
@@ -610,35 +620,30 @@ namespace LogFlow.Viewer
                 this.labelProcessId.Text = item.ProcessId.ToString();
                 this.labelLevel.Text = item.Level.ToString();
                 this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters);
-                this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView.TotalCount}";
             }
             else
             {
-                this.toolStripStatusLabelSelected.Text = $"-1, {this.CurrentView.TotalCount}";
+                this.labelId.Text = this.labelTime.Text = this.labelThreadId.Text = this.labelProcessId.Text = this.labelLevel.Text = this.textBoxText.Text = string.Empty;
             }
+        }
+
+        private void fastListViewMain_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.UpdateDetailedPane();
+            var firstSelectedIndex = this.fastListViewMain.SelectedIndices.Count > 0 ? this.fastListViewMain.SelectedIndices[0] : -1;
+
+            this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView.TotalCount}";
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var nodeParent = this.treeViewDoc.SelectedNode?.Parent;
+            var nodeNext = this.treeViewDoc.SelectedNode?.Parent ?? this.treeViewDoc.SelectedNode?.PrevNode ?? this.treeViewDoc.SelectedNode?.NextNode;
             this.treeViewDoc.SelectedNode?.Remove();
 
-            if (nodeParent == null)
-            {
-                this.fastListViewMain.BeginUpdate();
-                this.fastListViewMain.Clear();
-                this.RemoveView(this.CurrentView);
-                this.CurrentView = null;
-                this.fastListViewMain.VirtualListSize = 0;
-                this.progressBarMain.Visible = false;
-                this.toolStripStatusLabel.Text = "Ready";
-                this.fastListViewMain.EndUpdate();
-                this.chartTimeLine.Series.Clear();
-                this.propertyGridStatistics.SelectedObject = null;
-                GC.Collect();
-            }
+            // Remove children.
+            this.RemoveView(this.CurrentView);
 
-            this.treeViewDoc.SelectedNode = nodeParent;
+            this.treeViewDoc.SelectedNode = nodeNext;
         }
 
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)

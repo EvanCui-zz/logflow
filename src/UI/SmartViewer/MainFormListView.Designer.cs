@@ -30,8 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("<no doc>");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripComboBoxString = new System.Windows.Forms.ToolStripComboBox();
@@ -172,6 +172,7 @@
             this.showFilenameColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.timeline1 = new LogFlow.Viewer.Timeline();
+            this.enableDataVirtualizationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -604,6 +605,7 @@
             this.fastRenderingToolStripMenuItem,
             this.detectNewLogsToolStripMenuItem,
             this.autoScrollToolStripMenuItem,
+            this.enableDataVirtualizationToolStripMenuItem,
             this.toolStripSeparator5,
             this.allSettingsToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
@@ -614,60 +616,60 @@
             // 
             this.boldParametersToolStripMenuItem.CheckOnClick = true;
             this.boldParametersToolStripMenuItem.Name = "boldParametersToolStripMenuItem";
-            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.boldParametersToolStripMenuItem.Text = "Bold Parameters";
             // 
             // showLevelColumnToolStripMenuItem
             // 
             this.showLevelColumnToolStripMenuItem.Name = "showLevelColumnToolStripMenuItem";
-            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.showLevelColumnToolStripMenuItem.Text = "Show Level Column";
             // 
             // highlightLevelsToolStripMenuItem
             // 
             this.highlightLevelsToolStripMenuItem.Name = "highlightLevelsToolStripMenuItem";
-            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.highlightLevelsToolStripMenuItem.Text = "Highlight Levels";
             // 
             // showTagsToolStripMenuItem
             // 
             this.showTagsToolStripMenuItem.Name = "showTagsToolStripMenuItem";
-            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.showTagsToolStripMenuItem.Text = "Show Tags";
             // 
             // showStatisticsToolStripMenuItem
             // 
             this.showStatisticsToolStripMenuItem.Name = "showStatisticsToolStripMenuItem";
-            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.showStatisticsToolStripMenuItem.Text = "Show Statistics";
             // 
             // fastRenderingToolStripMenuItem
             // 
             this.fastRenderingToolStripMenuItem.Name = "fastRenderingToolStripMenuItem";
-            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.fastRenderingToolStripMenuItem.Text = "Fast Rendering";
             // 
             // detectNewLogsToolStripMenuItem
             // 
             this.detectNewLogsToolStripMenuItem.Name = "detectNewLogsToolStripMenuItem";
-            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.detectNewLogsToolStripMenuItem.Text = "Detect New Logs";
             // 
             // autoScrollToolStripMenuItem
             // 
             this.autoScrollToolStripMenuItem.Name = "autoScrollToolStripMenuItem";
-            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.autoScrollToolStripMenuItem.Text = "Auto Scroll";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(205, 6);
             // 
             // allSettingsToolStripMenuItem
             // 
             this.allSettingsToolStripMenuItem.Name = "allSettingsToolStripMenuItem";
-            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.allSettingsToolStripMenuItem.Text = "All Settings...";
             // 
             // helpToolStripMenuItem
@@ -1188,9 +1190,9 @@
             this.chartTimeLine.BorderlineColor = System.Drawing.Color.Black;
             this.chartTimeLine.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
             this.chartTimeLine.CausesValidation = false;
-            chartArea1.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea1.Name = "ChartArea1";
-            this.chartTimeLine.ChartAreas.Add(chartArea1);
+            chartArea2.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea2.Name = "ChartArea1";
+            this.chartTimeLine.ChartAreas.Add(chartArea2);
             this.chartTimeLine.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartTimeLine.Location = new System.Drawing.Point(0, 0);
             this.chartTimeLine.Name = "chartTimeLine";
@@ -1235,10 +1237,10 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "<no doc>";
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "<no doc>";
             this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode2});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 485);
             this.treeViewDoc.TabIndex = 0;
@@ -1355,7 +1357,7 @@
             // showFilenameColumnToolStripMenuItem
             // 
             this.showFilenameColumnToolStripMenuItem.Name = "showFilenameColumnToolStripMenuItem";
-            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.showFilenameColumnToolStripMenuItem.Text = "Show Filename Column";
             // 
             // fastListViewMain
@@ -1402,6 +1404,12 @@
             this.timeline1.Plots = ((System.Collections.Generic.IList<double>)(resources.GetObject("timeline1.Plots")));
             this.timeline1.Size = new System.Drawing.Size(156, 137);
             this.timeline1.TabIndex = 0;
+            // 
+            // enableDataVirtualizationToolStripMenuItem
+            // 
+            this.enableDataVirtualizationToolStripMenuItem.Name = "enableDataVirtualizationToolStripMenuItem";
+            this.enableDataVirtualizationToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.enableDataVirtualizationToolStripMenuItem.Text = "Data Virtualization";
             // 
             // MainFormListView
             // 
@@ -1596,6 +1604,7 @@
         private System.Windows.Forms.ToolStripMenuItem autoScrollToolStripMenuItem;
         private System.Windows.Forms.Timer timerMemory;
         private System.Windows.Forms.ToolStripMenuItem showFilenameColumnToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enableDataVirtualizationToolStripMenuItem;
     }
 }
 
