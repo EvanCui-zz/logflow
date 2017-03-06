@@ -23,6 +23,15 @@
 
         private readonly HashSet<int> matchedTemplateIds = new HashSet<int>();
 
+        public static IFilter CreateFilter(Func<DataItemBase, string, bool> predicate)
+        {
+            return new Filter() { Predicate = predicate };
+        }
+
+        private Func<DataItemBase, string, bool> Predicate { get; set; }
+
+        private Filter() { }
+
         public Filter(string pattern)
         {
             this.Name = pattern;
@@ -110,6 +119,8 @@
 
         public virtual bool Match<T>(T item, string template) where T : DataItemBase
         {
+            if (this.Predicate != null) return this.Predicate(item, template);
+
             if (this.Level.HasValue && !this.Level.Value.HasFlag(item.Level))
             {
                 return false;

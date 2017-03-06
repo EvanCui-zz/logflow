@@ -176,6 +176,8 @@
             this.listViewExceptions = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.filterAsBeginTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.filterAsEndTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.timeline1 = new LogFlow.Viewer.Timeline();
             this.panelTop.SuspendLayout();
@@ -775,6 +777,8 @@
             this.contextMenuStripListView.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.filterWithTheSameThreadToolStripMenuItem,
             this.filterWithTheSameActivityToolStripMenuItem,
+            this.filterAsBeginTimeToolStripMenuItem,
+            this.filterAsEndTimeToolStripMenuItem,
             this.indentTheThreadToolStripMenuItem,
             this.indentTheActivityToolStripMenuItem,
             this.unindentToolStripMenuItem,
@@ -789,7 +793,7 @@
             this.toolStripSeparator6,
             this.advancedToolStripMenuItem});
             this.contextMenuStripListView.Name = "contextMenuStripListView";
-            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 286);
+            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 352);
             // 
             // filterWithTheSameThreadToolStripMenuItem
             // 
@@ -1064,7 +1068,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(679, 164);
+            this.tabPage2.Size = new System.Drawing.Size(681, 166);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Thread";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -1125,7 +1129,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 25);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(679, 164);
+            this.tabPage3.Size = new System.Drawing.Size(681, 166);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Template";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -1427,6 +1431,20 @@
             this.columnHeader2.Text = "Count";
             this.columnHeader2.Width = 50;
             // 
+            // filterAsBeginTimeToolStripMenuItem
+            // 
+            this.filterAsBeginTimeToolStripMenuItem.Name = "filterAsBeginTimeToolStripMenuItem";
+            this.filterAsBeginTimeToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.filterAsBeginTimeToolStripMenuItem.Text = "Filter as Start";
+            this.filterAsBeginTimeToolStripMenuItem.Click += new System.EventHandler(this.filterAsStartToolStripMenuItem_Click);
+            // 
+            // filterAsEndTimeToolStripMenuItem
+            // 
+            this.filterAsEndTimeToolStripMenuItem.Name = "filterAsEndTimeToolStripMenuItem";
+            this.filterAsEndTimeToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.filterAsEndTimeToolStripMenuItem.Text = "Filter as End";
+            this.filterAsEndTimeToolStripMenuItem.Click += new System.EventHandler(this.filterAsEndToolStripMenuItem_Click);
+            // 
             // fastListViewMain
             // 
             this.fastListViewMain.AllowColumnReorder = true;
@@ -1676,6 +1694,8 @@
         private System.Windows.Forms.ListView listViewExceptions;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ToolStripMenuItem filterAsBeginTimeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem filterAsEndTimeToolStripMenuItem;
     }
 }
 

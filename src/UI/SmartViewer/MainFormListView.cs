@@ -772,5 +772,28 @@ namespace LogFlow.Viewer
                 this.resizeGuide = false;
             }
         }
+
+        private void FilterById(bool isBegin)
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                return;
+            }
+
+            var id = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
+
+            var childView = this.CurrentView.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
+            this.AddView(childView);
+        }
+
+        private void filterAsStartToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FilterById(true);
+        }
+
+        private void filterAsEndToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FilterById(false);
+        }
     }
 }
