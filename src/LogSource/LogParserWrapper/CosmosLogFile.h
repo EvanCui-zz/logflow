@@ -12,8 +12,8 @@ namespace LogFlow {
         public:
             CosmosLogFile(String^ filename)
             {
-				this->filePath = filename;
-                this->reader = gcnew BinaryLogReaderWrapper(filename);
+                this->FilePath = filename;
+                this->Reader = gcnew BinaryLogReaderWrapper(filename);
             }
         };
     }

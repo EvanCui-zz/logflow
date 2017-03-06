@@ -7,6 +7,7 @@
         public RootView(ILogSource<T> logSource) : base(logSource.Name)
         {
             this.Data = logSource;
+            this.GroupFilters = logSource.GroupFilters;
 
             //if (logSource.GroupData != null)
             //{

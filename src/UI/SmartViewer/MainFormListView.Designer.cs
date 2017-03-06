@@ -30,8 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormListView));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("<no doc>");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.panelTop = new System.Windows.Forms.Panel();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripComboBoxString = new System.Windows.Forms.ToolStripComboBox();
@@ -86,12 +85,14 @@
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.boldParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showLevelColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showFilenameColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.highlightLevelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showStatisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fastRenderingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.detectNewLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoScrollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableDataVirtualizationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -169,10 +170,14 @@
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.showFilenameColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.listViewExceptions = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.timeline1 = new LogFlow.Viewer.Timeline();
-            this.enableDataVirtualizationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -200,6 +205,9 @@
             this.panelLeft.SuspendLayout();
             this.contextMenuStripTreeView.SuspendLayout();
             this.statusStripMain.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelTop
@@ -616,60 +624,72 @@
             // 
             this.boldParametersToolStripMenuItem.CheckOnClick = true;
             this.boldParametersToolStripMenuItem.Name = "boldParametersToolStripMenuItem";
-            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.boldParametersToolStripMenuItem.Text = "Bold Parameters";
             // 
             // showLevelColumnToolStripMenuItem
             // 
             this.showLevelColumnToolStripMenuItem.Name = "showLevelColumnToolStripMenuItem";
-            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showLevelColumnToolStripMenuItem.Text = "Show Level Column";
+            // 
+            // showFilenameColumnToolStripMenuItem
+            // 
+            this.showFilenameColumnToolStripMenuItem.Name = "showFilenameColumnToolStripMenuItem";
+            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showFilenameColumnToolStripMenuItem.Text = "Show Filename Column";
             // 
             // highlightLevelsToolStripMenuItem
             // 
             this.highlightLevelsToolStripMenuItem.Name = "highlightLevelsToolStripMenuItem";
-            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.highlightLevelsToolStripMenuItem.Text = "Highlight Levels";
             // 
             // showTagsToolStripMenuItem
             // 
             this.showTagsToolStripMenuItem.Name = "showTagsToolStripMenuItem";
-            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.showTagsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showTagsToolStripMenuItem.Text = "Show Tags";
             // 
             // showStatisticsToolStripMenuItem
             // 
             this.showStatisticsToolStripMenuItem.Name = "showStatisticsToolStripMenuItem";
-            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.showStatisticsToolStripMenuItem.Text = "Show Statistics";
             // 
             // fastRenderingToolStripMenuItem
             // 
             this.fastRenderingToolStripMenuItem.Name = "fastRenderingToolStripMenuItem";
-            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.fastRenderingToolStripMenuItem.Text = "Fast Rendering";
             // 
             // detectNewLogsToolStripMenuItem
             // 
             this.detectNewLogsToolStripMenuItem.Name = "detectNewLogsToolStripMenuItem";
-            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.detectNewLogsToolStripMenuItem.Text = "Detect New Logs";
             // 
             // autoScrollToolStripMenuItem
             // 
             this.autoScrollToolStripMenuItem.Name = "autoScrollToolStripMenuItem";
-            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.autoScrollToolStripMenuItem.Text = "Auto Scroll";
+            // 
+            // enableDataVirtualizationToolStripMenuItem
+            // 
+            this.enableDataVirtualizationToolStripMenuItem.Name = "enableDataVirtualizationToolStripMenuItem";
+            this.enableDataVirtualizationToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.enableDataVirtualizationToolStripMenuItem.Text = "Data Virtualization";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(205, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
             // 
             // allSettingsToolStripMenuItem
             // 
             this.allSettingsToolStripMenuItem.Name = "allSettingsToolStripMenuItem";
-            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.allSettingsToolStripMenuItem.Text = "All Settings...";
             // 
             // helpToolStripMenuItem
@@ -1044,7 +1064,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(681, 166);
+            this.tabPage2.Size = new System.Drawing.Size(679, 164);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Thread";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -1105,7 +1125,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 25);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(681, 166);
+            this.tabPage3.Size = new System.Drawing.Size(679, 164);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Template";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -1179,7 +1199,7 @@
             // 
             // splitContainerStatistics.Panel2
             // 
-            this.splitContainerStatistics.Panel2.Controls.Add(this.propertyGridStatistics);
+            this.splitContainerStatistics.Panel2.Controls.Add(this.tabControl1);
             this.splitContainerStatistics.Size = new System.Drawing.Size(156, 485);
             this.splitContainerStatistics.SplitterDistance = 137;
             this.splitContainerStatistics.SplitterWidth = 8;
@@ -1190,9 +1210,9 @@
             this.chartTimeLine.BorderlineColor = System.Drawing.Color.Black;
             this.chartTimeLine.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
             this.chartTimeLine.CausesValidation = false;
-            chartArea2.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea2.Name = "ChartArea1";
-            this.chartTimeLine.ChartAreas.Add(chartArea2);
+            chartArea1.AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea1.Name = "ChartArea1";
+            this.chartTimeLine.ChartAreas.Add(chartArea1);
             this.chartTimeLine.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartTimeLine.Location = new System.Drawing.Point(0, 0);
             this.chartTimeLine.Name = "chartTimeLine";
@@ -1202,11 +1222,11 @@
             // 
             // propertyGridStatistics
             // 
-            this.propertyGridStatistics.DisabledItemForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.propertyGridStatistics.DisabledItemForeColor = System.Drawing.SystemColors.ControlText;
             this.propertyGridStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGridStatistics.Location = new System.Drawing.Point(0, 0);
+            this.propertyGridStatistics.Location = new System.Drawing.Point(3, 3);
             this.propertyGridStatistics.Name = "propertyGridStatistics";
-            this.propertyGridStatistics.Size = new System.Drawing.Size(156, 340);
+            this.propertyGridStatistics.Size = new System.Drawing.Size(142, 308);
             this.propertyGridStatistics.TabIndex = 0;
             // 
             // splitterPlaceHolder
@@ -1237,10 +1257,6 @@
             this.treeViewDoc.HideSelection = false;
             this.treeViewDoc.Location = new System.Drawing.Point(0, 0);
             this.treeViewDoc.Name = "treeViewDoc";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "<no doc>";
-            this.treeViewDoc.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
             this.treeViewDoc.ShowLines = false;
             this.treeViewDoc.Size = new System.Drawing.Size(156, 485);
             this.treeViewDoc.TabIndex = 0;
@@ -1354,11 +1370,62 @@
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
             // 
-            // showFilenameColumnToolStripMenuItem
+            // tabControl1
             // 
-            this.showFilenameColumnToolStripMenuItem.Name = "showFilenameColumnToolStripMenuItem";
-            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
-            this.showFilenameColumnToolStripMenuItem.Text = "Show Filename Column";
+            this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(156, 340);
+            this.tabControl1.TabIndex = 1;
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.propertyGridStatistics);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(148, 314);
+            this.tabPage4.TabIndex = 0;
+            this.tabPage4.Text = "Statistics";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.listViewExceptions);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(148, 314);
+            this.tabPage5.TabIndex = 1;
+            this.tabPage5.Text = "Exceptions";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // listViewExceptions
+            // 
+            this.listViewExceptions.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listViewExceptions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.listViewExceptions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listViewExceptions.Location = new System.Drawing.Point(3, 3);
+            this.listViewExceptions.Name = "listViewExceptions";
+            this.listViewExceptions.Size = new System.Drawing.Size(142, 308);
+            this.listViewExceptions.TabIndex = 0;
+            this.listViewExceptions.UseCompatibleStateImageBehavior = false;
+            this.listViewExceptions.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "ExceptionType";
+            this.columnHeader1.Width = 90;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Count";
+            this.columnHeader2.Width = 50;
             // 
             // fastListViewMain
             // 
@@ -1388,6 +1455,7 @@
             this.fastListViewMain.View = System.Windows.Forms.View.Details;
             this.fastListViewMain.VirtualMode = true;
             this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.fastListViewMain_ColumnWidthChanged);
             this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
             this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
             this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
@@ -1404,12 +1472,6 @@
             this.timeline1.Plots = ((System.Collections.Generic.IList<double>)(resources.GetObject("timeline1.Plots")));
             this.timeline1.Size = new System.Drawing.Size(156, 137);
             this.timeline1.TabIndex = 0;
-            // 
-            // enableDataVirtualizationToolStripMenuItem
-            // 
-            this.enableDataVirtualizationToolStripMenuItem.Name = "enableDataVirtualizationToolStripMenuItem";
-            this.enableDataVirtualizationToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.enableDataVirtualizationToolStripMenuItem.Text = "Data Virtualization";
             // 
             // MainFormListView
             // 
@@ -1457,6 +1519,9 @@
             this.contextMenuStripTreeView.ResumeLayout(false);
             this.statusStripMain.ResumeLayout(false);
             this.statusStripMain.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1605,6 +1670,12 @@
         private System.Windows.Forms.Timer timerMemory;
         private System.Windows.Forms.ToolStripMenuItem showFilenameColumnToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem enableDataVirtualizationToolStripMenuItem;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.ListView listViewExceptions;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
     }
 }
 

@@ -25,13 +25,33 @@
 31, One click install. Done
 3, Thread indent.
 50, Memory usage.
+26, multi-file
+53, Solve the native memory usage.
+54, Don't show the child node before initialized.
+48, Double click the column, rendering is wrong.
+45, Bug on Selected row and reloading, not repro.
+13, detail pane features.
+38, File name column for multiple file
+20, List view perf
 
+28, exceptions list
 2, Context operations. Most done
-
 4, Configurations.
 5, Colored level or column level.
+27, search files/findstr
+30, Ctrl + G
+32, Hot keys
+33, Highlight find content.
+35, Favorite filters
+43, Version, history
+44, Help, about
+46, Drag and drop
+52, Context filter start and end.
+51, Filename column display option
+40, Exception statistics
 
-13, detail pane features.
+
+
 17, Detail pane
 	1), detail
 	2), template pane
@@ -39,44 +59,28 @@
 		parameters dist
 	3), thread
 		blocking >1s >5s >10s
+	4), Context list preview on parent.
 
 18, Context menues
 	Filter by
 	Filter parent by
 	Filter root by
 
-19, Doc menues.
-20, List view perf
+42, UI icons, layout, decoration
+39, Recover last opened / recent opened list
+
+
+37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
+41, Plugin system
 21, List view logic refactor.
 22, consider structs
 23, consider size compact.
 25, regex
-26, multi-file
-27, search files/findstr
-28, exceptions list
+19, Doc menues.
+34, Parsable filter string
+36, Load from log parser
+49, hardcoded value.
 29, Other tools analysis:
 	1), LogParser, multiple source
 	2), Message analyzer, column search.
-30, Ctrl + G
-32, Hot keys
-33, Highlight find content.
-34, Parsable filter string
-35, Favorite filters
-36, Load from log parser
-37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
-38, File name column for multiple file
-39, Recover last opened / recent opened list
-40, Exception statistics
-41, Plugin system
-42, UI icons, layout, decoration
-43, Version, history
-44, Help, about
-45, Bug on Selected row and reloading
-46, Drag and drop
 47, Add/hide columns
-48, Double click the column, rendering is wrong.
-49, hardcoded value.
-51, Filename column display option
-52, Context filter start and end.
-53, Solve the native memory usage.
-54, Don't show the child node before initialized.

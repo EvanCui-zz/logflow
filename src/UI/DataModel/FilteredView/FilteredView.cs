@@ -240,7 +240,7 @@
             return new FilteredView<T>(filter, this, this.Data);
         }
 
-        public IReadOnlyList<IFilter> GroupFilters => this.Data.GroupFilters;
+        public IReadOnlyList<IFilter> GroupFilters { get; protected set; }
 
         #endregion
 

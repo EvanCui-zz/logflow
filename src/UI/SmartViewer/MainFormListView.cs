@@ -96,10 +96,8 @@ namespace LogFlow.Viewer
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
 
-            Debug.WriteLine("Suspend layout");
             this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
 
-            Debug.WriteLine("rows cleared");
             if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
             {
                 var bw = new BackgroundWorker { WorkerReportsProgress = true };
@@ -162,9 +160,21 @@ namespace LogFlow.Viewer
 
         private void UpdateMainGridRowCount(object sender, int index)
         {
-            if (object.ReferenceEquals(sender, this.CurrentView) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize)
+            if (object.ReferenceEquals(sender, this.CurrentView) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize && this.fastListViewMain.VirtualListSize < 100000000)
             {
-                this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                if (this.CurrentView.TotalCount > 100000000)
+                {
+                    MessageBox.Show(
+                        Resources.TooManyRowsText,
+                        Resources.TooManyRowsTitle,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    this.fastListViewMain.VirtualListSize = 100000000;
+                }
+                else
+                {
+                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                }
             }
         }
 
@@ -175,13 +185,12 @@ namespace LogFlow.Viewer
             {
                 try
                 {
-                    if (object.ReferenceEquals(sender, this.CurrentView))
-                    {
-                        this.progressBarMain.Value = e.Progress;
-                        this.toolStripStatusLabel.Text = e.ProgressDescription;
-                        this.progressBarMain.Visible = this.CurrentView.IsInProgress;
-                        Application.DoEvents();
-                    }
+                    if (!object.ReferenceEquals(sender, this.CurrentView)) return;
+                    this.progressBarMain.Value = e.Progress;
+                    this.toolStripStatusLabel.Text = e.ProgressDescription;
+                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
+                    this.UpdateSelectedStatus();
+                    Application.DoEvents();
                 }
                 catch (ObjectDisposedException) { }
             }));
@@ -228,6 +237,17 @@ namespace LogFlow.Viewer
         private void UpdateStatistics()
         {
             this.propertyGridStatistics.SelectedObject = this.CurrentView?.Statistics;
+
+            if (this.CurrentView?.Statistics != null)
+            {
+                this.listViewExceptions.Items.AddRange(
+                    this.CurrentView.Statistics.Exceptions.Select(kvp =>
+                    {
+                        var item = new ListViewItem(kvp.Key);
+                        item.SubItems.Add(new ListViewItem.ListViewSubItem() { Text = kvp.Value.ToString() });
+                        return item;
+                    }).ToArray());
+            }
 
             this.chartTimeLine.Series.Clear();
             var currentView = this.CurrentView;
@@ -591,12 +611,12 @@ namespace LogFlow.Viewer
 
         private void fastListViewMain_Resize(object sender, EventArgs e)
         {
-            var textWidth = this.fastListViewMain.Width;
+            var textWidth = this.fastListViewMain.Width - 1;
             ColumnHeader textCol = null;
 
             foreach (ColumnHeader col in this.fastListViewMain.Columns)
             {
-                if (string.Equals(col.Name, "Text"))
+                if (textCol == null && string.Equals(col.Name, "Text"))
                 {
                     textCol = col;
                 }
@@ -634,7 +654,14 @@ namespace LogFlow.Viewer
         private void fastListViewMain_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.UpdateDetailedPane();
-            var firstSelectedIndex = this.fastListViewMain.SelectedIndices.Count > 0 ? this.fastListViewMain.SelectedIndices[0] : -1;
+            UpdateSelectedStatus();
+        }
+
+        private void UpdateSelectedStatus()
+        {
+            var firstSelectedIndex = this.fastListViewMain.SelectedIndices.Count > 0
+                ? this.fastListViewMain.SelectedIndices[0]
+                : -1;
 
             this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView.TotalCount}";
         }
@@ -732,6 +759,18 @@ namespace LogFlow.Viewer
         {
             var memoryMb = ((double)GC.GetTotalMemory(false) / 1024) / 1024;
             this.toolStripStatusLabelMemory.Text = $"{memoryMb:0.##}MB";
+        }
+
+        private bool resizeGuide;
+
+        private void fastListViewMain_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        {
+            if (!this.resizeGuide)
+            {
+                this.resizeGuide = true;
+                this.fastListViewMain_Resize(sender, null);
+                this.resizeGuide = false;
+            }
         }
     }
 }

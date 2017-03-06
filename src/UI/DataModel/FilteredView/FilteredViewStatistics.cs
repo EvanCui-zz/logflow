@@ -1,4 +1,7 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -7,20 +10,21 @@
     [ReadOnly(true)]
     public class FilteredViewStatistics
     {
+        private readonly Regex exceptionRegex = new Regex("(?<name>[\\w]*Exception)", RegexOptions.Compiled);
         public int Errors { get; set; }
         public int Warnings { get; set; }
         public int Criticals { get; set; }
         public int TotalCount { get; set; }
-        public int ExceptionCount => this.Exceptions.Count;
+        public int ExceptionCount => this.Exceptions.Sum(kvp => kvp.Value);
 
-        // TODO: get the correct editor.
-        [Editor]
-        public IList<string> Exceptions { get; } = new List<string>();
+        [Browsable(false)]
+        public IDictionary<string, int> Exceptions { get; } = new Dictionary<string, int>();
         public int Threads { get; set; }
         public int Processes { get; set; }
         public int Activities { get; set; }
         public int Files { get; set; }
 
+        [Browsable(false)]
         public List<int> Timeline { get; set; } = new List<int>(SplitCount);
 
         private HashSet<int> ThreadIds { get; } = new HashSet<int>();
@@ -56,9 +60,24 @@
             if (item.Level.HasFlag(LogLevels.Warning)) { this.Warnings++; }
             if (item.Level.HasFlag(LogLevels.Critical)) { this.Criticals++; }
             var text = string.Format(template, item.Parameters);
-            if (text.ToLower().Contains("exception"))
+
+            // Perf critical
+            if (text.Contains("Exception"))
             {
-                this.Exceptions.Add(text);
+                var m = this.exceptionRegex.Match(text);
+                if (m.Success)
+                {
+                    var ex = m.Groups["name"].Value;
+                    int count;
+                    if (this.Exceptions.TryGetValue(ex, out count))
+                    {
+                        this.Exceptions[ex] = count + 1;
+                    }
+                    else
+                    {
+                        this.Exceptions[ex] = 1;
+                    }
+                }
             }
 
             if (this.ThreadIds.Add(item.ThreadId)) { this.Threads++; }

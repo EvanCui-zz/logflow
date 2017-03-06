@@ -61,7 +61,7 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello, you will see a dialog box for filter/tag/search/count operations..
+        ///   Looks up a localized string similar to Hello, you will see a dialog box for filter/tag/search/count operations. This is to be implemented, if you want this feature, you can send feedback to us..
         /// </summary>
         internal static string NotImplementedText {
             get {
@@ -75,6 +75,24 @@ namespace LogFlow.Viewer.Properties {
         internal static string NotImplementedTitle {
             get {
                 return ResourceManager.GetString("NotImplementedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wow~ You got so many log entries! (&gt;100,000,000) Please consider opening with filters, or doing a preloading search to narrow down the logs you want to focus on. We only show the first 100,000,000 entries..
+        /// </summary>
+        internal static string TooManyRowsText {
+            get {
+                return ResourceManager.GetString("TooManyRowsText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wow~ You got so many log entries!.
+        /// </summary>
+        internal static string TooManyRowsTitle {
+            get {
+                return ResourceManager.GetString("TooManyRowsTitle", resourceCulture);
             }
         }
     }
