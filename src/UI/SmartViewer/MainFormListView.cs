@@ -2,24 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
-using System.Runtime.InteropServices;
+using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
     public partial class MainFormListView : Form
     {
-        private StringFormat defaultStringFormat;
+        private StringFormat DefaultStringFormat { get; set; }
 
-        private List<Tuple<Color, SolidBrush, Pen>> tags = new List<Tuple<Color, SolidBrush, Pen>>()
+        private readonly List<Tuple<Color, SolidBrush, Pen>> Tags = new List<Tuple<Color, SolidBrush, Pen>>()
         {
             new Tuple<Color, SolidBrush, Pen>(Color.Cyan, new SolidBrush(Color.Cyan), new Pen(Color.Cyan)),
             new Tuple<Color, SolidBrush, Pen>(Color.FromArgb(128, 128, 255), new SolidBrush(Color.FromArgb(128, 128, 255)), new Pen(Color.FromArgb(128, 128, 255))),
@@ -40,14 +36,14 @@ namespace LogFlow.Viewer
             this.fastListViewMain.GridLineColorPen = new Pen(this.fastListViewMain.GridLineColor);
             this.fastListViewMain.SetHeight(21);
 
-            this.defaultStringFormat = new StringFormat(StringFormatFlags.NoWrap)
+            this.DefaultStringFormat = new StringFormat(StringFormatFlags.NoWrap)
             {
                 Trimming = StringTrimming.EllipsisCharacter,
                 LineAlignment = StringAlignment.Center,
             };
 
             int i = 0;
-            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.tags.Select(t => new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
+            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.Tags.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
             {
                 int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
                 if (this.CurrentView == null) return;
@@ -129,7 +125,7 @@ namespace LogFlow.Viewer
                 bw.DoWork += (s, e1) =>
                 {
                     var view = this.CurrentView;
-                    foreach (int progress in view.Initialize())
+                    foreach (var progress in view.Initialize())
                     {
                         bw.ReportProgress(progress, view);
                     }
@@ -195,7 +191,7 @@ namespace LogFlow.Viewer
 
         private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Hello, you will see a dialog box for filter/tag/search/count operations.", "To be implemented", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Resources.NotImplementedText, Resources.NotImplementedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void TagCurrentView(int index, IFilter filter)
@@ -259,7 +255,7 @@ namespace LogFlow.Viewer
 
             if (view != null)
             {
-                var headers = new ColumnHeader[1] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
+                var headers = new [] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
                 {
                     Name = ci.Name,
                     Text = ci.Name,
@@ -300,7 +296,7 @@ namespace LogFlow.Viewer
             {
                 foreach (var v in childView.Children)
                 {
-                    this.AddView(v, false, false);
+                    this.AddView(v, false);
                 }
             }
 
@@ -311,6 +307,10 @@ namespace LogFlow.Viewer
         {
             view.ItemAdded -= this.UpdateMainGridRowCount;
             view.ProgressChanged -= this.ChildView_ProgressChanged;
+
+            var disposable = view as IDisposable;
+
+            disposable?.Dispose();
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -362,7 +362,7 @@ namespace LogFlow.Viewer
             bw.DoWork += (s, e1) =>
             {
                 var currentView = this.CurrentView;
-                foreach (int progress in currentView.Find(f, startIndex, direction))
+                foreach (var _ in currentView.Find(f, startIndex, direction))
                 {
                 }
 
@@ -389,7 +389,7 @@ namespace LogFlow.Viewer
             bw.DoWork += (s, e1) =>
             {
                 var currentView = this.CurrentView;
-                foreach (int progress in currentView.Count(f))
+                foreach (var _ in currentView.Count(f))
                 {
                 }
 
@@ -469,7 +469,7 @@ namespace LogFlow.Viewer
 
         private void fastListViewMain_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-            Debug.WriteLine("Redrawing Row {0} Column {1}", e.ItemIndex, e.ColumnIndex);
+        //    Debug.WriteLine("Redrawing Row {0} Column {1}", e.ItemIndex, e.ColumnIndex);
             // draw contents.
             var bound = e.Bounds;
             DataItemBase item = (DataItemBase)e.Item.Tag;
@@ -498,22 +498,26 @@ namespace LogFlow.Viewer
 
                     foreach (var token in paramString.GetTokens())
                     {
-                        int multiLineSignWidth = 25;
-                        var str = token.Key.Trim(Environment.NewLine.ToArray());
-                        int pos = str.IndexOf(Environment.NewLine);
-                        if (pos > 0)
+                        const int multiLineSignWidth = 25;
+                        var str = token.Key;
+                        var pos = str.IndexOf(Environment.NewLine, StringComparison.Ordinal);
+                        if (pos >= 0)
                         {
                             str = str.Substring(0, pos);
                             bound.Width -= multiLineSignWidth;
                         }
 
                         var currentFont = token.Value ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
-                        e.Graphics.DrawString(
-                            str,
-                            currentFont,
-                            isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
-                            bound,
-                            this.defaultStringFormat);
+
+                        if (str.Length > 0)
+                        {
+                            e.Graphics.DrawString(
+                                str,
+                                currentFont,
+                                isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
+                                bound,
+                                this.DefaultStringFormat);
+                        }
 
                         if (pos > 0)
                         {
@@ -527,7 +531,7 @@ namespace LogFlow.Viewer
                                 currentFont,
                                 Brushes.Moccasin,
                                 bound,
-                                this.defaultStringFormat);
+                                this.DefaultStringFormat);
 
                             break;
                         }
@@ -550,11 +554,11 @@ namespace LogFlow.Viewer
 
                     int p = 0;
 
-                    for (int j = 0; j < this.tags.Count; j++)
+                    for (int j = 0; j < this.Tags.Count; j++)
                     {
                         if (p < colorList.Count && colorList[p] == j)
                         {
-                            e.Graphics.FillRectangle(this.tags[j].Item2, rect);
+                            e.Graphics.FillRectangle(this.Tags[j].Item2, rect);
                             p++;
                         }
 
@@ -638,10 +642,11 @@ namespace LogFlow.Viewer
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var nodeNext = this.treeViewDoc.SelectedNode?.Parent ?? this.treeViewDoc.SelectedNode?.PrevNode ?? this.treeViewDoc.SelectedNode?.NextNode;
+            var currentView = this.CurrentView;
             this.treeViewDoc.SelectedNode?.Remove();
 
             // Remove children.
-            this.RemoveView(this.CurrentView);
+            this.RemoveView(currentView);
 
             this.treeViewDoc.SelectedNode = nodeNext;
         }
@@ -725,7 +730,7 @@ namespace LogFlow.Viewer
 
         private void timerMemory_Tick(object sender, EventArgs e)
         {
-            double memoryMb = ((double)GC.GetTotalMemory(false) / 1024) / 1024;
+            var memoryMb = ((double)GC.GetTotalMemory(false) / 1024) / 1024;
             this.toolStripStatusLabelMemory.Text = $"{memoryMb:0.##}MB";
         }
     }

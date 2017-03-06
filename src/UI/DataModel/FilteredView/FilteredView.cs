@@ -156,7 +156,7 @@ namespace LogFlow.DataModel
             {
                 foreach (int progress in this.Data.Load(this.Filter))
                 {
-                    int p = progress * 90 / 100;
+                    int p = progress * 70 / 100;
                     this.OnReportProgress(p);
                     yield return p;
                 }
@@ -168,13 +168,24 @@ namespace LogFlow.DataModel
             }
             else
             {
+                if (!this.Parent.IsInitialized)
+                {
+                    // don't initialize the local view when its parent is still not initialized.
+                    this.IsInitialized = false;
+
+                    yield return 100;
+                    this.OnReportFinish();
+
+                    yield break;
+                }
+
                 int total = this.Parent.TotalCount;
 
                 for (int i = 0; i < total; i++)
                 {
                     if (i % (total / 20) == 0)
                     {
-                        int progress = ((i * 100) / total) * 90 / 100;
+                        int progress = ((i * 100) / total) * 70 / 100;
                         yield return progress;
                         this.OnReportProgress(progress);
                     }
@@ -197,6 +208,14 @@ namespace LogFlow.DataModel
 
                 for (int i = 0; i < this.TotalCount; i++)
                 {
+                    if (i % (this.TotalCount / 20) == 0)
+                    {
+                        int progress = ((i * 100) / this.TotalCount) * 30 / 100 + 70;
+                        yield return progress;
+
+                        this.OnReportProgress(progress);
+                    }
+
                     int index = this.GetPhysicalIndex(i);
                     this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                 }

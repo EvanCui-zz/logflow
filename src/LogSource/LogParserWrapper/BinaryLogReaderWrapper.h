@@ -7,7 +7,7 @@ using namespace System::Collections::Generic;
 
 namespace LogFlow {
     namespace DataModel {
-        public  ref class BinaryLogReaderWrapper : BinaryLogReaderWrapperBase
+        public ref class BinaryLogReaderWrapper : BinaryLogReaderWrapperBase
         {
         public:
             BinaryLogReaderWrapper(String^ fileName);

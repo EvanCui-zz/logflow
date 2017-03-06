@@ -59,5 +59,23 @@ namespace LogFlow.Viewer.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello, you will see a dialog box for filter/tag/search/count operations..
+        /// </summary>
+        internal static string NotImplementedText {
+            get {
+                return ResourceManager.GetString("NotImplementedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To be implemented.
+        /// </summary>
+        internal static string NotImplementedTitle {
+            get {
+                return ResourceManager.GetString("NotImplementedTitle", resourceCulture);
+            }
+        }
     }
 }
