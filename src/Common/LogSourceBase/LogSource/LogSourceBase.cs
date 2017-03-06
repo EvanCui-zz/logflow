@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Threading;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -103,13 +105,13 @@
         private bool firstBatchLoaded;
         protected int CurrentId = 0;
 
-        public virtual IEnumerable<int> Load(IFilter filter)
+        public virtual IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token)
         {
-            if (firstBatchLoaded) { return this.LoadIncremental(filter); }
-            else { firstBatchLoaded = true; return this.LoadFirst(filter); }
+            if (firstBatchLoaded) { return this.LoadIncremental(filter, token); }
+            else { firstBatchLoaded = true; return this.LoadFirst(filter, stopAtFirst, token); }
         }
 
-        protected virtual IEnumerable<int> LoadFirst(IFilter filter) { yield break; }
-        protected virtual IEnumerable<int> LoadIncremental(IFilter filter) { yield break; }
+        protected virtual IEnumerable<int> LoadFirst(IFilter filter, bool stopAtFirst, CancellationToken token) { yield break; }
+        protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
     }
 }

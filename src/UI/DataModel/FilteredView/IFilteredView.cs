@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Threading;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -37,7 +39,7 @@
 
         IEnumerable<int> Count(IFilter filter);
 
-        IEnumerable<int> Initialize();
+        IEnumerable<int> Initialize(CancellationToken token);
 
         bool IsInitialized { get; }
 

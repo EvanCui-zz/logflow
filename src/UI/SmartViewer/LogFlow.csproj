@@ -98,6 +98,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SearchFileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SearchFileDialog.Designer.cs">
+      <DependentUpon>SearchFileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Timeline.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -123,6 +129,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SearchFileDialog.resx">
+      <DependentUpon>SearchFileDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Timeline.resx">
       <DependentUpon>Timeline.cs</DependentUpon>
     </EmbeddedResource>

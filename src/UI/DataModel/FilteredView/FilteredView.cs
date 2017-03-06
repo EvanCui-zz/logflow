@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Threading;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -141,7 +143,7 @@
 
         public int? LastCountResult { get; private set; }
 
-        public IEnumerable<int> Initialize()
+        public IEnumerable<int> Initialize(CancellationToken token)
         {
             if (this.IsInitialized || this.IsInProgress) yield break;
 
@@ -150,7 +152,7 @@
 
             if (this.Parent == null)
             {
-                foreach (int progress in this.Data.Load(this.Filter))
+                foreach (int progress in this.Data.Load(this.Filter, false, token))
                 {
                     int p = progress * 70 / 100;
                     this.OnReportProgress(p);

@@ -23,6 +23,8 @@ namespace LogFlow.Viewer
         private SolidBrush selectionForeColorBrush;
         private StringFormat defaultStringFormat;
 
+        private CancellationTokenSource cts;
+
         private List<Brush> levelBrushes = new List<Brush>()
         {
             new SolidBrush(Color.FromArgb(255, 0, 0)),
@@ -55,6 +57,7 @@ namespace LogFlow.Viewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.cts = new CancellationTokenSource();
             var pi = this.dataGridViewMain.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             pi.SetValue(this.dataGridViewMain, true);
 
@@ -237,7 +240,7 @@ namespace LogFlow.Viewer
 
                 bw.DoWork += (s, e1) =>
                 {
-                    foreach (int progress in this.CurrentView.Initialize())
+                    foreach (int progress in this.CurrentView.Initialize(this.cts.Token))
                     {
                         bw.ReportProgress(progress);
                     }

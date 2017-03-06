@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Threading;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +17,7 @@
         event EventHandler<int> ItemAdded;
         object GetColumnValue(int rowIndex, int columnIndex);
 
-        IEnumerable<int> Load(IFilter filter = null);
+        IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token);
 
         IReadOnlyList<IFilter> GroupFilters { get; }
         //        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using LogFlow.Viewer.Properties;
 
@@ -14,6 +15,8 @@ namespace LogFlow.Viewer
     public partial class MainFormListView : Form
     {
         private StringFormat DefaultStringFormat { get; set; }
+
+        private CancellationTokenSource cts;
 
         private readonly List<Tuple<Color, SolidBrush, Pen>> Tags = new List<Tuple<Color, SolidBrush, Pen>>()
         {
@@ -29,6 +32,7 @@ namespace LogFlow.Viewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.cts = new CancellationTokenSource();
             this.timerMemory.Start();
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);
             this.fastListViewMain.SelectionBackColorBrush = new SolidBrush(this.fastListViewMain.SelectionBackColor);
@@ -66,11 +70,14 @@ namespace LogFlow.Viewer
         {
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", this.openFileDialog1.FileNames)));
-                //   this.treeViewDoc.Nodes.Clear();
-
-                this.AddView(document, true, true);
+                this.OpenFiles(this.openFileDialog1.FileNames);
             }
+        }
+
+        private void OpenFiles(IEnumerable<string> filePaths)
+        {
+            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", filePaths)));
+            this.AddView(document, true, true);
         }
 
         public IFilteredView<DataItemBase> CurrentView { get; set; }
@@ -123,7 +130,7 @@ namespace LogFlow.Viewer
                 {
                     var view = this.CurrentView;
                     if (view == null) return;
-                    foreach (var progress in view.Initialize())
+                    foreach (var progress in view.Initialize(this.cts.Token))
                     {
                         bw.ReportProgress(progress, view);
                     }
@@ -794,6 +801,31 @@ namespace LogFlow.Viewer
         private void filterAsEndToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.FilterById(false);
+        }
+
+        private void searchFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var searchFileDialog = new SearchFileDialog())
+            {
+                var result = searchFileDialog.ShowDialog();
+                switch (result)
+                {
+                    case DialogResult.OK:
+                        // all matched;
+                        this.OpenFiles(searchFileDialog.MatchedFilePaths);
+                        break;
+                    case DialogResult.Yes:
+                        this.OpenFiles(searchFileDialog.SelectedFilePaths);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void MainFormListView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.cts?.Cancel();
         }
     }
 }
