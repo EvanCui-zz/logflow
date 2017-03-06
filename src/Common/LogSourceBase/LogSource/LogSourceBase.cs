@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
     {
         protected LogSourceBase()
@@ -28,19 +26,19 @@ namespace LogFlow.DataModel
 
         public abstract string Name { get; }
 
-        public IReadOnlyList<T> Items => this.items;
+        public IReadOnlyList<T> Items => this.InternalItems;
 
-        protected List<T> items = new List<T>();
+        protected List<T> InternalItems = new List<T>();
 
         public IReadOnlyList<string> Templates => this.templates;
-        private List<string> templates = new List<string>();
-        private Dictionary<string, int> templatesIndex = new Dictionary<string, int>();
+        private readonly List<string> templates = new List<string>();
+        private readonly Dictionary<string, int> templatesIndex = new Dictionary<string, int>();
 
         public IReadOnlyList<PropertyInfo> PropertyInfos => this.propertyInfos;
-        private List<PropertyInfo> propertyInfos;
+        private readonly List<PropertyInfo> propertyInfos;
 
         public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.columnInfos;
-        private List<ColumnInfoAttribute> columnInfos;
+        private readonly List<ColumnInfoAttribute> columnInfos;
 
         public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
         protected List<IFilter> InnerGroupFilters = null;
@@ -57,8 +55,8 @@ namespace LogFlow.DataModel
 
         protected void AddItem(T item)
         {
-            this.items.Add(item);
-            item.Id = this.items.Count - 1;
+            this.InternalItems.Add(item);
+            item.Id = this.InternalItems.Count - 1;
             this.OnItemAdded(item.Id);
         }
 
@@ -74,7 +72,7 @@ namespace LogFlow.DataModel
             else
             {
                 this.templates.Add(template);
-                return this.templatesIndex[template] = index = this.templates.Count - 1;
+                return this.templatesIndex[template] = this.templates.Count - 1;
             }
         }
 
@@ -102,8 +100,8 @@ namespace LogFlow.DataModel
             }
         }
 
-        private bool firstBatchLoaded = false;
-        protected int currentId = 0;
+        private bool firstBatchLoaded;
+        protected int CurrentId = 0;
 
         public virtual IEnumerable<int> Load(IFilter filter)
         {

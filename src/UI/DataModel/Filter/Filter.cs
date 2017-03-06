@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+
     public class Filter : IFilter
     {
         private readonly Regex FilterPattern = new Regex(
             @"(?<name>b|begin|e|end|t|thread|p|process|l|level|c|content):(?<value>[^\s""]+|""[^""]*"")|(?<content>[^\s""]+|""[^""]*"")", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
-        private Dictionary<char, LogLevels> LogLevelMap = new Dictionary<char, LogLevels>()
+        private readonly Dictionary<char, LogLevels> LogLevelMap = new Dictionary<char, LogLevels>()
         {
             {'c', LogLevels.Critical },
             {'e', LogLevels.Error },
@@ -23,7 +21,7 @@ namespace LogFlow.DataModel
             {'v', LogLevels.Verbose },
         };
 
-        private HashSet<int> matchedTemplateIds = new HashSet<int>();
+        private readonly HashSet<int> matchedTemplateIds = new HashSet<int>();
 
         public Filter(string pattern)
         {
@@ -100,7 +98,7 @@ namespace LogFlow.DataModel
             }
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public DateTime? Begin { get; set; }
         public DateTime? End { get; set; }
@@ -152,6 +150,7 @@ namespace LogFlow.DataModel
                 }
 
                 var text = template.ToUpperInvariant();
+
                 //todo : improve the perf.
                 if (this.Texts.Value.All(t => text.Contains(t)))
                 {

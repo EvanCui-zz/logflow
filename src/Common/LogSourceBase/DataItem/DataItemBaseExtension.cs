@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System.Globalization;
+
     public static class DataItemBaseExtension
     {
         public static string GetColumnText<T>(this T item, int column) where T : DataItemBase
         {
-            switch(column)
+            switch (column)
             {
                 case 1:
                     return item.Id.ToString();

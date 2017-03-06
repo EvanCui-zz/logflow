@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Reflection;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
-    public partial class FastListView : ListView
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Drawing;
+    using System.Windows.Forms;
+
+    public partial class FastListView
     {
         public FastListView()
         {
             InitializeComponent();
-         //   this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            //   this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             this.DoubleBuffered = true;
             this.BoldFont = new Font(this.NormalFont, FontStyle.Bold);
             this.ForeColorBrush = new SolidBrush(this.ForeColor);
@@ -24,8 +18,7 @@ namespace LogFlow.Viewer
 
         public void SetHeight(int height)
         {
-            ImageList imgList = new ImageList();
-            imgList.ImageSize = new Size(1, height);
+            var imgList = new ImageList {ImageSize = new Size(1, height)};
             this.SmallImageList = imgList;
         }
 
@@ -38,13 +31,13 @@ namespace LogFlow.Viewer
         };
 
         public Brush ForeColorBrush { get; private set; }
-        
+
         [Browsable(true)]
-        public Color SelectionForeColor{ get; set; }
+        public Color SelectionForeColor { get; set; }
         public Brush SelectionForeColorBrush { get; set; }
-        
+
         [Browsable(true)]
-        public Color SelectionBackColor{ get; set; }
+        public Color SelectionBackColor { get; set; }
         public Brush SelectionBackColorBrush { get; set; }
 
         [Browsable(true)]
@@ -55,8 +48,7 @@ namespace LogFlow.Viewer
         public Color GridLineColor { get; set; }
         public Pen GridLineColorPen { get; set; }
 
-
-        public Font BoldFont { get; private set; }
-        public Font NormalFont { get { return this.Font; } }
+        public Font BoldFont { get; }
+        public Font NormalFont => this.Font;
     }
 }

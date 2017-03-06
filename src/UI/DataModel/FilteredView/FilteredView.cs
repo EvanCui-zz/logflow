@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
     {
         #region Find, Count, Filter, Tag, Indent features.
@@ -64,13 +61,12 @@ namespace LogFlow.DataModel
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
-        /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all items.
+        /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all InternalItems.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="currentIndex"></param>
         /// <param name="direction"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
+        /// <returns>progress</returns>
         public IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction)
         {
             if (!this.IsInitialized || this.IsInProgress) yield break;
@@ -244,18 +240,19 @@ namespace LogFlow.DataModel
             return new FilteredView<T>(filter, this, this.Data);
         }
 
+        public IReadOnlyList<IFilter> GroupFilters => this.Data.GroupFilters;
+
         #endregion
 
         #region Display
-        public IReadOnlyList<IFilteredView<T>> Children => this.children;
 
         public event EventHandler<ProgressItem> ProgressChanged;
         public int? FirstDisplayedScrollingRowIndex { get; set; }
         public int? SelectedRowIndex { get; set; }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public int TotalCount { get { return this.ItemIndices?.Count ?? this.Data.Items.Count; } }
+        public int TotalCount => this.ItemIndices?.Count ?? this.Data.Items.Count;
 
         public T GetRowValue(int rowIndex)
         {
@@ -288,10 +285,10 @@ namespace LogFlow.DataModel
             return this.ItemIndices?[logicalIndex] ?? logicalIndex;
         }
 
-        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get { return this.Data.ColumnInfos; } }
+        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.Data.ColumnInfos;
 
-        public IReadOnlyList<string> Templates { get { return this.Data.Templates; } }
-        public FilteredViewStatistics Statistics { get; private set; } = new FilteredViewStatistics();
+        public IReadOnlyList<string> Templates => this.Data.Templates;
+        public FilteredViewStatistics Statistics { get; } = new FilteredViewStatistics();
 
         #endregion
 
@@ -321,35 +318,35 @@ namespace LogFlow.DataModel
             this.Name = name;
         }
 
+        /*
         internal FilteredView(string name, FilteredView<T> parent, InnerGroupData groupData, ILogSource<T> data) : this(name)
         {
             this.Parent = parent;
-            this.GroupData = groupData;
+            // this.GroupData = groupData;
             // Change this to filter design.
             this.ItemIndices = groupData.InnerGroupIndexes;
             this.Data = data;
             this.IsInitialized = true;
         }
+        */
 
         #endregion
 
         #region Properties and fields
 
-        protected List<IFilteredView<T>> children;
+        //   private InnerGroupData GroupData { get; set; }
 
-        private InnerGroupData GroupData { get; set; }
+        private IDictionary<int, IFilter> Tags { get; } = new Dictionary<int, IFilter>();
 
-        private IDictionary<int, IFilter> Tags { get; set; } = new Dictionary<int, IFilter>();
+        private IFilter Filter { get; }
 
-        private IFilter Filter { get; set; }
-
-        private FilteredView<T> Parent { get; set; }
+        private FilteredView<T> Parent { get; }
 
         internal ILogSource<T> Data { get; set; }
 
-        private List<int> ItemIndices { get; set; }
+        private List<int> ItemIndices { get; }
 
-        private HashSet<int> indentedThreads = new HashSet<int>();
+        private readonly HashSet<int> indentedThreads = new HashSet<int>();
 
         #endregion
 

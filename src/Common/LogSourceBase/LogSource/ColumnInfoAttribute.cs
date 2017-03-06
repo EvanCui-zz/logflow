@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+
     public class ColumnInfoAttribute : Attribute
     {
         public string Name

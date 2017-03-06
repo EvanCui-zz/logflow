@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+
     public interface IFilteredView<out T> where T : DataItemBase
-    {        
+    {
         #region Find, Count, Filter, Tag, Indent features.
 
         int GetLogicalIndexOfItem(int itemId);
@@ -31,12 +27,11 @@ namespace LogFlow.DataModel
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
-        /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all items.
+        /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all InternalItems.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="currentIndex"></param>
         /// <param name="direction"></param>
-        /// <param name="result"></param>
         /// <returns></returns>
         IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction);
 
@@ -58,11 +53,11 @@ namespace LogFlow.DataModel
 
         IFilteredView<T> CreateChild(IFilter filter);
 
+        IReadOnlyList<IFilter> GroupFilters { get; }
+
         #endregion
 
         #region Display
-
-        IReadOnlyList<IFilteredView<T>> Children { get; }
 
         event EventHandler<ProgressItem> ProgressChanged;
         int? FirstDisplayedScrollingRowIndex { get; set; }

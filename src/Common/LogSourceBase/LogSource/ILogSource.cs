@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+
     public interface ILogSource<out T> where T : DataItemBase
     {
         string Name { get; }
@@ -21,6 +18,6 @@ namespace LogFlow.DataModel
         IEnumerable<int> Load(IFilter filter = null);
 
         IReadOnlyList<IFilter> GroupFilters { get; }
-//        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }
+        //        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }
     }
 }

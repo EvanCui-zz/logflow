@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+
     internal class FakeLogSource : LogSourceBase<DataItemBase>
     {
         public override string Name => "Faked Log";
@@ -15,7 +12,7 @@ namespace LogFlow.DataModel
             Random r = new Random();
             for (int i = 0; i < 1000; i++)
             {
-                this.AddTemplate(string.Format("string templates {{0}}, {{1}}, testing long string, {0}", i));
+                this.AddTemplate($"string templates {{0}}, {{1}}, testing long string, {i}");
             }
 
             int totalCount = 1000000;
@@ -43,7 +40,7 @@ namespace LogFlow.DataModel
         protected override IEnumerable<int> LoadIncremental(IFilter filter)
         {
             Random r = new Random();
-            this.AddTemplate(string.Format("string templates {{0}}, {{1}}, testing long string, progressive"));
+            this.AddTemplate("string templates {{0}}, {{1}}, testing long string, progressive");
 
             for (int i = 0; i < 2; i++)
             {

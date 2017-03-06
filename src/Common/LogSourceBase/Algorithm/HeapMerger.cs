@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel.Algorithm
+﻿namespace LogFlow.DataModel.Algorithm
 {
+    using System.Collections.Generic;
+
     public struct MergedItem<T>
     {
         public MergedItem(T item, int sourceIndex) { this.Item = item; this.SourceIndex = sourceIndex; }
-        public T Item { get; private set; }
-        public int SourceIndex { get; private set; }
+        public T Item { get; }
+        public int SourceIndex { get; }
     }
 
     public class HeapMerger

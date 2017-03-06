@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\HeapMerger.cs" />
+    <Compile Include="DataItem\LogLevels.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
     <Compile Include="DataItem\DataItemBase.cs" />
     <Compile Include="DataItem\DataItemBaseExtension.cs" />

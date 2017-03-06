@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+
     [ReadOnly(true)]
     public class FilteredViewStatistics
     {
@@ -14,11 +11,11 @@ namespace LogFlow.DataModel
         public int Warnings { get; set; }
         public int Criticals { get; set; }
         public int TotalCount { get; set; }
-        public int ExceptionCount { get { return this.Exceptions.Count; } }
+        public int ExceptionCount => this.Exceptions.Count;
 
-        //TODO: get the correct editor.
+        // TODO: get the correct editor.
         [Editor]
-        public IList<string> Exceptions { get; set; } = new List<string>();
+        public IList<string> Exceptions { get; } = new List<string>();
         public int Threads { get; set; }
         public int Processes { get; set; }
         public int Activities { get; set; }
@@ -26,10 +23,10 @@ namespace LogFlow.DataModel
 
         public List<int> Timeline { get; set; } = new List<int>(SplitCount);
 
-        private HashSet<int> ThreadIds { get; set; } = new HashSet<int>();
-        private HashSet<int> ProcessIds { get; set; } = new HashSet<int>();
-        private HashSet<Guid> ActivityIds { get; set; } = new HashSet<Guid>();
-        private HashSet<string> FileNames { get; set; } = new HashSet<string>();
+        private HashSet<int> ThreadIds { get; } = new HashSet<int>();
+        private HashSet<int> ProcessIds { get; } = new HashSet<int>();
+        //private HashSet<Guid> ActivityIds { get; set; } = new HashSet<Guid>();
+        //private HashSet<string> FileNames { get; set; } = new HashSet<string>();
 
         private const int SplitCount = 5;
         private double TimeSplitRange;
@@ -48,7 +45,7 @@ namespace LogFlow.DataModel
             {
                 chunk = (int)chunkDouble;
                 if (chunk >= SplitCount) chunk = SplitCount - 1;
-            } 
+            }
 
             while (this.Timeline.Count <= chunk) { this.Timeline.Add(0); }
 

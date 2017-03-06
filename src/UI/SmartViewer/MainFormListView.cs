@@ -102,8 +102,7 @@ namespace LogFlow.Viewer
             Debug.WriteLine("rows cleared");
             if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
             {
-                var bw = new BackgroundWorker();
-                bw.WorkerReportsProgress = true;
+                var bw = new BackgroundWorker { WorkerReportsProgress = true };
                 var watch = Stopwatch.StartNew();
 
                 bw.RunWorkerCompleted += (s, e1) =>
@@ -122,9 +121,10 @@ namespace LogFlow.Viewer
                     this.UpdateMainGridRowCount(e1.UserState, this.CurrentView.TotalCount);
                 };
 
-                bw.DoWork += (s, e1) =>
+                bw.DoWork += (o, args) =>
                 {
                     var view = this.CurrentView;
+                    if (view == null) return;
                     foreach (var progress in view.Initialize())
                     {
                         bw.ReportProgress(progress, view);
@@ -255,7 +255,7 @@ namespace LogFlow.Viewer
 
             if (view != null)
             {
-                var headers = new [] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
+                var headers = new[] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
                 {
                     Name = ci.Name,
                     Text = ci.Name,
@@ -292,9 +292,9 @@ namespace LogFlow.Viewer
                 this.treeViewDoc.SelectedNode = node;
             }
 
-            if (childView.Children != null)
+            if (childView.GroupFilters != null)
             {
-                foreach (var v in childView.Children)
+                foreach (var v in childView.GroupFilters.Select(childView.CreateChild).ToList())
                 {
                     this.AddView(v, false);
                 }
@@ -469,7 +469,7 @@ namespace LogFlow.Viewer
 
         private void fastListViewMain_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-        //    Debug.WriteLine("Redrawing Row {0} Column {1}", e.ItemIndex, e.ColumnIndex);
+            //    Debug.WriteLine("Redrawing Row {0} Column {1}", e.ItemIndex, e.ColumnIndex);
             // draw contents.
             var bound = e.Bounds;
             DataItemBase item = (DataItemBase)e.Item.Tag;

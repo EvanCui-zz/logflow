@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System;
+
     public class LogSourceManager
     {
-        private static Lazy<LogSourceManager> instance = new Lazy<LogSourceManager>(() => new LogSourceManager());
+        private static readonly Lazy<LogSourceManager> LazyInstance = new Lazy<LogSourceManager>(() => new LogSourceManager());
 
         private LogSourceManager()
         {
@@ -22,6 +18,6 @@ namespace LogFlow.DataModel
             //return new FakeLogSource();
         }
 
-        public static LogSourceManager Instance { get { return instance.Value; } }
+        public static LogSourceManager Instance => LazyInstance.Value;
     }
 }

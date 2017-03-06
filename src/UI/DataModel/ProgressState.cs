@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     public class ProgressItem
     {
@@ -13,7 +7,7 @@ namespace LogFlow.DataModel
             this.ActionName = actionName;
         }
 
-        private string ActionName { get; set; }
+        private string ActionName { get; }
 
         public int Progress { get; set; }
         public string ProgressDescription => this.ActionName;

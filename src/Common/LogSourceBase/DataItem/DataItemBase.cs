@@ -1,22 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
-    [Flags]
-    public enum LogLevels
-    {
-        None = 0x0,
-        Critical = 0x1,
-        Error = 0x2,
-        Warning = 0x4,
-        Info = 0x8,
-        Verbose = 0x10,
-        Detail = 0x20,
-    }
+    using System;
 
     // Consider change it to struct and compact the integers.
     public class DataItemBase
