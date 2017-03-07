@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
+    <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />

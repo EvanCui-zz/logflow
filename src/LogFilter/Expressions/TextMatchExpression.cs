@@ -8,9 +8,9 @@
         internal TextMatchExpression(string content)
         {
             string str = content;
-            if (str.StartsWith(this.ExpressionHeader))
+            if (str.StartsWith(ExpressionHeader))
             {
-                str = str.Substring(this.ExpressionHeader.Length);
+                str = str.Substring(ExpressionHeader.Length);
             }
 
             this.TextContent = this.RestoreEscaped(str);
@@ -50,9 +50,7 @@
             }
         }
 
-        internal override sealed string ExpressionHeader => "c:";
-
-        internal override bool MatchExpressionType(string content) => true;
+        internal static string ExpressionHeader => "c:";
 
         private string RestoreEscaped(string str)
         {
