@@ -83,7 +83,7 @@ namespace LogFlow.Viewer
                 var currentMenuItem = (ToolStripMenuItem)s;
                 bool tag = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
                 currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new LogFilterInterpretor(this.toolStripTextBoxPattern.Text) : null);
+                this.TagCurrentView(index, tag ? new LogFilterInterpreter(this.toolStripTextBoxPattern.Text) : null);
             })
             {
                 BackColor = t.Item1,
@@ -298,7 +298,7 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(new LogFilterInterpretor(this.toolStripTextBoxPattern.Text));
+            var childView = this.CurrentView.CreateChild(new LogFilterInterpreter(this.toolStripTextBoxPattern.Text));
             childView.ItemAdded += this.UpdateMainGridRowCount;
 
             var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
@@ -336,7 +336,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            var f = new LogFilterInterpretor(this.toolStripTextBoxPattern.Text);
+            var f = new LogFilterInterpreter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;
@@ -383,7 +383,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            IFilter f = new LogFilterInterpretor(this.toolStripTextBoxPattern.Text);
+            IFilter f = new LogFilterInterpreter(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;

@@ -6,7 +6,7 @@
 
     internal class FilterStringParser
     {
-        private const string Pattern = @"(!|(?:\""(?:[^\""]*(?:\""\"")*)*\"")| +|[()]|(?:&&)|(?:\|\|)|[^\s)]+)"; // (!|(?:\"(?:[^\"]*(?:\"\")*)*\")| +|[()]|(?:&&)|(?:\|\|)|[^\s)]+)
+        private const string Pattern = @"(!|(?:(?:c:)?\""(?:[^\""]*(?:\""\"")*)*\"")|[()]|(?:&&)|(?:\|\|)|[^\s)]+)"; // (!|(?:(?:c:)?\"(?:[^\"]*(?:\"\")*)*\")|[()]|(?:&&)|(?:\|\|)|[^\s)]+)
         private static readonly Regex FilterStringRegex = new Regex(Pattern);
 
         internal static List<string> ToTokenStrs(string filter)
