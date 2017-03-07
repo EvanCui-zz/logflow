@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogParserWrapper", "LogSour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosLogSource", "LogSource\CosmosLogSource\CosmosLogSource.csproj", "{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFilter", "LogFilter\LogFilter.csproj", "{63A0163A-7B24-4F53-8BFF-8804438C4FAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x64.Build.0 = Release|Any CPU
 		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x86.ActiveCfg = Release|Any CPU
 		{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}.Release|x86.Build.0 = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|x64.Build.0 = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Debug|x86.Build.0 = Debug|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x64.ActiveCfg = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x64.Build.0 = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x86.ActiveCfg = Release|Any CPU
+		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

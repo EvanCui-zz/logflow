@@ -12,6 +12,8 @@ using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
+    using LogFilter;
+
     public partial class MainFormListView : Form
     {
         private StringFormat DefaultStringFormat { get; set; }
@@ -54,7 +56,7 @@ namespace LogFlow.Viewer
                 var currentMenuItem = (ToolStripMenuItem)s;
                 bool tag = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text);
                 currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
+                this.TagCurrentView(index, tag ? new LogFilterInterpretor(this.toolStripComboBoxString.Text) : null);
             })
             {
                 BackColor = t.Item1,
@@ -230,7 +232,7 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripComboBoxString.Text));
+            var childView = this.CurrentView.CreateChild(new LogFilterInterpretor(this.toolStripComboBoxString.Text));
             this.AddView(childView);
         }
 
@@ -365,7 +367,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            var f = new Filter(this.toolStripComboBoxString.Text);
+            var f = new LogFilterInterpretor(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -402,7 +404,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            var f = new Filter(this.toolStripComboBoxString.Text);
+            var f = new LogFilterInterpretor(this.toolStripComboBoxString.Text);
 
             var bw = new BackgroundWorker();
 
@@ -699,7 +701,7 @@ namespace LogFlow.Viewer
 
             int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
-            var f = new Filter($"t:{threadId}");
+            var f = new LogFilterInterpretor($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
 
             this.AddView(childView);
