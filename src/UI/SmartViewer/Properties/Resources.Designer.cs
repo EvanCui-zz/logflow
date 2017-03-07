@@ -79,6 +79,15 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string SomethingWrong {
+            get {
+                return ResourceManager.GetString("SomethingWrong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wow~ You got so many log entries! (&gt;100,000,000) Please consider opening with filters, or doing a preloading search to narrow down the logs you want to focus on. We only show the first 100,000,000 entries..
         /// </summary>
         internal static string TooManyRowsText {
@@ -93,6 +102,15 @@ namespace LogFlow.Viewer.Properties {
         internal static string TooManyRowsTitle {
             get {
                 return ResourceManager.GetString("TooManyRowsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The version history file is stolen by someone. Please report!.
+        /// </summary>
+        internal static string VersionFileMissingText {
+            get {
+                return ResourceManager.GetString("VersionFileMissingText", resourceCulture);
             }
         }
     }

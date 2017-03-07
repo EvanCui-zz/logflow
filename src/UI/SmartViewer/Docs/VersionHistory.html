@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>LogFlow Version History</title>
+    <style>
+        ul.name {
+            font-size: 22pt;
+        }
+
+        ul {
+            font-size: 14pt;
+        }
+
+        ul.version {
+            font-size: 18pt;
+        }
+    </style>
+</head>
+<body>
+    <h1>LogFlow Version History</h1>
+    <ul class="name">
+        <li>
+            LogFlow
+            <ul class="version">
+                <li>
+                    2.0.0.9 - 2017/3/7
+                    <ul>
+                        <li>Added search file dialog.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.8 - 2017/3/5
+                    <ul>
+                        <li>Indent feature for threads and activities.</li>
+                        <li>Added some context operations.</li>
+                        <li>Multiple file open support.</li>
+                        <li>Added filter start/end feature.</li>
+                        <li>Fixed resharper warnings.</li>
+                        <li>Fixed some bugs.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.7 - 2017/3/1
+                    <ul>
+                        <li>Added Cosmos Log plugin.</li>
+                        <li>Refactored the plugin framework.</li>
+                        <li>Tuned memory usage.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.6 - 2017/2/25
+                    <ul>
+                        <li>Added detailed pane.</li>
+                        <li>Added statistics pane.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.5 - 2017/2/21
+                    <ul>
+                        <li>Boost the performance.</li>
+                        <li>Refactored data model.</li>
+                        <li>Save and restore the selection line.</li>
+                        <li>Changed to ListView, and workarounded many ListView bugs.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.4 - 2017/2/18
+                    <ul>
+                        <li>Showing progress on initializing.</li>
+                        <li>Added tag feature.</li>
+                        <li>Added find feature.</li>
+                        <li>Added count feature.</li>
+                        <li>Tuned performance.</li>
+                        <li>Save and restore the scrolling position.</li>
+                        <li>Fixed several bugs.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.3 - 2017/2/16
+                    <ul>
+                        <li>Added filter functionality.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.2 - 2017/2/16
+                    <ul>
+                        <li>Bold the parameters in log text.</li>
+                    </ul>
+                </li>
+                <li>
+                    2.0.0.1 - 2017/2/11
+                    <ul>
+                        <li>Redesigned the UI and the DataModel.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul class="name">
+        <li>
+            LogViewer
+            <ul class="version">
+                <li>
+                    1.2.2.3 - 2016/10/17
+                    <ul>
+                        <li>Skimming in FindStr reads only first several rows to quickly locate possible log files.</li>
+                        <li>PlainLogParser is able to open parsed cosmos log for you now.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.2.2.1 - 2016/10/10
+                    <ul>
+                        <li>Bug Fix: Over counting exception number in multi-thread.</li>
+                        <li>Folder browser in FindStr Window now remembers recent folder.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.2.1.1 - 2016/10/9
+                    <ul>
+                        <li>Bug Fix: BinaryReader no longer stops when more than 30 bits of consecutive 0s are encountered.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.2.0.1 - 2016/10/9
+                    <ul>
+                        <li>Live sort in FindStr result window.</li>
+                        <li>Performance tuning for better responsiveness.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.2.0.0 - 2016/10/8
+                    <ul>
+                        <li>Parse log content and categorize log entries with exceptions found.</li>
+                        <li>Show entries related with certain exception by double clicking.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.1.0.6 - 2016/9/28
+                    <ul>
+                        <li>Progress bar is displayed in the lower right of FindStr window.</li>
+                        <li>Move FindStr workloads from UI thread to background thread.</li>
+                        <li>Choose number of background thread according to CPU core numbers.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.1.0.5 - 2013/9/27
+                    <ul>
+                        <li>Tabs in multi-file mode now show name of first file following by number of opened files on header.</li>
+                        <li>BugFix: Fix a problem of spinning log entries from different logs with same index.</li>
+                        <li>Drag and drop multiple files on main window will open them in multi-file mode now.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.1.0.3 - 2016/9/26
+                    <ul>
+                        <li>Open files enables openning and searching multiple bin files at one time.</li>
+                        <li>
+                            Added FindStr feature.
+                            <ul>
+                                <li>FindStr can help you identify log files containing specific content strings, between certain time period or meeting any other filter conditions.</li>
+                                <li>Double clicking on finding results will open corresponding log file for you.</li>
+                            </ul>
+                        </li>
+                        <li>BugFix: Scroll offsets of different log tabs are now separately remembered.</li>
+                        <li>BugFix: Reduced memory usage.</li>
+                        <li>Removed not frequently used visual components.</li>
+                        <li>Auto update enabled..</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.42 - 2013/10/25
+                    <ul>
+                        <li>BugFix: Read plain log in self service, no multiple line.</li>
+                        <li>BugFix: Fix a bug of height display.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.41 - 2013/10/23
+                    <ul>
+                        <li>BugFix: Read plain log in self service.</li>
+                        <li>BugFix: Save as in log datagrid by right click.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.40 - 2013/10/10
+                    <ul>
+                        <li>Open log from command line.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.39 - 2013/9/16
+                    <ul>
+                        <li>Save selected/pinned log as Text/Html. You can use SaveAs button to save all the logs in Pinned list, or use right click SaveAs to save the selected logs.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.38 - 2013/9/16
+                    <ul>
+                        <li>Polished some UI.</li>
+                        <li>BugFix: in begin/end search, the time field cannot contain space.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.37 - 2013/9/16
+                    <ul>
+                        <li>Add help button to show how to use the filter.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.36 - 2013/9/11
+                    <ul>
+                        <li>Put change list in a separate html.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.35 - 2013/9/11
+                    <ul>
+                        <li>Modify tab header.</li>
+                        <li>BugFix: A better color of Error and Warning.</li>
+                        <li>BugFix: button name text typo.</li>
+                        <li>BugFix: Filter content missing.</li>
+                        <li>BugFix: A better view of progress bar.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.34 - 2013/9/10
+                    <ul>
+                        <li>Add copy function, you can use Ctrl + C and Copy button in Pin area and Log area.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.33 - 2013/9/9
+                    <ul>
+                        <li>Added version history track.</li>
+                    </ul>
+                </li>
+                <li>
+                    1.0.0.33 - 2013/9/10
+                    <ul>
+                        <li>Added version history track.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</body>
+</html>

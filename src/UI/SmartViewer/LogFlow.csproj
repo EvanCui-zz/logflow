@@ -160,6 +160,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Docs\VersionHistory.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ToDoFeatures.txt" />
   </ItemGroup>
   <ItemGroup>

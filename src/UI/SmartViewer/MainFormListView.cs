@@ -5,7 +5,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using LogFlow.Viewer.Properties;
@@ -817,8 +819,6 @@ namespace LogFlow.Viewer
                     case DialogResult.Yes:
                         this.OpenFiles(searchFileDialog.SelectedFilePaths);
                         break;
-                    default:
-                        break;
                 }
             }
         }
@@ -826,6 +826,20 @@ namespace LogFlow.Viewer
         private void MainFormListView_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.cts?.Cancel();
+        }
+
+        private void versionHistoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var versionHistoryFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Docs\\VersionHistory.html";
+            if (File.Exists(versionHistoryFile))
+            {
+                Process.Start(versionHistoryFile);
+            }
+            else
+            {
+                MessageBox.Show(Resources.VersionFileMissingText, Resources.SomethingWrong, MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+            }
         }
     }
 }
