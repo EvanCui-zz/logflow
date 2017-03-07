@@ -31,6 +31,9 @@
                 {
                         { DatetimeBeginMatchExpression.ExpressionHeader, s => new DatetimeBeginMatchExpression(s) },
                         { DatetimeEndMatchExpression.ExpressionHeader, s => new DatetimeEndMatchExpression(s) },
+                        { ProcessIdMatchExpression.ExpressionHeader, s => new ProcessIdMatchExpression(s) },
+                        { ThreadIdMatchExpression.ExpressionHeader, s => new ThreadIdMatchExpression(s) },
+                        { LogLevelMatchExpression.ExpressionHeader, s => new LogLevelMatchExpression(s) },
                 };
     }
 }

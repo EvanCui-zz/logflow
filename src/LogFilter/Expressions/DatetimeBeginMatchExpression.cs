@@ -16,7 +16,7 @@
             this.DatetimeBeginContent = dt;
         }
 
-        internal override string EvalToString() => $"b:{this.DatetimeBeginContent:s}";
+        internal override string EvalToString() => $"{ExpressionHeader}{this.DatetimeBeginContent:s}";
 
         public override bool Match<T>(T item, string template) => item.Time > this.DatetimeBeginContent;
 
