@@ -230,7 +230,7 @@
             this.toolStripSeparator2});
             this.toolStripMain.Location = new System.Drawing.Point(0, 0);
             this.toolStripMain.Name = "toolStripMain";
-            this.toolStripMain.Size = new System.Drawing.Size(663, 25);
+            this.toolStripMain.Size = new System.Drawing.Size(694, 25);
             this.toolStripMain.TabIndex = 0;
             this.toolStripMain.Text = "toolStrip1";
             // 
@@ -238,6 +238,7 @@
             // 
             this.toolStripComboBoxString.Name = "toolStripComboBoxString";
             this.toolStripComboBoxString.Size = new System.Drawing.Size(300, 25);
+            this.toolStripComboBoxString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolStripComboBoxString_KeyDown);
             this.toolStripComboBoxString.TextChanged += new System.EventHandler(this.toolStripComboBoxString_TextChanged);
             // 
             // toolStripButtonFilter
@@ -1263,7 +1264,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(124, 258);
+            this.tabPage5.Size = new System.Drawing.Size(148, 314);
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Exceptions";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -1277,7 +1278,7 @@
             this.listViewExceptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewExceptions.Location = new System.Drawing.Point(3, 3);
             this.listViewExceptions.Name = "listViewExceptions";
-            this.listViewExceptions.Size = new System.Drawing.Size(118, 252);
+            this.listViewExceptions.Size = new System.Drawing.Size(142, 308);
             this.listViewExceptions.TabIndex = 0;
             this.listViewExceptions.UseCompatibleStateImageBehavior = false;
             this.listViewExceptions.View = System.Windows.Forms.View.Details;

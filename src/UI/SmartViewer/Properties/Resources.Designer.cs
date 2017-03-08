@@ -61,6 +61,15 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Didn&apos;t find the item Id {0} in the current view, try to switch to parent or root. .
+        /// </summary>
+        internal static string GotoFailed {
+            get {
+                return ResourceManager.GetString("GotoFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello, you will see a dialog box for filter/tag/search/count operations. This is to be implemented, if you want this feature, you can send feedback to us..
         /// </summary>
         internal static string NotImplementedText {

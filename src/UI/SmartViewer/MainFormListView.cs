@@ -847,12 +847,23 @@ namespace LogFlow.Viewer
                 return;
             }
 
-            int itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
+            var itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
 
             this.treeViewDoc.SelectedNode = node;
-            int logicalId = this.CurrentView.GetLogicalIndexOfItem(itemId);
+
+            // the item can always be found.
+            this.GotoId(itemId);
+        }
+
+        private bool GotoId(int physicalId)
+        {
+            var logicalId = this.CurrentView.GetLogicalIndexOfItem(physicalId);
+
+            if (logicalId < 0) return false;
             this.fastListViewMain.Items[logicalId].Selected = this.fastListViewMain.Items[logicalId].Focused = true;
             this.fastListViewMain.Items[logicalId].EnsureVisible();
+
+            return true;
         }
 
         private void timerMemory_Tick(object sender, EventArgs e)
@@ -1049,6 +1060,23 @@ namespace LogFlow.Viewer
         private void enableDataVirtualizationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.Behavior_DataVirtualization = this.enableDataVirtualizationToolStripMenuItem.Checked;
+        }
+
+        private void toolStripComboBoxString_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter || this.CurrentView == null) return;
+
+            int gotoId;
+            if (!int.TryParse(this.toolStripComboBoxString.Text, out gotoId))
+            {
+                return;
+            }
+
+            if (!this.GotoId(gotoId))
+            {
+                MessageBox.Show(string.Format(Resources.GotoFailed, gotoId), Resources.SomethingWrong,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

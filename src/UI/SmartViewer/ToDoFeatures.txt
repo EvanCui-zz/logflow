@@ -43,9 +43,9 @@
 5, Colored level or column level.
 32, Hot keys
 51, Filename column display option
+30, Ctrl + G
 
 2, Context operations. Most done
-30, Ctrl + G
 33, Highlight find content.
 35, Favorite filters
 44, Help, about
