@@ -77,6 +77,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AllSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AllSettings.Designer.cs">
+      <DependentUpon>AllSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HotKeys.cs" />
+    <Compile Include="LevelColors.cs" />
     <Compile Include="Product.cs" />
     <Compile Include="FastListView.cs">
       <SubType>Component</SubType>
@@ -104,12 +112,16 @@
     <Compile Include="SearchFileDialog.Designer.cs">
       <DependentUpon>SearchFileDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="TagColors.cs" />
     <Compile Include="Timeline.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Timeline.Designer.cs">
       <DependentUpon>Timeline.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AllSettings.resx">
+      <DependentUpon>AllSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FastListView.resx">
       <DependentUpon>FastListView.cs</DependentUpon>
     </EmbeddedResource>

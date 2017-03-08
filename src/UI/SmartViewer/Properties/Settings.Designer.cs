@@ -22,5 +22,254 @@ namespace LogFlow.Viewer.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Display_ColoredLevel {
+            get {
+                return ((bool)(this["Display_ColoredLevel"]));
+            }
+            set {
+                this["Display_ColoredLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>Level</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Display_HidenColumns {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Display_HidenColumns"]));
+            }
+            set {
+                this["Display_HidenColumns"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Display_BoldParameter {
+            get {
+                return ((bool)(this["Display_BoldParameter"]));
+            }
+            set {
+                this["Display_BoldParameter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Display_HighlightFind {
+            get {
+                return ((bool)(this["Display_HighlightFind"]));
+            }
+            set {
+                this["Display_HighlightFind"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection Data_FilteringHistory {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Data_FilteringHistory"]));
+            }
+            set {
+                this["Data_FilteringHistory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Display_Statistics {
+            get {
+                return ((bool)(this["Display_Statistics"]));
+            }
+            set {
+                this["Display_Statistics"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection Data_RecentDirectories {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Data_RecentDirectories"]));
+            }
+            set {
+                this["Data_RecentDirectories"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection Data_RecentFiles {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Data_RecentFiles"]));
+            }
+            set {
+                this["Data_RecentFiles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int Indent_Size {
+            get {
+                return ((int)(this["Indent_Size"]));
+            }
+            set {
+                this["Indent_Size"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Display_FastRendering {
+            get {
+                return ((bool)(this["Display_FastRendering"]));
+            }
+            set {
+                this["Display_FastRendering"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Behavior_AutoLoad {
+            get {
+                return ((bool)(this["Behavior_AutoLoad"]));
+            }
+            set {
+                this["Behavior_AutoLoad"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Behavior_AutoScroll {
+            get {
+                return ((bool)(this["Behavior_AutoScroll"]));
+            }
+            set {
+                this["Behavior_AutoScroll"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Behavior_DataVirtualization {
+            get {
+                return ((bool)(this["Behavior_DataVirtualization"]));
+            }
+            set {
+                this["Behavior_DataVirtualization"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>1000</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Data_PeekCountHistory {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Data_PeekCountHistory"]));
+            }
+            set {
+                this["Data_PeekCountHistory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("*.bin")]
+        public string Data_LastUsedFileExtension {
+            get {
+                return ((string)(this["Data_LastUsedFileExtension"]));
+            }
+            set {
+                this["Data_LastUsedFileExtension"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection Data_FileNamePatterns {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Data_FileNamePatterns"]));
+            }
+            set {
+                this["Data_FileNamePatterns"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Data_SearchRecursive {
+            get {
+                return ((bool)(this["Data_SearchRecursive"]));
+            }
+            set {
+                this["Data_SearchRecursive"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::LogFlow.Viewer.HotKeys HotKeys {
+            get {
+                return ((global::LogFlow.Viewer.HotKeys)(this["HotKeys"]));
+            }
+            set {
+                this["HotKeys"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::LogFlow.Viewer.LevelColors Display_LevelColors {
+            get {
+                return ((global::LogFlow.Viewer.LevelColors)(this["Display_LevelColors"]));
+            }
+            set {
+                this["Display_LevelColors"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::LogFlow.Viewer.TagColors Display_TagColors {
+            get {
+                return ((global::LogFlow.Viewer.TagColors)(this["Display_TagColors"]));
+            }
+            set {
+                this["Display_TagColors"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Behavior_AllowColumnReorder {
+            get {
+                return ((bool)(this["Behavior_AllowColumnReorder"]));
+            }
+            set {
+                this["Behavior_AllowColumnReorder"] = value;
+            }
+        }
     }
 }

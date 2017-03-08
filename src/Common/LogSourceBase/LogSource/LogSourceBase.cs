@@ -11,19 +11,9 @@ namespace LogFlow.DataModel
     {
         protected LogSourceBase()
         {
-            var currentType = typeof(T);
+            this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
-            this.propertyInfos = new List<PropertyInfo>(0);
-
-            while (currentType != null)
-            {
-                this.propertyInfos = currentType.GetProperties()
-                    .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true) && f.DeclaringType == currentType).Concat(this.propertyInfos).ToList();
-
-                currentType = currentType.BaseType;
-            }
-
-            this.columnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
+            this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
         }
 
         public abstract string Name { get; }

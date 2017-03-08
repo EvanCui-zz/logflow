@@ -1,4 +1,8 @@
-﻿namespace LogFlow.Viewer
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using LogFlow.Viewer.Properties;
+
+namespace LogFlow.Viewer
 {
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -18,17 +22,33 @@
 
         public void SetHeight(int height)
         {
-            var imgList = new ImageList {ImageSize = new Size(1, height)};
+            var imgList = new ImageList { ImageSize = new Size(1, height) };
             this.SmallImageList = imgList;
         }
 
-        [Browsable(true)]
-        public IList<Brush> LevelBrushes { get; } = new List<Brush>()
+        public void ReloadSetting()
         {
-            new SolidBrush(Color.FromArgb(255, 0, 0)),
-            new SolidBrush(Color.FromArgb(200, 0, 0)),
-            new SolidBrush(Color.FromArgb(200, 180, 0)),
-        };
+            this.levelBrushes?.ForEach(b => b.Dispose());
+            this.levelBrushes = null;
+        }
+
+        public IList<Brush> LevelBrushes
+        {
+            get
+            {
+                return this.levelBrushes = this.levelBrushes ?? new List<Brush>()
+                {
+                    new SolidBrush(Settings.Default.Display_LevelColors.Critical),
+                    new SolidBrush(Settings.Default.Display_LevelColors.Error),
+                    new SolidBrush(Settings.Default.Display_LevelColors.Warning),
+                    new SolidBrush(Settings.Default.Display_LevelColors.Info),
+                    new SolidBrush(Settings.Default.Display_LevelColors.Verbose),
+                    new SolidBrush(Settings.Default.Display_LevelColors.Detail),
+                };
+            }
+        }
+
+        private List<Brush> levelBrushes;
 
         public Brush ForeColorBrush { get; private set; }
 

@@ -38,18 +38,18 @@
 40, Exception statistics
 27, search files/findstr
 43, Version, history
-
-2, Context operations. Most done
+46, Drag and drop
 4, Configurations.
 5, Colored level or column level.
-30, Ctrl + G
 32, Hot keys
+51, Filename column display option
+
+2, Context operations. Most done
+30, Ctrl + G
 33, Highlight find content.
 35, Favorite filters
 44, Help, about
-46, Drag and drop
-51, Filename column display option
-
+55, Add shortcut for options.
 
 
 17, Detail pane

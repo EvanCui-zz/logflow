@@ -1,35 +1,58 @@
-﻿using LogFlow.DataModel;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
-using LogFlow.Viewer.Properties;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
+    using LogFlow.DataModel;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Drawing;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading;
+    using System.Windows.Forms;
+    using LogFlow.Viewer.Properties;
+
     public partial class MainFormListView : Form
     {
         private StringFormat DefaultStringFormat { get; set; }
 
         private CancellationTokenSource cts;
 
-        private readonly List<Tuple<Color, SolidBrush, Pen>> Tags = new List<Tuple<Color, SolidBrush, Pen>>()
+        private IList<SolidBrush> TagBrushes =>
+            this.tagBrushes ?? (this.tagBrushes = new List<SolidBrush>()
+            {
+                new SolidBrush(Settings.Default.Display_TagColors.Tag1),
+                new SolidBrush(Settings.Default.Display_TagColors.Tag2),
+                new SolidBrush(Settings.Default.Display_TagColors.Tag3),
+            });
+
+        private List<SolidBrush> tagBrushes;
+
+        private void RefreshTagColors()
         {
-            new Tuple<Color, SolidBrush, Pen>(Color.Cyan, new SolidBrush(Color.Cyan), new Pen(Color.Cyan)),
-            new Tuple<Color, SolidBrush, Pen>(Color.FromArgb(128, 128, 255), new SolidBrush(Color.FromArgb(128, 128, 255)), new Pen(Color.FromArgb(128, 128, 255))),
-            new Tuple<Color, SolidBrush, Pen>(Color.FromArgb(128, 255, 128), new SolidBrush(Color.FromArgb(128, 255, 128)), new Pen(Color.FromArgb(128, 255, 128))),
-        };
+            this.tagBrushes.ForEach(b => b.Dispose());
+            this.tagBrushes = null;
+        }
 
         public MainFormListView()
         {
             InitializeComponent();
+
+            Settings.Default.Display_TagColors = Settings.Default.Display_TagColors ?? new TagColors();
+            Settings.Default.Display_LevelColors = Settings.Default.Display_LevelColors ?? new LevelColors();
+
+            HotKeys.KeyActions = new Dictionary<string, Action>()
+            {
+                { HotKeys.ActionFocusPatternBox, () => this.toolStripComboBoxString.Focus() },
+                { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
+                { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
+                { HotKeys.ActionTag, () => this.toolStripSplitButtonTag.DefaultItem.PerformClick() },
+                { HotKeys.ActionOpen, () => this.openToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionSearchOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
+            };
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -49,7 +72,7 @@ namespace LogFlow.Viewer
             };
 
             int i = 0;
-            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.Tags.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
+            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.TagBrushes.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
             {
                 int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
                 if (this.CurrentView == null) return;
@@ -59,7 +82,7 @@ namespace LogFlow.Viewer
                 this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
             })
             {
-                BackColor = t.Item1,
+                BackColor = t.Color,
             }).ToArray());
 
             this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
@@ -476,12 +499,27 @@ namespace LogFlow.Viewer
             else
             {
                 // level background
-                var level = item.Level;
-                int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
-
-                if (index < this.fastListViewMain.LevelBrushes.Count)
+                if (Settings.Default.Display_ColoredLevel)
                 {
-                    e.Graphics.FillRectangle(this.fastListViewMain.LevelBrushes[index], bound);
+                    var level = item.Level;
+                    var index = level == LogLevels.Critical
+                        ? 0
+                        : (level == LogLevels.Error
+                            ? 1
+                            : (level == LogLevels.Warning
+                                ? 2
+                                : (level == LogLevels.Info
+                                    ? 3
+                                    : (level == LogLevels.Verbose ? 4 : 5))));
+
+                    if (index < this.fastListViewMain.LevelBrushes.Count)
+                    {
+                        e.Graphics.FillRectangle(this.fastListViewMain.LevelBrushes[index], bound);
+                    }
+                    else
+                    {
+                        e.DrawBackground();
+                    }
                 }
                 else
                 {
@@ -536,7 +574,7 @@ namespace LogFlow.Viewer
                             bound.Width -= multiLineSignWidth;
                         }
 
-                        var currentFont = token.Value ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
+                        var currentFont = token.Value && Settings.Default.Display_BoldParameter ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
 
                         if (str.Length > 0)
                         {
@@ -583,11 +621,11 @@ namespace LogFlow.Viewer
 
                     int p = 0;
 
-                    for (int j = 0; j < this.Tags.Count; j++)
+                    for (int j = 0; j < this.TagBrushes.Count; j++)
                     {
                         if (p < colorList.Count && colorList[p] == j)
                         {
-                            e.Graphics.FillRectangle(this.Tags[j].Item2, rect);
+                            e.Graphics.FillRectangle(this.TagBrushes[j], rect);
                             p++;
                         }
 
@@ -676,6 +714,11 @@ namespace LogFlow.Viewer
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.CloseCurrentView();
+        }
+
+        private void CloseCurrentView()
         {
             var nodeNext = this.treeViewDoc.SelectedNode?.Parent ?? this.treeViewDoc.SelectedNode?.PrevNode ?? this.treeViewDoc.SelectedNode?.NextNode;
             var currentView = this.CurrentView;
@@ -805,24 +848,6 @@ namespace LogFlow.Viewer
             this.FilterById(false);
         }
 
-        private void searchFilesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (var searchFileDialog = new SearchFileDialog())
-            {
-                var result = searchFileDialog.ShowDialog();
-                switch (result)
-                {
-                    case DialogResult.OK:
-                        // all matched;
-                        this.OpenFiles(searchFileDialog.MatchedFilePaths);
-                        break;
-                    case DialogResult.Yes:
-                        this.OpenFiles(searchFileDialog.SelectedFilePaths);
-                        break;
-                }
-            }
-        }
-
         private void MainFormListView_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.cts?.Cancel();
@@ -840,6 +865,143 @@ namespace LogFlow.Viewer
                 MessageBox.Show(Resources.VersionFileMissingText, Resources.SomethingWrong, MessageBoxButtons.OK,
                     MessageBoxIcon.Exclamation);
             }
+        }
+
+        private void MainFormListView_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                this.OpenFiles(filePaths);
+            }
+        }
+
+        private void MainFormListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (filePaths.Length > 0) e.Effect = DragDropEffects.Move;
+            }
+        }
+
+        private void MainFormListView_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = HotKeys.Instance.PerformAction(e.KeyData);
+        }
+
+        private void closeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.CloseCurrentView();
+        }
+
+        private void filteredOpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var searchFileDialog = new SearchFileDialog())
+            {
+                var result = searchFileDialog.ShowDialog();
+                switch (result)
+                {
+                    case DialogResult.OK:
+                        // all matched;
+                        this.OpenFiles(searchFileDialog.MatchedFilePaths);
+                        break;
+                    case DialogResult.Yes:
+                        this.OpenFiles(searchFileDialog.SelectedFilePaths);
+                        break;
+                }
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void allSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var allSettings = new AllSettings())
+            {
+                if (DialogResult.OK == allSettings.ShowDialog())
+                {
+                    this.RefreshTagColors();
+                }
+            }
+        }
+
+        private void boldParametersToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Display_BoldParameter = this.boldParametersToolStripMenuItem.Checked;
+            this.fastListViewMain.Refresh();
+            Settings.Default.Save();
+        }
+
+        private void showLevelColumnToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            this.SetColumnVisible("Level", this.showLevelColumnToolStripMenuItem.Checked);
+        }
+
+        private void SetColumnVisible(string name, bool visible)
+        {
+            if (!visible & !Settings.Default.Display_HidenColumns.Contains(name))
+            {
+                Settings.Default.Display_HidenColumns.Add(name);
+            }
+
+            if (visible && Settings.Default.Display_HidenColumns.Contains(name))
+            {
+                Settings.Default.Display_HidenColumns.Remove(name);
+            }
+
+            // TODO: change visible.
+            this.fastListViewMain.Refresh();
+
+            Settings.Default.Save();
+
+        }
+
+        private void showFilenameColumnToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            // TODO: move the filename to base, move activity to base.
+            this.SetColumnVisible("FileName", this.showFilenameColumnToolStripMenuItem.Checked);
+        }
+
+        private void showActivityColumnToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            this.SetColumnVisible("Activity", this.showActivityColumnToolStripMenuItem.Checked);
+        }
+
+        private void highlightLevelsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Display_ColoredLevel = this.highlightLevelsToolStripMenuItem.Checked;
+            this.fastListViewMain.Refresh();
+        }
+
+        private void showStatisticsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Display_Statistics = this.showStatisticsToolStripMenuItem.Checked;
+        }
+
+        private void fastRenderingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Display_FastRendering = this.fastRenderingToolStripMenuItem.Checked;
+            this.fastListViewMain.Refresh();
+        }
+
+        private void detectNewLogsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Behavior_AutoLoad = this.detectNewLogsToolStripMenuItem.Checked;
+        }
+
+        private void autoScrollToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Behavior_AutoScroll = this.autoScrollToolStripMenuItem.Checked;
+        }
+
+        private void enableDataVirtualizationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.Behavior_DataVirtualization = this.enableDataVirtualizationToolStripMenuItem.Checked;
         }
     }
 }

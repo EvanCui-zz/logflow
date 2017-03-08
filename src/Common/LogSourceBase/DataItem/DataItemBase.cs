@@ -1,6 +1,9 @@
 ﻿namespace LogFlow.DataModel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Linq;
 
     // Consider change it to struct and compact the integers.
     public class DataItemBase
@@ -26,5 +29,24 @@
 
         [ColumnInfo(Name = "Pid", Width = 60)]
         public int ProcessId { get; set; }
+
+        public static List<PropertyInfo> GetPropertyInfos<T>() where T : DataItemBase
+        {
+            var currentType = typeof(T);
+
+            var propertyInfos = new List<PropertyInfo>(0);
+
+            while (currentType != null)
+            {
+                propertyInfos = currentType.GetProperties()
+                    .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true) && f.DeclaringType == currentType).Concat(propertyInfos).ToList();
+
+                currentType = currentType.BaseType;
+            }
+
+            return propertyInfos;
+        }
+
+        public static List<ColumnInfoAttribute> GetColumnInfos(IEnumerable<PropertyInfo> propertyInfos) => propertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
     }
 }
