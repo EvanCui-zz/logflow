@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using LogFlow.DataModel;
-using LogFlow.Viewer.Properties;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Windows.Forms;
+    using LogFlow.DataModel;
+    using LogFlow.Viewer.Properties;
+
     public partial class AllSettings : Form
     {
         public AllSettings()
@@ -22,19 +17,16 @@ namespace LogFlow.Viewer
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.OK;
             this.ApplyChanges();
             this.Close();
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel;
             Settings.Default.Reload();
             this.Close();
-        }
-
-        private void buttonApply_Click(object sender, EventArgs e)
-        {
-            this.ApplyChanges();
         }
 
         private void AllSettings_Load(object sender, EventArgs e)
@@ -115,7 +107,7 @@ namespace LogFlow.Viewer
             {
                 if (!this.checkedListBoxColumns.GetItemChecked(i))
                 {
-                    Settings.Default.Display_HidenColumns.Add((string) this.checkedListBoxColumns.Items[i]);
+                    Settings.Default.Display_HidenColumns.Add((string)this.checkedListBoxColumns.Items[i]);
                 }
             }
 

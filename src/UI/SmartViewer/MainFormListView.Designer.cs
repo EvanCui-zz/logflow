@@ -97,7 +97,6 @@
             this.panelMain = new System.Windows.Forms.Panel();
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitContainerDetails = new System.Windows.Forms.SplitContainer();
-            this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.contextMenuStripListView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.filterWithTheSameThreadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.filterWithTheSameActivityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -143,12 +142,13 @@
             this.label14 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
             this.splitterRight = new System.Windows.Forms.Splitter();
             this.splitterLeft = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
             this.splitContainerStatistics = new System.Windows.Forms.SplitContainer();
             this.chartTimeLine = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.timeline1 = new LogFlow.Viewer.Timeline();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.propertyGridStatistics = new System.Windows.Forms.PropertyGrid();
@@ -174,8 +174,7 @@
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.tabPage6 = new System.Windows.Forms.TabPage();
-            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -466,8 +465,8 @@
             this.bug360425ToolStripMenuItem,
             this.specialPatternToolStripMenuItem});
             this.autoAnalyzeRulesToolStripMenuItem.Name = "autoAnalyzeRulesToolStripMenuItem";
-            this.autoAnalyzeRulesToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-            this.autoAnalyzeRulesToolStripMenuItem.Text = "Auto Analyze Rules";
+            this.autoAnalyzeRulesToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.autoAnalyzeRulesToolStripMenuItem.Text = "Auto Analyze Rules (todo)";
             // 
             // bug360425ToolStripMenuItem
             // 
@@ -493,8 +492,8 @@
             this.windowsEventsToolStripMenuItem,
             this.hpcLogsToolStripMenuItem});
             this.logSourcePluginsToolStripMenuItem.Name = "logSourcePluginsToolStripMenuItem";
-            this.logSourcePluginsToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-            this.logSourcePluginsToolStripMenuItem.Text = "Log Source Plugins";
+            this.logSourcePluginsToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.logSourcePluginsToolStripMenuItem.Text = "Log Source Plugins (todo)";
             // 
             // plainTextFileToolStripMenuItem
             // 
@@ -569,14 +568,15 @@
             this.boldParametersToolStripMenuItem.CheckOnClick = true;
             this.boldParametersToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.boldParametersToolStripMenuItem.Name = "boldParametersToolStripMenuItem";
-            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.boldParametersToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.boldParametersToolStripMenuItem.Text = "Bold Parameters";
             this.boldParametersToolStripMenuItem.CheckedChanged += new System.EventHandler(this.boldParametersToolStripMenuItem_CheckedChanged);
             // 
             // showLevelColumnToolStripMenuItem
             // 
+            this.showLevelColumnToolStripMenuItem.CheckOnClick = true;
             this.showLevelColumnToolStripMenuItem.Name = "showLevelColumnToolStripMenuItem";
-            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showLevelColumnToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.showLevelColumnToolStripMenuItem.Text = "Show Level Column";
             this.showLevelColumnToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showLevelColumnToolStripMenuItem_CheckedChanged);
             // 
@@ -584,14 +584,15 @@
             // 
             this.showFilenameColumnToolStripMenuItem.CheckOnClick = true;
             this.showFilenameColumnToolStripMenuItem.Name = "showFilenameColumnToolStripMenuItem";
-            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showFilenameColumnToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.showFilenameColumnToolStripMenuItem.Text = "Show Filename Column";
             this.showFilenameColumnToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showFilenameColumnToolStripMenuItem_CheckedChanged);
             // 
             // showActivityColumnToolStripMenuItem
             // 
+            this.showActivityColumnToolStripMenuItem.CheckOnClick = true;
             this.showActivityColumnToolStripMenuItem.Name = "showActivityColumnToolStripMenuItem";
-            this.showActivityColumnToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showActivityColumnToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.showActivityColumnToolStripMenuItem.Text = "Show Activity Column";
             this.showActivityColumnToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showActivityColumnToolStripMenuItem_CheckedChanged);
             // 
@@ -601,7 +602,7 @@
             this.highlightLevelsToolStripMenuItem.CheckOnClick = true;
             this.highlightLevelsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.highlightLevelsToolStripMenuItem.Name = "highlightLevelsToolStripMenuItem";
-            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.highlightLevelsToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.highlightLevelsToolStripMenuItem.Text = "Highlight Levels";
             this.highlightLevelsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.highlightLevelsToolStripMenuItem_CheckedChanged);
             // 
@@ -611,7 +612,7 @@
             this.showStatisticsToolStripMenuItem.CheckOnClick = true;
             this.showStatisticsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.showStatisticsToolStripMenuItem.Name = "showStatisticsToolStripMenuItem";
-            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.showStatisticsToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.showStatisticsToolStripMenuItem.Text = "Show Statistics";
             this.showStatisticsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showStatisticsToolStripMenuItem_CheckedChanged);
             // 
@@ -619,7 +620,7 @@
             // 
             this.fastRenderingToolStripMenuItem.CheckOnClick = true;
             this.fastRenderingToolStripMenuItem.Name = "fastRenderingToolStripMenuItem";
-            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.fastRenderingToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.fastRenderingToolStripMenuItem.Text = "Fast Rendering";
             this.fastRenderingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.fastRenderingToolStripMenuItem_CheckedChanged);
             // 
@@ -627,35 +628,35 @@
             // 
             this.detectNewLogsToolStripMenuItem.CheckOnClick = true;
             this.detectNewLogsToolStripMenuItem.Name = "detectNewLogsToolStripMenuItem";
-            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.detectNewLogsToolStripMenuItem.Text = "Auto Load New Logs";
+            this.detectNewLogsToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.detectNewLogsToolStripMenuItem.Text = "Auto Load New Logs (todo)";
             this.detectNewLogsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.detectNewLogsToolStripMenuItem_CheckedChanged);
             // 
             // autoScrollToolStripMenuItem
             // 
             this.autoScrollToolStripMenuItem.CheckOnClick = true;
             this.autoScrollToolStripMenuItem.Name = "autoScrollToolStripMenuItem";
-            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.autoScrollToolStripMenuItem.Text = "Auto Scroll";
+            this.autoScrollToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.autoScrollToolStripMenuItem.Text = "Auto Scroll (todo)";
             this.autoScrollToolStripMenuItem.CheckedChanged += new System.EventHandler(this.autoScrollToolStripMenuItem_CheckedChanged);
             // 
             // enableDataVirtualizationToolStripMenuItem
             // 
             this.enableDataVirtualizationToolStripMenuItem.CheckOnClick = true;
             this.enableDataVirtualizationToolStripMenuItem.Name = "enableDataVirtualizationToolStripMenuItem";
-            this.enableDataVirtualizationToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.enableDataVirtualizationToolStripMenuItem.Text = "Data Virtualization";
+            this.enableDataVirtualizationToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.enableDataVirtualizationToolStripMenuItem.Text = "Data Virtualization (todo)";
             this.enableDataVirtualizationToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enableDataVirtualizationToolStripMenuItem_CheckedChanged);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(217, 6);
             // 
             // allSettingsToolStripMenuItem
             // 
             this.allSettingsToolStripMenuItem.Name = "allSettingsToolStripMenuItem";
-            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.allSettingsToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.allSettingsToolStripMenuItem.Text = "All Settings...";
             this.allSettingsToolStripMenuItem.Click += new System.EventHandler(this.allSettingsToolStripMenuItem_Click);
             // 
@@ -737,42 +738,6 @@
             this.splitContainerDetails.Size = new System.Drawing.Size(691, 485);
             this.splitContainerDetails.SplitterDistance = 284;
             this.splitContainerDetails.TabIndex = 2;
-            // 
-            // fastListViewMain
-            // 
-            this.fastListViewMain.AllowColumnReorder = true;
-            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
-            this.fastListViewMain.AlternateBackColorBrush = null;
-            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.fastListViewMain.ContextMenuStrip = this.contextMenuStripListView;
-            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastListViewMain.FullRowSelect = true;
-            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
-            this.fastListViewMain.GridLineColorPen = null;
-            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.fastListViewMain.HideSelection = false;
-            this.fastListViewMain.LabelWrap = false;
-            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
-            this.fastListViewMain.Name = "fastListViewMain";
-            this.fastListViewMain.OwnerDraw = true;
-            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
-            this.fastListViewMain.SelectionBackColorBrush = null;
-            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.fastListViewMain.SelectionForeColorBrush = null;
-            this.fastListViewMain.ShowGroups = false;
-            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
-            this.fastListViewMain.TabIndex = 2;
-            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
-            this.fastListViewMain.View = System.Windows.Forms.View.Details;
-            this.fastListViewMain.VirtualMode = true;
-            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
-            this.fastListViewMain.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.fastListViewMain_ColumnWidthChanged);
-            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
-            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
-            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
-            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
-            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
-            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
             // 
             // contextMenuStripListView
             // 
@@ -1087,7 +1052,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(681, 169);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Thread";
+            this.tabPage2.Text = "Thread (todo)";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // label11
@@ -1148,7 +1113,7 @@
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage3.Size = new System.Drawing.Size(681, 169);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Template";
+            this.tabPage3.Text = "Template (todo)";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // label14
@@ -1174,6 +1139,24 @@
             this.label13.Size = new System.Drawing.Size(100, 16);
             this.label13.TabIndex = 4;
             this.label13.Text = "Occurrence:";
+            // 
+            // tabPage6
+            // 
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Size = new System.Drawing.Size(681, 169);
+            this.tabPage6.TabIndex = 3;
+            this.tabPage6.Text = "Parent Preview (todo)";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // tabPage7
+            // 
+            this.tabPage7.Location = new System.Drawing.Point(4, 22);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Size = new System.Drawing.Size(681, 169);
+            this.tabPage7.TabIndex = 4;
+            this.tabPage7.Text = "Root Preview (todo)";
+            this.tabPage7.UseVisualStyleBackColor = true;
             // 
             // splitterRight
             // 
@@ -1207,6 +1190,7 @@
             // 
             // splitContainerStatistics
             // 
+            this.splitContainerStatistics.CausesValidation = false;
             this.splitContainerStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainerStatistics.Location = new System.Drawing.Point(0, 0);
             this.splitContainerStatistics.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
@@ -1216,7 +1200,6 @@
             // splitContainerStatistics.Panel1
             // 
             this.splitContainerStatistics.Panel1.Controls.Add(this.chartTimeLine);
-            this.splitContainerStatistics.Panel1.Controls.Add(this.timeline1);
             // 
             // splitContainerStatistics.Panel2
             // 
@@ -1240,16 +1223,6 @@
             this.chartTimeLine.Size = new System.Drawing.Size(156, 137);
             this.chartTimeLine.TabIndex = 1;
             this.chartTimeLine.Text = "Timeline";
-            // 
-            // timeline1
-            // 
-            this.timeline1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.timeline1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timeline1.Location = new System.Drawing.Point(0, 0);
-            this.timeline1.Name = "timeline1";
-            this.timeline1.Plots = ((System.Collections.Generic.IList<double>)(resources.GetObject("timeline1.Plots")));
-            this.timeline1.Size = new System.Drawing.Size(156, 137);
-            this.timeline1.TabIndex = 0;
             // 
             // tabControl1
             // 
@@ -1290,7 +1263,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(148, 314);
+            this.tabPage5.Size = new System.Drawing.Size(124, 258);
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Exceptions";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -1304,7 +1277,7 @@
             this.listViewExceptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewExceptions.Location = new System.Drawing.Point(3, 3);
             this.listViewExceptions.Name = "listViewExceptions";
-            this.listViewExceptions.Size = new System.Drawing.Size(142, 308);
+            this.listViewExceptions.Size = new System.Drawing.Size(118, 252);
             this.listViewExceptions.TabIndex = 0;
             this.listViewExceptions.UseCompatibleStateImageBehavior = false;
             this.listViewExceptions.View = System.Windows.Forms.View.Details;
@@ -1460,23 +1433,41 @@
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
             // 
-            // tabPage6
+            // fastListViewMain
             // 
-            this.tabPage6.Location = new System.Drawing.Point(4, 22);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(681, 169);
-            this.tabPage6.TabIndex = 3;
-            this.tabPage6.Text = "Parent Preview (todo)";
-            this.tabPage6.UseVisualStyleBackColor = true;
-            // 
-            // tabPage7
-            // 
-            this.tabPage7.Location = new System.Drawing.Point(4, 22);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.Size = new System.Drawing.Size(681, 169);
-            this.tabPage7.TabIndex = 4;
-            this.tabPage7.Text = "Root Preview (todo)";
-            this.tabPage7.UseVisualStyleBackColor = true;
+            this.fastListViewMain.AllowColumnReorder = true;
+            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
+            this.fastListViewMain.AlternateBackColorBrush = null;
+            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.fastListViewMain.ContextMenuStrip = this.contextMenuStripListView;
+            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastListViewMain.FullRowSelect = true;
+            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
+            this.fastListViewMain.GridLineColorPen = null;
+            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.fastListViewMain.HideSelection = false;
+            this.fastListViewMain.LabelWrap = false;
+            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
+            this.fastListViewMain.Name = "fastListViewMain";
+            this.fastListViewMain.OwnerDraw = true;
+            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
+            this.fastListViewMain.SelectionBackColorBrush = null;
+            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.fastListViewMain.SelectionForeColorBrush = null;
+            this.fastListViewMain.ShowGroups = false;
+            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
+            this.fastListViewMain.TabIndex = 2;
+            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
+            this.fastListViewMain.View = System.Windows.Forms.View.Details;
+            this.fastListViewMain.VirtualMode = true;
+            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.fastListViewMain_ColumnWidthChanged);
+            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
+            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
+            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
+            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
+            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
+            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
             // 
             // MainFormListView
             // 
@@ -1574,7 +1565,6 @@
         private System.Windows.Forms.ToolStripMenuItem countF4ToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainerStatistics;
         private System.Windows.Forms.PropertyGrid propertyGridStatistics;
-        private Timeline timeline1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSelected;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;

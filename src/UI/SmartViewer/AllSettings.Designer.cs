@@ -52,7 +52,6 @@
             this.dataGridViewHotKeys = new System.Windows.Forms.DataGridView();
             this.Functionality = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.HotKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.buttonApply = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
@@ -280,6 +279,7 @@
             // 
             this.checkedListBoxColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkedListBoxColumns.CheckOnClick = true;
             this.checkedListBoxColumns.FormattingEnabled = true;
             this.checkedListBoxColumns.Location = new System.Drawing.Point(18, 18);
             this.checkedListBoxColumns.Name = "checkedListBoxColumns";
@@ -329,22 +329,11 @@
             this.HotKey.Name = "HotKey";
             this.HotKey.ReadOnly = true;
             // 
-            // buttonApply
-            // 
-            this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonApply.Location = new System.Drawing.Point(403, 454);
-            this.buttonApply.Name = "buttonApply";
-            this.buttonApply.Size = new System.Drawing.Size(75, 23);
-            this.buttonApply.TabIndex = 1;
-            this.buttonApply.Text = "Apply";
-            this.buttonApply.UseVisualStyleBackColor = true;
-            this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
-            // 
             // buttonCancel
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(322, 454);
+            this.buttonCancel.Location = new System.Drawing.Point(403, 454);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 2;
@@ -355,7 +344,7 @@
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonOK.Location = new System.Drawing.Point(241, 454);
+            this.buttonOK.Location = new System.Drawing.Point(322, 454);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 3;
@@ -376,7 +365,6 @@
             this.ClientSize = new System.Drawing.Size(494, 489);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.buttonCancel);
-            this.Controls.Add(this.buttonApply);
             this.Controls.Add(this.tabControl1);
             this.DoubleBuffered = true;
             this.Name = "AllSettings";
@@ -421,7 +409,6 @@
         private System.Windows.Forms.CheckBox checkBoxAllowReordering;
         private System.Windows.Forms.CheckedListBox checkedListBoxColumns;
         private System.Windows.Forms.TabPage tabPageHotKey;
-        private System.Windows.Forms.Button buttonApply;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonOK;
         private System.Windows.Forms.DataGridView dataGridViewHotKeys;

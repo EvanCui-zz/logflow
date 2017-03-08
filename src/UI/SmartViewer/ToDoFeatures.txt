@@ -50,6 +50,7 @@
 35, Favorite filters
 44, Help, about
 55, Add shortcut for options.
+56, Fix tag across docs.
 
 
 17, Detail pane

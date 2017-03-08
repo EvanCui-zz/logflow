@@ -18,14 +18,9 @@ namespace LogFlow.DataModel
 
         public override object GetColumnValue(int rowIndex, int columnIndex)
         {
-            if (columnIndex == this.ColumnInfos.Count - 1)
-            {
-                return this.LogFiles[this.Items[rowIndex].FileIndex].FileName;
-            }
-            else
-            {
-                return base.GetColumnValue(rowIndex, columnIndex);
-            }
+            return string.Equals(this.ColumnInfos[columnIndex].Name, "File", StringComparison.Ordinal) ?
+                this.LogFiles[this.Items[rowIndex].FileIndex].FileName 
+                : base.GetColumnValue(rowIndex, columnIndex);
         }
 
         public void Dispose()

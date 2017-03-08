@@ -1,4 +1,7 @@
-﻿namespace LogFlow.Viewer
+﻿using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+
+namespace LogFlow.Viewer
 {
     using LogFlow.DataModel;
     using System;
@@ -32,8 +35,26 @@
 
         private void RefreshTagColors()
         {
-            this.tagBrushes.ForEach(b => b.Dispose());
+            this.tagBrushes?.ForEach(b => b.Dispose());
             this.tagBrushes = null;
+
+            this.toolStripSplitButtonTag.DropDownItems.Clear();
+
+            var i = 0;
+            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.TagBrushes.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
+            {
+                int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
+                if (this.CurrentView == null) return;
+                var currentMenuItem = (ToolStripMenuItem)s;
+                bool tag = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text);
+                currentMenuItem.Checked = tag;
+                this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
+            })
+            {
+                BackColor = t.Color,
+            }).ToArray());
+
+            this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
         }
 
         public MainFormListView()
@@ -71,24 +92,28 @@
                 LineAlignment = StringAlignment.Center,
             };
 
-            int i = 0;
-            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.TagBrushes.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
-            {
-                int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
-                if (this.CurrentView == null) return;
-                var currentMenuItem = (ToolStripMenuItem)s;
-                bool tag = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text);
-                currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
-            })
-            {
-                BackColor = t.Color,
-            }).ToArray());
-
-            this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
+            this.ApplySettings();
 
             this.toolStripComboBoxString_TextChanged(this, null);
+        }
+
+        private void ApplySettings()
+        {
+            this.showFilenameColumnToolStripMenuItem.Checked = !Settings.Default.Display_HidenColumns.Contains("File");
+            this.showLevelColumnToolStripMenuItem.Checked = !Settings.Default.Display_HidenColumns.Contains("Level");
+            this.showActivityColumnToolStripMenuItem.Checked = !Settings.Default.Display_HidenColumns.Contains("ActId");
+            this.boldParametersToolStripMenuItem.Checked = Settings.Default.Display_BoldParameter;
+            this.highlightLevelsToolStripMenuItem.Checked = Settings.Default.Display_ColoredLevel;
+            this.showStatisticsToolStripMenuItem.Checked = this.splitContainerStatistics.Visible = Settings.Default.Display_Statistics;
+            this.fastRenderingToolStripMenuItem.Checked = Settings.Default.Display_FastRendering;
+            this.autoScrollToolStripMenuItem.Checked = Settings.Default.Behavior_AutoScroll;
+            this.detectNewLogsToolStripMenuItem.Checked = Settings.Default.Behavior_AutoLoad;
+            this.enableDataVirtualizationToolStripMenuItem.Checked = Settings.Default.Behavior_DataVirtualization;
+            this.RefreshTagColors();
+            this.fastListViewMain.ReloadSetting();
+            this.SaveScrollAndSelected();
+            this.UpdateFastListViewColumns();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -165,16 +190,19 @@
             }
             else
             {
-                if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
-                    this.fastListViewMain.TopItem = this.fastListViewMain.Items[this.CurrentView.FirstDisplayedScrollingRowIndex.Value];
                 if (this.CurrentView.LastCountResult.HasValue)
                     this.toolStripLabelCount.Text = this.CurrentView.LastCountResult.Value.ToString();
-                if (this.CurrentView.SelectedRowIndex.HasValue)
-                    this.fastListViewMain.Items[this.CurrentView.SelectedRowIndex.Value].Selected = true;
             }
         }
 
         private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            this.SaveScrollAndSelected();
+        }
+
+        #endregion
+
+        private void SaveScrollAndSelected()
         {
             if (this.CurrentView == null) return;
             this.CurrentView.FirstDisplayedScrollingRowIndex = this.fastListViewMain.TopItem?.Index;
@@ -187,8 +215,6 @@
                 this.CurrentView.SelectedRowIndex = null;
             }
         }
-
-        #endregion
 
         private void UpdateMainGridRowCount(object sender, int index)
         {
@@ -296,6 +322,8 @@
             }
         }
 
+        private int[] columnDataIndexMapping;
+
         private void UpdateFastListViewColumns()
         {
             var view = this.CurrentView;
@@ -307,16 +335,30 @@
 
             if (view != null)
             {
-                var headers = new[] { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } }.Concat(view.ColumnInfos.Select(ci => new ColumnHeader()
-                {
-                    Name = ci.Name,
-                    Text = ci.Name,
-                    Width = ci.Width,
-                })).ToArray();
+                this.columnDataIndexMapping = new int[view.ColumnInfos.Count + 1];
 
-                this.fastListViewMain.Columns.AddRange(headers);
+                var p = 1;
+
+                var headers = new List<ColumnHeader> { new ColumnHeader() { Name = "Workaround", Text = "", Width = 0 } };
+
+                for (var i = 0; i < view.ColumnInfos.Count; i++)
+                {
+                    var info = view.ColumnInfos[i];
+
+                    if (!Settings.Default.Display_HidenColumns?.Contains(info.Name) ?? true)
+                    {
+                        headers.Add(new ColumnHeader() { Name = info.Name, Text = info.Name, Width = info.Width });
+                        this.columnDataIndexMapping[p++] = i;
+                    }
+                }
+
+                this.fastListViewMain.Columns.AddRange(headers.ToArray());
                 this.fastListViewMain_Resize(this, null);
                 this.fastListViewMain.VirtualListSize = view.TotalCount;
+                if (view.SelectedRowIndex.HasValue)
+                    this.fastListViewMain.Items[view.SelectedRowIndex.Value].Selected = true;
+                if (view.FirstDisplayedScrollingRowIndex.HasValue)
+                    this.fastListViewMain.TopItem = this.fastListViewMain.Items[view.FirstDisplayedScrollingRowIndex.Value];
             }
 
             this.fastListViewMain.EndUpdate();
@@ -475,8 +517,8 @@
                 subItems[i] = new ListViewItem.ListViewSubItem();
             }
 
+            subItems[3] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 3) };
             subItems[4] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) };
-            subItems[5] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 5) };
 
             e.Item.SubItems.AddRange(subItems);
         }
@@ -541,13 +583,19 @@
             var bound = e.Bounds;
             DataItemBase item = (DataItemBase)e.Item.Tag;
             if (item == null) return;
-            bool isSelected = e.Item.Selected;
+            var isSelected = e.Item.Selected;
             StringFormat format = new StringFormat(StringFormatFlags.NoWrap)
             {
                 //   Alignment = StringAlignment.Center,
                 Trimming = StringTrimming.EllipsisCharacter,
                 LineAlignment = StringAlignment.Center,
             };
+
+            if (Settings.Default.Display_FastRendering)
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.HighSpeed;
+                e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
+            }
 
             Brush foreBrush = isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush;
 
@@ -610,7 +658,7 @@
                     }
                     break;
 
-                case 6:
+                case 4:
                     var colorList = (List<int>)e.SubItem.Tag;
 
                     var rect = e.Bounds;
@@ -634,7 +682,7 @@
                     break;
 
                 default:
-                    e.Graphics.DrawString(this.CurrentView?.GetColumnValue(e.ItemIndex, e.ColumnIndex - 1).ToString(), e.SubItem.Font, foreBrush, bound, format);
+                    e.Graphics.DrawString(this.CurrentView?.GetColumnValue(e.ItemIndex, this.columnDataIndexMapping[e.ColumnIndex]).ToString(), e.SubItem.Font, foreBrush, bound, format);
                     break;
             }
         }
@@ -742,7 +790,7 @@
                 return;
             }
 
-            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+            var threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
             var f = new Filter($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
@@ -925,7 +973,8 @@
             {
                 if (DialogResult.OK == allSettings.ShowDialog())
                 {
-                    this.RefreshTagColors();
+                    // for apply button case, we update each time.
+                    this.ApplySettings();
                 }
             }
         }
@@ -954,22 +1003,20 @@
                 Settings.Default.Display_HidenColumns.Remove(name);
             }
 
-            // TODO: change visible.
-            this.fastListViewMain.Refresh();
-
             Settings.Default.Save();
 
+            this.SaveScrollAndSelected();
+            this.UpdateFastListViewColumns();
         }
 
         private void showFilenameColumnToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            // TODO: move the filename to base, move activity to base.
-            this.SetColumnVisible("FileName", this.showFilenameColumnToolStripMenuItem.Checked);
+            this.SetColumnVisible("File", this.showFilenameColumnToolStripMenuItem.Checked);
         }
 
         private void showActivityColumnToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            this.SetColumnVisible("Activity", this.showActivityColumnToolStripMenuItem.Checked);
+            this.SetColumnVisible("ActId", this.showActivityColumnToolStripMenuItem.Checked);
         }
 
         private void highlightLevelsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -980,7 +1027,7 @@
 
         private void showStatisticsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            Settings.Default.Display_Statistics = this.showStatisticsToolStripMenuItem.Checked;
+            this.panelRight.Visible = Settings.Default.Display_Statistics = this.showStatisticsToolStripMenuItem.Checked;
         }
 
         private void fastRenderingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
