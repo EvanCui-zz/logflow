@@ -121,18 +121,29 @@ namespace LogFlow.DataModel
             yield return lastReportedProgress;
             lastReportedProgress += 20;
 
-            var filteredMerged = HeapMerger.Merge(Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
-                this.LogFiles.Select(f => f.Where(i =>
-                {
-                    // the loop should exit immediately when cancel.
-                    token.ThrowIfCancellationRequested();
-                    return filter?.Match(i.Item, i.Template) ?? true;
-                })).ToArray());
+            IEnumerable<MergedItem<FullCosmosDataItem>> merged;
+            if (filter == null)
+            {
+                merged = HeapMerger.Merge(
+                    Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
+                    this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
+            }
+            else
+            {
+                merged = HeapMerger.Merge(
+                    Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
+                        this.LogFiles.Select(f => f.Where(i =>
+                        {
+                            // the loop should exit immediately when cancel.
+                            token.ThrowIfCancellationRequested();
+                            return filter?.Match(i.Item, i.Template) ?? true;
+                        })).ToArray());
+            }
 
             //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
 
             // each time we iterate through the merged, it will refresh all files underneath and load in new InternalItems;
-            foreach (var item in filteredMerged)
+            foreach (var item in merged)
             {
                 if (token.IsCancellationRequested) yield break;
 

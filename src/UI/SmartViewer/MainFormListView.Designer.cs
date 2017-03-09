@@ -240,12 +240,15 @@
             this.toolStripSeparator2});
             this.toolStripMain.Location = new System.Drawing.Point(0, 0);
             this.toolStripMain.Name = "toolStripMain";
-            this.toolStripMain.Size = new System.Drawing.Size(755, 25);
+            this.toolStripMain.Size = new System.Drawing.Size(724, 25);
             this.toolStripMain.TabIndex = 0;
             this.toolStripMain.Text = "toolStrip1";
             // 
             // toolStripComboBoxString
             // 
+            this.toolStripComboBoxString.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.toolStripComboBoxString.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.toolStripComboBoxString.Enabled = false;
             this.toolStripComboBoxString.Name = "toolStripComboBoxString";
             this.toolStripComboBoxString.Size = new System.Drawing.Size(300, 25);
             this.toolStripComboBoxString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolStripComboBoxString_KeyDown);
@@ -1478,7 +1481,7 @@
             // 
             // openFileDialog1
             // 
-            this.openFileDialog1.Filter = "Cosmos files|*.bin|All files|*.*";
+            this.openFileDialog1.Filter = "Cosmos files|*.bin|Log files|*.log|Text files|*.txt|All files|*.*";
             this.openFileDialog1.Multiselect = true;
             this.openFileDialog1.Title = "Select the log file";
             // 

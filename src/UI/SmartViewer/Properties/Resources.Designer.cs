@@ -88,6 +88,15 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The search failed with an exception {0}..
+        /// </summary>
+        internal static string SearchFailedText {
+            get {
+                return ResourceManager.GetString("SearchFailedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Something went wrong.
         /// </summary>
         internal static string SomethingWrong {

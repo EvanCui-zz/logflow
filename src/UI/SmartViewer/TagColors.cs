@@ -18,7 +18,7 @@ namespace LogFlow.Viewer
         public int SerializeTag3 { get { return this.Tag3.ToArgb(); } set { this.Tag3 = Color.FromArgb(value); } }
 
         [XmlIgnore]
-        public Color Tag1 { get; set; } = Color.Blue;
+        public Color Tag1 { get; set; } = Color.Cyan;
         [XmlIgnore]
         public Color Tag2 { get; set; } = Color.Fuchsia;
         [XmlIgnore]

@@ -148,7 +148,7 @@ namespace LogFlow.DataModel
 
         public int? LastCountResult { get; private set; }
 
-        public IEnumerable<int> Initialize(CancellationToken token)
+        public IEnumerable<int> Initialize(bool statistics, CancellationToken token)
         {
             if (this.IsInitialized || this.IsInProgress) yield break;
 
@@ -208,7 +208,7 @@ namespace LogFlow.DataModel
                 }
             }
 
-            if (this.TotalCount > 0)
+            if (statistics && this.TotalCount > 0)
             {
                 int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
                 this.Statistics.SetFirstLast(this.Data.Items[firstIndex], this.Data.Items[lastIndex]);

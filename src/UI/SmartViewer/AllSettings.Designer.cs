@@ -134,9 +134,9 @@
             this.checkBoxHighlightMatch.AutoSize = true;
             this.checkBoxHighlightMatch.Location = new System.Drawing.Point(18, 318);
             this.checkBoxHighlightMatch.Name = "checkBoxHighlightMatch";
-            this.checkBoxHighlightMatch.Size = new System.Drawing.Size(230, 17);
+            this.checkBoxHighlightMatch.Size = new System.Drawing.Size(260, 17);
             this.checkBoxHighlightMatch.TabIndex = 4;
-            this.checkBoxHighlightMatch.Text = "&Highlight the matched text when searching.";
+            this.checkBoxHighlightMatch.Text = "&Highlight the matched text when searching. (todo)";
             this.checkBoxHighlightMatch.UseVisualStyleBackColor = true;
             // 
             // checkBoxBoldParameter

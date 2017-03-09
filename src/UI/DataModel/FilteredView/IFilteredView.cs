@@ -40,7 +40,7 @@ namespace LogFlow.DataModel
 
         IEnumerable<int> Count(IFilter filter);
 
-        IEnumerable<int> Initialize(CancellationToken token);
+        IEnumerable<int> Initialize(bool statistics, CancellationToken token);
 
         bool IsInitialized { get; }
 

@@ -75,6 +75,8 @@ namespace LogFlow.Viewer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" />")]
         public global::System.Collections.Specialized.StringCollection Data_FilteringHistory {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Data_FilteringHistory"]));
@@ -86,7 +88,7 @@ namespace LogFlow.Viewer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Display_Statistics {
             get {
                 return ((bool)(this["Display_Statistics"]));
@@ -98,6 +100,8 @@ namespace LogFlow.Viewer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" />")]
         public global::System.Collections.Specialized.StringCollection Data_RecentDirectories {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Data_RecentDirectories"]));
@@ -109,6 +113,8 @@ namespace LogFlow.Viewer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" />")]
         public global::System.Collections.Specialized.StringCollection Data_RecentFiles {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Data_RecentFiles"]));
@@ -180,32 +186,26 @@ namespace LogFlow.Viewer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>1000</string>\r\n</ArrayOfString>")]
-        public global::System.Collections.Specialized.StringCollection Data_PeekCountHistory {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int Data_LastFilterIndex {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["Data_PeekCountHistory"]));
+                return ((int)(this["Data_LastFilterIndex"]));
             }
             set {
-                this["Data_PeekCountHistory"] = value;
+                this["Data_LastFilterIndex"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("*.bin")]
-        public string Data_LastUsedFileExtension {
-            get {
-                return ((string)(this["Data_LastUsedFileExtension"]));
-            }
-            set {
-                this["Data_LastUsedFileExtension"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>*.bin</string>
+  <string>*.txt</string>
+  <string>*.log</string>
+  <string>*.txt|*.log</string>
+  <string>*.*</string>
+</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection Data_FileNamePatterns {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["Data_FileNamePatterns"]));
@@ -269,6 +269,18 @@ namespace LogFlow.Viewer.Properties {
             }
             set {
                 this["Behavior_AllowColumnReorder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int Data_MaxHistoryCount {
+            get {
+                return ((int)(this["Data_MaxHistoryCount"]));
+            }
+            set {
+                this["Data_MaxHistoryCount"] = value;
             }
         }
     }

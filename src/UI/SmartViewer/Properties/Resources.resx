@@ -126,6 +126,9 @@
   <data name="NotImplementedTitle" xml:space="preserve">
     <value>To be implemented</value>
   </data>
+  <data name="SearchFailedText" xml:space="preserve">
+    <value>The search failed with an exception {0}.</value>
+  </data>
   <data name="SomethingWrong" xml:space="preserve">
     <value>Something went wrong</value>
   </data>

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
@@ -240,7 +241,7 @@ namespace LogFlow.Viewer
 
                 bw.DoWork += (s, e1) =>
                 {
-                    foreach (int progress in this.CurrentView.Initialize(this.cts.Token))
+                    foreach (int progress in this.CurrentView.Initialize(Settings.Default.Display_Statistics, this.cts.Token))
                     {
                         bw.ReportProgress(progress);
                     }

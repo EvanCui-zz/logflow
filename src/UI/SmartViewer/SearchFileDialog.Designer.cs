@@ -66,7 +66,7 @@
             this.comboBoxSearchPattern.Location = new System.Drawing.Point(15, 107);
             this.comboBoxSearchPattern.Name = "comboBoxSearchPattern";
             this.comboBoxSearchPattern.Size = new System.Drawing.Size(442, 21);
-            this.comboBoxSearchPattern.TabIndex = 6;
+            this.comboBoxSearchPattern.TabIndex = 9;
             // 
             // label1
             // 
@@ -74,8 +74,8 @@
             this.label1.Location = new System.Drawing.Point(12, 91);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Search Pattern:";
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Search &Pattern:";
             // 
             // comboBoxSearchFolder
             // 
@@ -94,7 +94,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(94, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "File Name Pattern:";
+            this.label3.Text = "File &Name Pattern:";
             // 
             // comboBoxFileNamePattern
             // 
@@ -110,8 +110,9 @@
             this.comboBoxFileNamePattern.Location = new System.Drawing.Point(15, 67);
             this.comboBoxFileNamePattern.Name = "comboBoxFileNamePattern";
             this.comboBoxFileNamePattern.Size = new System.Drawing.Size(160, 21);
-            this.comboBoxFileNamePattern.TabIndex = 4;
+            this.comboBoxFileNamePattern.TabIndex = 5;
             this.comboBoxFileNamePattern.Text = "*.bin";
+            this.comboBoxFileNamePattern.Validating += new System.ComponentModel.CancelEventHandler(this.comboBoxFileNamePattern_Validating);
             // 
             // buttonBrowse
             // 
@@ -120,7 +121,7 @@
             this.buttonBrowse.Name = "buttonBrowse";
             this.buttonBrowse.Size = new System.Drawing.Size(64, 23);
             this.buttonBrowse.TabIndex = 2;
-            this.buttonBrowse.Text = "Browse...";
+            this.buttonBrowse.Text = "&Browse...";
             this.buttonBrowse.UseVisualStyleBackColor = true;
             this.buttonBrowse.Click += new System.EventHandler(this.buttonBrowse_Click);
             // 
@@ -132,7 +133,7 @@
             this.checkBoxRecursive.Name = "checkBoxRecursive";
             this.checkBoxRecursive.Size = new System.Drawing.Size(74, 17);
             this.checkBoxRecursive.TabIndex = 3;
-            this.checkBoxRecursive.Text = "Recursive";
+            this.checkBoxRecursive.Text = "&Recursive";
             this.checkBoxRecursive.UseVisualStyleBackColor = true;
             // 
             // buttonSearch
@@ -141,8 +142,8 @@
             this.buttonSearch.Location = new System.Drawing.Point(463, 105);
             this.buttonSearch.Name = "buttonSearch";
             this.buttonSearch.Size = new System.Drawing.Size(64, 23);
-            this.buttonSearch.TabIndex = 7;
-            this.buttonSearch.Text = "Search";
+            this.buttonSearch.TabIndex = 10;
+            this.buttonSearch.Text = "&Search";
             this.buttonSearch.UseVisualStyleBackColor = true;
             this.buttonSearch.Click += new System.EventHandler(this.buttonSearch_Click);
             // 
@@ -153,8 +154,8 @@
             this.label4.Location = new System.Drawing.Point(178, 51);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(135, 13);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "Peek Line Count: (-1 for all)";
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Peek &Line Count: (-1 for all)";
             // 
             // label2
             // 
@@ -162,8 +163,8 @@
             this.label2.Location = new System.Drawing.Point(12, 11);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(76, 13);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Search Folder:";
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Search &Folder:";
             // 
             // label5
             // 
@@ -171,8 +172,8 @@
             this.label5.Location = new System.Drawing.Point(12, 142);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(77, 13);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Search Result:";
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Search R&esult:";
             // 
             // buttonOpenMatched
             // 
@@ -180,8 +181,8 @@
             this.buttonOpenMatched.Location = new System.Drawing.Point(416, 471);
             this.buttonOpenMatched.Name = "buttonOpenMatched";
             this.buttonOpenMatched.Size = new System.Drawing.Size(96, 23);
-            this.buttonOpenMatched.TabIndex = 11;
-            this.buttonOpenMatched.Text = "Open Matched";
+            this.buttonOpenMatched.TabIndex = 16;
+            this.buttonOpenMatched.Text = "Open &Matched";
             this.buttonOpenMatched.UseVisualStyleBackColor = true;
             this.buttonOpenMatched.Click += new System.EventHandler(this.buttonOpenMatched_Click);
             // 
@@ -191,8 +192,8 @@
             this.buttonOpenSelected.Location = new System.Drawing.Point(314, 471);
             this.buttonOpenSelected.Name = "buttonOpenSelected";
             this.buttonOpenSelected.Size = new System.Drawing.Size(96, 23);
-            this.buttonOpenSelected.TabIndex = 10;
-            this.buttonOpenSelected.Text = "Open Selected";
+            this.buttonOpenSelected.TabIndex = 15;
+            this.buttonOpenSelected.Text = "Ope&n Selected";
             this.buttonOpenSelected.UseVisualStyleBackColor = true;
             this.buttonOpenSelected.Click += new System.EventHandler(this.buttonOpenSelected_Click);
             // 
@@ -204,8 +205,8 @@
             this.buttonClose.Location = new System.Drawing.Point(212, 471);
             this.buttonClose.Name = "buttonClose";
             this.buttonClose.Size = new System.Drawing.Size(96, 23);
-            this.buttonClose.TabIndex = 9;
-            this.buttonClose.Text = "Close";
+            this.buttonClose.TabIndex = 14;
+            this.buttonClose.Text = "&Close";
             this.buttonClose.UseVisualStyleBackColor = true;
             this.buttonClose.Click += new System.EventHandler(this.buttonClose_Click);
             // 
@@ -215,11 +216,14 @@
             this.comboBoxLineCount.FormattingEnabled = true;
             this.comboBoxLineCount.Items.AddRange(new object[] {
             "-1",
-            "1000"});
+            "100",
+            "1000",
+            "10000",
+            "100000"});
             this.comboBoxLineCount.Location = new System.Drawing.Point(181, 67);
             this.comboBoxLineCount.Name = "comboBoxLineCount";
             this.comboBoxLineCount.Size = new System.Drawing.Size(157, 21);
-            this.comboBoxLineCount.TabIndex = 5;
+            this.comboBoxLineCount.TabIndex = 7;
             this.comboBoxLineCount.Text = "1000";
             this.comboBoxLineCount.Validating += new System.ComponentModel.CancelEventHandler(this.comboBoxLineCount_Validating);
             // 
@@ -244,7 +248,7 @@
             this.dataGridViewResult.RowHeadersVisible = false;
             this.dataGridViewResult.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewResult.Size = new System.Drawing.Size(599, 307);
-            this.dataGridViewResult.TabIndex = 8;
+            this.dataGridViewResult.TabIndex = 13;
             this.dataGridViewResult.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewResult_CellDoubleClick);
             // 
             // ColumnFileName
@@ -278,7 +282,7 @@
             this.progressBar1.Location = new System.Drawing.Point(95, 142);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(519, 13);
-            this.progressBar1.TabIndex = 18;
+            this.progressBar1.TabIndex = 12;
             // 
             // buttonOpenFiltered
             // 
@@ -286,8 +290,8 @@
             this.buttonOpenFiltered.Location = new System.Drawing.Point(518, 471);
             this.buttonOpenFiltered.Name = "buttonOpenFiltered";
             this.buttonOpenFiltered.Size = new System.Drawing.Size(96, 23);
-            this.buttonOpenFiltered.TabIndex = 12;
-            this.buttonOpenFiltered.Text = "Open Filtered";
+            this.buttonOpenFiltered.TabIndex = 17;
+            this.buttonOpenFiltered.Text = "Open Filtere&d";
             this.buttonOpenFiltered.UseVisualStyleBackColor = true;
             this.buttonOpenFiltered.Click += new System.EventHandler(this.buttonOpenFiltered_Click);
             // 

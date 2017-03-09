@@ -82,6 +82,9 @@ namespace LogFlow.Viewer
             this.toolStripSplitButtonFind.DefaultItem = this.findNextToolStripMenuItem;
             this.ApplySettings();
 
+            this.toolStripComboBoxString.Items.AddRange(Settings.Default.Data_FilteringHistory.Cast<object>().ToArray());
+            this.toolStripComboBoxString.SelectedIndex = this.toolStripComboBoxString.Items.Count > 0 ? 0 : -1;
+
             this.toolStripComboBoxString_TextChanged(this, null);
         }
 
@@ -105,15 +108,43 @@ namespace LogFlow.Viewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            this.openFileDialog1.FilterIndex = Settings.Default.Data_LastFilterIndex;
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.Data_LastFilterIndex = this.openFileDialog1.FilterIndex;
+                var path = Path.GetDirectoryName(this.openFileDialog1.FileName);
+
+                if (Settings.Default.Data_RecentDirectories.Contains(path))
+                {
+                    Settings.Default.Data_RecentDirectories.Remove(path);
+                }
+                
+                Settings.Default.Data_RecentDirectories.Insert(0, path);
+                Settings.Default.Save();
+
                 this.OpenFiles(this.openFileDialog1.FileNames);
             }
         }
 
         private void OpenFiles(IEnumerable<string> filePaths, IFilter filter = null)
         {
-            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", filePaths)), filter);
+            // The paths is not guaranteed to be files, considering other log sources.
+            // so we only save general info here.
+            var initializeString = string.Join(",", filePaths);
+            if (Settings.Default.Data_RecentFiles.Contains(initializeString))
+            {
+                Settings.Default.Data_RecentFiles.Remove(initializeString);
+            }
+
+            Settings.Default.Data_RecentFiles.Insert(0, initializeString);
+            if (Settings.Default.Data_RecentFiles.Count > Settings.Default.Data_MaxHistoryCount)
+            {
+                Settings.Default.Data_RecentFiles.RemoveAt(Settings.Default.Data_RecentFiles.Count);
+            }
+
+            Settings.Default.Save();
+
+            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(initializeString), filter);
             this.AddView(document, true, true);
         }
 
@@ -136,6 +167,7 @@ namespace LogFlow.Viewer
                 this.filterToolStripMenuItemDoc.Enabled = false;
                 this.Text = Product.GetTitle();
                 this.progressBarMain.Visible = false;
+                this.toolStripComboBoxString.Enabled = false;
                 return;
             }
 
@@ -145,6 +177,7 @@ namespace LogFlow.Viewer
                 this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = true;
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
+            this.toolStripComboBoxString.Enabled = true;
 
             this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
 
@@ -177,7 +210,7 @@ namespace LogFlow.Viewer
 
                     try
                     {
-                        foreach (var progress in view.Initialize(this.cts.Token))
+                        foreach (var progress in view.Initialize(Settings.Default.Display_Statistics, this.cts.Token))
                         {
                             bw.ReportProgress(progress, view);
                         }
@@ -283,8 +316,27 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripComboBoxString.Text));
+            var childView = this.CurrentView.CreateChild(this.GetCurrentFilter());
             this.AddView(childView);
+        }
+
+        private IFilter GetCurrentFilter()
+        {
+            var pattern = this.toolStripComboBoxString.Text;
+
+            if (this.toolStripComboBoxString.Items.Contains(pattern))
+            {
+                this.toolStripComboBoxString.Items.Remove(pattern);
+            }
+
+            this.toolStripComboBoxString.Items.Insert(0, pattern);
+            this.toolStripComboBoxString.SelectedIndex = 0;
+            if (this.toolStripComboBoxString.Items.Count > Settings.Default.Data_MaxHistoryCount) this.toolStripComboBoxString.Items.RemoveAt(Settings.Default.Data_MaxHistoryCount);
+            Settings.Default.Data_FilteringHistory.Clear();
+            Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
+            Settings.Default.Save();
+
+            return new Filter(pattern);
         }
 
         private void UpdateDocDisplay()
@@ -430,7 +482,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            var f = new Filter(this.toolStripComboBoxString.Text);
+            var f = this.GetCurrentFilter();
 
             var bw = new BackgroundWorker();
 
@@ -468,7 +520,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            var f = new Filter(this.toolStripComboBoxString.Text);
+            var f = this.GetCurrentFilter();
 
             var bw = new BackgroundWorker();
 
@@ -1095,21 +1147,21 @@ namespace LogFlow.Viewer
         {
             var button = (ToolStripButton)sender;
 
-            this.TagCurrentView(0, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
+            this.TagCurrentView(0, button.Checked ? this.GetCurrentFilter() : null);
         }
 
         private void toolStripButtonTag2_CheckedChanged(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
-            this.TagCurrentView(1, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
+            this.TagCurrentView(1, button.Checked ? this.GetCurrentFilter() : null);
         }
 
         private void toolStripButtonTag3_CheckedChanged(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
-            this.TagCurrentView(2, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
+            this.TagCurrentView(2, button.Checked ? this.GetCurrentFilter() : null);
         }
     }
 }
