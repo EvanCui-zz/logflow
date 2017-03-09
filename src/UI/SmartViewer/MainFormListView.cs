@@ -38,23 +38,9 @@ namespace LogFlow.Viewer
             this.tagBrushes?.ForEach(b => b.Dispose());
             this.tagBrushes = null;
 
-            this.toolStripSplitButtonTag.DropDownItems.Clear();
-
-            var i = 0;
-            this.toolStripSplitButtonTag.DropDownItems.AddRange(this.TagBrushes.Select(t => (ToolStripItem)new ToolStripMenuItem($"Tag {++i}", null, (s, e1) =>
-            {
-                int index = int.Parse(((ToolStripMenuItem)s).Text.Substring(4)) - 1;
-                if (this.CurrentView == null) return;
-                var currentMenuItem = (ToolStripMenuItem)s;
-                bool tag = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text);
-                currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new Filter(this.toolStripComboBoxString.Text) : null);
-            })
-            {
-                BackColor = t.Color,
-            }).ToArray());
-
-            this.toolStripSplitButtonTag.DefaultItem = this.toolStripSplitButtonTag.DropDownItems[0];
+            this.toolStripButtonTag1.BackColor = this.TagBrushes[0].Color;
+            this.toolStripButtonTag2.BackColor = this.TagBrushes[1].Color;
+            this.toolStripButtonTag3.BackColor = this.TagBrushes[2].Color;
         }
 
         public MainFormListView()
@@ -71,7 +57,7 @@ namespace LogFlow.Viewer
                 { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
                 { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
-                { HotKeys.ActionTag, () => this.toolStripSplitButtonTag.DefaultItem.PerformClick() },
+                { HotKeys.ActionTag, () => this.toolStripButtonTag1.PerformClick() },
                 { HotKeys.ActionOpen, () => this.openToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionSearchOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
             };
@@ -140,9 +126,12 @@ namespace LogFlow.Viewer
             this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
 
             this.UpdateDocDisplay();
+            this.UpdateTagButtonStatus();
 
             if (this.CurrentView == null)
             {
+                this.toolStripButtonTag1.Enabled =
+                    this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = false;
                 this.closeToolStripMenuItem.Enabled = false;
                 this.filterToolStripMenuItemDoc.Enabled = false;
                 this.Text = Product.GetTitle();
@@ -151,6 +140,8 @@ namespace LogFlow.Viewer
 
             this.Text = $"{Product.GetTitle()} - {this.CurrentView.Name}";
 
+            this.toolStripButtonTag1.Enabled =
+                this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = true;
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
 
@@ -667,14 +658,11 @@ namespace LogFlow.Viewer
                     rect.Height -= 8;
                     rect.Width = rect.Height;
 
-                    int p = 0;
-
-                    for (int j = 0; j < this.TagBrushes.Count; j++)
+                    for (var j = 0; j < this.TagBrushes.Count; j++)
                     {
-                        if (p < colorList.Count && colorList[p] == j)
+                        if (colorList.Contains(j))
                         {
                             e.Graphics.FillRectangle(this.TagBrushes[j], rect);
-                            p++;
                         }
 
                         rect.X += rect.Width + 2;
@@ -701,7 +689,6 @@ namespace LogFlow.Viewer
             this.toolStripButtonFilter.Enabled = enabled;
             this.toolStripButtonCount.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
-            this.toolStripSplitButtonTag.Enabled = enabled;
         }
 
         private void fastListViewMain_Resize(object sender, EventArgs e)
@@ -1080,6 +1067,34 @@ namespace LogFlow.Viewer
                 MessageBox.Show(string.Format(Resources.GotoFailed, gotoId), Resources.SomethingWrong,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void UpdateTagButtonStatus()
+        {
+            this.toolStripButtonTag1.Checked = this.CurrentView?.IsTagged(0) ?? false;
+            this.toolStripButtonTag2.Checked = this.CurrentView?.IsTagged(1) ?? false;
+            this.toolStripButtonTag3.Checked = this.CurrentView?.IsTagged(2) ?? false;
+        }
+
+        private void toolStripButtonTag1_CheckedChanged(object sender, EventArgs e)
+        {
+            var button = (ToolStripButton)sender;
+
+            this.TagCurrentView(0, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
+        }
+
+        private void toolStripButtonTag2_CheckedChanged(object sender, EventArgs e)
+        {
+            var button = (ToolStripButton)sender;
+
+            this.TagCurrentView(1, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
+        }
+
+        private void toolStripButtonTag3_CheckedChanged(object sender, EventArgs e)
+        {
+            var button = (ToolStripButton)sender;
+
+            this.TagCurrentView(2, button.Checked ? new Filter(this.toolStripComboBoxString.Text) : null);
         }
     }
 }

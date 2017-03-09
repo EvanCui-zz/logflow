@@ -26,6 +26,7 @@ namespace LogFlow.DataModel
         /// <param name="filter">the filter</param>
         void Tag(int index, IFilter filter);
         void UnTag(int index);
+        bool IsTagged(int index);
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.

@@ -57,6 +57,11 @@ namespace LogFlow.DataModel
             this.Tags.Remove(index);
         }
 
+        public bool IsTagged(int index)
+        {
+            return this.Tags.ContainsKey(index);
+        }
+
         // True if the view is in a progress of something
         public bool IsInProgress { get; private set; }
         public ProgressItem CurrentProgress { get; private set; } = new ProgressItem("Ready");
