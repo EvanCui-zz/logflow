@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using LogFlow.DataModel.Algorithm;
 
 namespace LogFlow.DataModel
 {
@@ -54,7 +55,7 @@ namespace LogFlow.DataModel
 
         protected int AddTemplate(string template)
         {
-            template = string.Intern(template);
+            template = LocalStringPool.Intern(template);
 
             int index;
             if (this.templatesIndex.TryGetValue(template, out index))

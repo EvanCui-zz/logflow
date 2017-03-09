@@ -4,6 +4,7 @@
 
 using namespace System::IO;
 using namespace LogFlow::DataModel;
+using namespace LogFlow::DataModel::Algorithm;
 
 BinaryLogReaderWrapper::BinaryLogReaderWrapper(String^ filename)
 {
@@ -72,7 +73,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
         int currentPosition = 0;
         for (int i = 0; i < count; i++)
         {
-            node->Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
+            node->Parameters[i] = LocalStringPool::Intern(gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]));
             currentPosition += indexWidthLength[i * 3 + 2];
         }
 
@@ -84,7 +85,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
         //this->reader->getEntryTS(TS);
         //node->TimeStap=gcnew String(TS);
 
-        return FullCosmosDataItem(node, String::Intern(gcnew String(formattedEntry)));
+        return FullCosmosDataItem(node, LocalStringPool::Intern(gcnew String(formattedEntry)));
     }
     else
     {

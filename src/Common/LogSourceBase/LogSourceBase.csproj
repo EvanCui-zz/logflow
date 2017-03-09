@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\HeapMerger.cs" />
+    <Compile Include="Algorithm\LocalStringPool.cs" />
     <Compile Include="DataItem\LogLevels.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
     <Compile Include="DataItem\DataItemBase.cs" />
