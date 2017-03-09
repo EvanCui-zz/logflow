@@ -153,13 +153,15 @@ namespace LogFlow.DataModel
             if (this.IsInitialized || this.IsInProgress) yield break;
 
             this.OnReportStart("Initializing");
-            yield return 0;
+            yield return 5;
+
+            const int reportInterval = 20;
 
             if (this.Parent == null)
             {
-                foreach (int progress in this.Data.Load(this.Filter, token))
+                foreach (var progress in this.Data.Load(this.Filter, token))
                 {
-                    int p = progress * 70 / 100;
+                    var p = 5 + progress * 65 / 100;
                     this.OnReportProgress(p);
                     yield return p;
                 }
@@ -182,18 +184,20 @@ namespace LogFlow.DataModel
                     yield break;
                 }
 
-                int total = this.Parent.TotalCount;
+                var total = this.Parent.TotalCount;
 
-                for (int i = 0; i < total; i++)
+                var reportIndex = Math.Max(total / reportInterval, 2);
+
+                for (var i = 0; i < total; i++)
                 {
-                    if (i % (total / 20) == 0)
+                    if (i % reportIndex == 0)
                     {
-                        int progress = ((i * 100) / total) * 70 / 100;
+                        var progress = 5 + ((i * 100) / total) * 65 / 100;
                         yield return progress;
                         this.OnReportProgress(progress);
                     }
 
-                    int index = this.Parent.GetPhysicalIndex(i);
+                    var index = this.Parent.GetPhysicalIndex(i);
 
                     if (this.Filter.Match(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]))
                     {
@@ -209,17 +213,18 @@ namespace LogFlow.DataModel
                 int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
                 this.Statistics.SetFirstLast(this.Data.Items[firstIndex], this.Data.Items[lastIndex]);
 
-                for (int i = 0; i < this.TotalCount; i++)
+                var reportIndex = Math.Max(this.TotalCount / reportInterval, 2);
+                for (var i = 0; i < this.TotalCount; i++)
                 {
-                    if (i % (this.TotalCount / 20) == 0)
+                    if (i % reportIndex == 0)
                     {
-                        int progress = ((i * 100) / this.TotalCount) * 30 / 100 + 70;
+                        var progress = ((i * 100) / this.TotalCount) * 30 / 100 + 70;
                         yield return progress;
 
                         this.OnReportProgress(progress);
                     }
 
-                    int index = this.GetPhysicalIndex(i);
+                    var index = this.GetPhysicalIndex(i);
                     this.Statistics.Sample(this.Data.Items[index], this.Data.Templates[this.Data.Items[index].TemplateId]);
                 }
             }

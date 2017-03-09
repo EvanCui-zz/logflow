@@ -123,7 +123,7 @@ namespace LogFlow.Viewer
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
+            this.CurrentView = e?.Node?.Tag as FilteredView<DataItemBase>;
 
             this.UpdateDocDisplay();
             this.UpdateTagButtonStatus();
@@ -135,6 +135,7 @@ namespace LogFlow.Viewer
                 this.closeToolStripMenuItem.Enabled = false;
                 this.filterToolStripMenuItemDoc.Enabled = false;
                 this.Text = Product.GetTitle();
+                this.progressBarMain.Visible = false;
                 return;
             }
 
@@ -158,7 +159,7 @@ namespace LogFlow.Viewer
                     this.UpdateStatistics();
 
                     watch.Stop();
-                    this.toolStripStatusLabel1.Text = $"Used: {watch.Elapsed}";
+                    this.toolStripStatusLabel1.Text = $"Last Progress Used: {watch.Elapsed}";
 
                     bw.Dispose();
                 };
@@ -173,9 +174,17 @@ namespace LogFlow.Viewer
                 {
                     var view = this.CurrentView;
                     if (view == null) return;
-                    foreach (var progress in view.Initialize(this.cts.Token))
+
+                    try
                     {
-                        bw.ReportProgress(progress, view);
+                        foreach (var progress in view.Initialize(this.cts.Token))
+                        {
+                            bw.ReportProgress(progress, view);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Debug.WriteLine("Initializing operating is cancelled");
                     }
                 };
 
@@ -759,10 +768,16 @@ namespace LogFlow.Viewer
             var currentView = this.CurrentView;
             this.treeViewDoc.SelectedNode?.Remove();
 
-            // Remove children.
-            this.RemoveView(currentView);
+            if (nodeNext != null)
+            {
+                this.treeViewDoc.SelectedNode = nodeNext;
+            }
+            else
+            {
+                this.treeViewDoc_AfterSelect(this, null);
+            }
 
-            this.treeViewDoc.SelectedNode = nodeNext;
+            this.RemoveView(currentView);
         }
 
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)
