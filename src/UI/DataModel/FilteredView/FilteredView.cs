@@ -152,7 +152,7 @@ namespace LogFlow.DataModel
 
             if (this.Parent == null)
             {
-                foreach (int progress in this.Data.Load(this.Filter, false, token))
+                foreach (int progress in this.Data.Load(this.Filter, token))
                 {
                     int p = progress * 70 / 100;
                     this.OnReportProgress(p);
@@ -301,10 +301,11 @@ namespace LogFlow.DataModel
             this.Filter = filter;
             this.Parent = parent;
             this.Data = data;
-            this.ItemIndices = new List<int>();
 
             if (this.Parent != null)
             {
+                this.ItemIndices = new List<int>();
+
                 this.Parent.ItemAdded += (s, e) =>
                 {
                     if (this.IsInitialized && filter.Match(this.Data.Items[e], this.Data.Templates[this.Data.Items[e].TemplateId]))
@@ -340,7 +341,7 @@ namespace LogFlow.DataModel
 
         private IDictionary<int, IFilter> Tags { get; } = new Dictionary<int, IFilter>();
 
-        private IFilter Filter { get; }
+        protected IFilter Filter { get; set; }
 
         private FilteredView<T> Parent { get; }
 

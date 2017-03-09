@@ -33,6 +33,9 @@
         }
 
         public IList<string> SelectedFilePaths => (from DataGridViewRow row in this.dataGridViewResult.SelectedRows select (string)row.Tag).ToList();
+
+        public IFilter Filter { get; private set; }
+
         public IList<string> MatchedFilePaths => (from DataGridViewRow row in this.dataGridViewResult.Rows where ((string)row.Cells[1].Value).Length > 0 select (string)row.Tag).ToList();
 
         private async void buttonSearch_Click(object sender, EventArgs e)
@@ -45,7 +48,7 @@
             this.progressBar1.Value = 0;
 
             this.cts = new CancellationTokenSource();
-            IFilter filter = new Filter(this.comboBoxSearchPattern.Text);
+            this.Filter = new Filter(this.comboBoxSearchPattern.Text);
 
             var filePaths = Directory.EnumerateFiles(
                 this.comboBoxSearchFolder.Text,
@@ -66,6 +69,9 @@
                 Tag = p,
             }).ToArray());
 
+            int lineCount;
+            int.TryParse(this.comboBoxLineCount.Text, out lineCount);
+
             await Task.WhenAll(Enumerable.Range(0, filePaths.Count).Select(i => Task.Run(() =>
             {
                 DataItemBase dataItem;
@@ -77,7 +83,7 @@
                         string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
                 };
 
-                foreach (var progress in logSource.Load(filter, true, cts.Token))
+                foreach (var progress in logSource.Peek(this.Filter, lineCount, cts.Token))
                 {
                     this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
                 }
@@ -128,6 +134,28 @@
         private void dataGridViewResult_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             this.buttonOpenSelected_Click(sender, e);
+        }
+
+        private void buttonOpenFiltered_Click(object sender, EventArgs e)
+        {
+            this.cts?.Cancel();
+            this.cts?.Dispose();
+            this.cts = null;
+            this.DialogResult = DialogResult.Retry;
+            this.Close();
+        }
+
+        private void comboBoxLineCount_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            int lineCount;
+            if (true == (e.Cancel = !int.TryParse(this.comboBoxLineCount.Text, out lineCount)))
+            {
+                this.errorProvider1.SetError(this.comboBoxLineCount, "An integer is required.");
+            }
+            else
+            {
+                this.errorProvider1.Clear();
+            }
         }
     }
 }

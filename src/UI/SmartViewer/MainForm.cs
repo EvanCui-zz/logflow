@@ -175,7 +175,7 @@ namespace LogFlow.Viewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"));
+            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"), null);
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;

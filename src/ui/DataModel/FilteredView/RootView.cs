@@ -4,9 +4,10 @@
 
     public class RootView<T> : FilteredView<T>, IDisposable where T : DataItemBase
     {
-        public RootView(ILogSource<T> logSource) : base(logSource.Name)
+        public RootView(ILogSource<T> logSource, IFilter filter) : base(filter != null ? $"{logSource.Name} ({filter.Name})" : logSource.Name)
         {
             this.Data = logSource;
+            this.Filter = filter;
             this.GroupFilters = logSource.GroupFilters;
 
             //if (logSource.GroupData != null)

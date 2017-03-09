@@ -9,7 +9,8 @@
     [SettingsSerializeAs(SettingsSerializeAs.Xml)]
     public class HotKeys : Dictionary<Keys, string>
     {
-        public const string ActionFocusPatternBox = "Focus Pattern Box (GOTO)";
+        public const string ActionFocusPatternBox = "Focus Pattern Box";
+        public const string ActionGoto = "Goto";
         public const string ActionFilter = "Filter";
         public const string ActionSearch = "Search";
         public const string ActionCount = "Count";
@@ -22,7 +23,7 @@
         private static readonly Lazy<HotKeys> InternalInstance =
             new Lazy<HotKeys>(() => Settings.Default.HotKeys ?? new HotKeys()
             {
-                { System.Windows.Forms.Keys.G | System.Windows.Forms.Keys.Control, ActionFocusPatternBox },
+                { System.Windows.Forms.Keys.G | System.Windows.Forms.Keys.Control, ActionGoto },
                 { System.Windows.Forms.Keys.D | System.Windows.Forms.Keys.Control, ActionFocusPatternBox },
                 { System.Windows.Forms.Keys.F | System.Windows.Forms.Keys.Control, ActionFilter },
                 { System.Windows.Forms.Keys.S | System.Windows.Forms.Keys.Control, ActionSearch },

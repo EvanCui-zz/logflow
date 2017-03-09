@@ -17,7 +17,9 @@ namespace LogFlow.DataModel
         event EventHandler<int> ItemAdded;
         object GetColumnValue(int rowIndex, int columnIndex);
 
-        IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token);
+        IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token);
+
+        IEnumerable<int> Load(IFilter filter, CancellationToken token);
 
         IReadOnlyList<IFilter> GroupFilters { get; }
         //        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }

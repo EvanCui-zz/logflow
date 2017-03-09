@@ -95,13 +95,17 @@ namespace LogFlow.DataModel
         private bool firstBatchLoaded;
         protected int CurrentId = 0;
 
-        public virtual IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token)
+        public virtual IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token) { yield break; }
+
+        public virtual IEnumerable<int> Load(IFilter filter, CancellationToken token)
         {
-            if (firstBatchLoaded) { return this.LoadIncremental(filter, token); }
-            else { firstBatchLoaded = true; return this.LoadFirst(filter, stopAtFirst, token); }
+            if (firstBatchLoaded) return this.LoadIncremental(filter, token);
+
+            firstBatchLoaded = true;
+            return this.LoadFirst(filter, token);
         }
 
-        protected virtual IEnumerable<int> LoadFirst(IFilter filter, bool stopAtFirst, CancellationToken token) { yield break; }
+        protected virtual IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token) { yield break; }
         protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
     }
 }

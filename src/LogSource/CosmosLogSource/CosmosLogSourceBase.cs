@@ -38,7 +38,7 @@ namespace LogFlow.DataModel
             }
         }
 
-        private IEnumerable<int> LoadStopAtFirst(IFilter filter, CancellationToken token)
+        public override IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token)
         {
             int lastReportedProgress = 0;
             yield return lastReportedProgress;
@@ -48,8 +48,15 @@ namespace LogFlow.DataModel
                 Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                 this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
 
+            var count = 0;
+
             foreach (var item in merged.TakeWhile(item => !token.IsCancellationRequested))
             {
+                if (++count > peekCount && peekCount >= 0)
+                {
+                    yield break;
+                }
+
                 if (filter.Match(item.Item.Item, item.Item.Template))
                 {
                     item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
@@ -67,12 +74,7 @@ namespace LogFlow.DataModel
             }
         }
 
-        public override IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token)
-        {
-            return stopAtFirst ? this.LoadStopAtFirst(filter, token) : this.LoadNormally(filter, token);
-        }
-
-        public IEnumerable<int> LoadNormally(IFilter filter, CancellationToken token)
+        public override IEnumerable<int> Load(IFilter filter, CancellationToken token)
         {
             var lastReportedProgress = 0;
             yield return lastReportedProgress;

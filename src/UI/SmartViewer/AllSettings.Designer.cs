@@ -55,6 +55,7 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.labelColumns = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPageDisplay.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -106,15 +107,15 @@
             this.label1.Location = new System.Drawing.Point(15, 375);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Indent size";
+            this.label1.TabIndex = 6;
+            this.label1.Text = "&Indent size";
             // 
             // textBoxIndentSize
             // 
             this.textBoxIndentSize.Location = new System.Drawing.Point(85, 372);
             this.textBoxIndentSize.Name = "textBoxIndentSize";
             this.textBoxIndentSize.Size = new System.Drawing.Size(100, 20);
-            this.textBoxIndentSize.TabIndex = 6;
+            this.textBoxIndentSize.TabIndex = 7;
             this.textBoxIndentSize.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxIndentSize_Validating);
             // 
             // checkBoxFastRendering
@@ -124,8 +125,8 @@
             this.checkBoxFastRendering.Name = "checkBoxFastRendering";
             this.checkBoxFastRendering.Size = new System.Drawing.Size(422, 17);
             this.checkBoxFastRendering.TabIndex = 5;
-            this.checkBoxFastRendering.Text = "Enable fast rendering. (Check only when the list view flicks too much when scroll" +
-    "ing)";
+            this.checkBoxFastRendering.Text = "&Enable fast rendering. (Check only when the list view flicks too much when scrol" +
+    "ling)";
             this.checkBoxFastRendering.UseVisualStyleBackColor = true;
             // 
             // checkBoxHighlightMatch
@@ -135,7 +136,7 @@
             this.checkBoxHighlightMatch.Name = "checkBoxHighlightMatch";
             this.checkBoxHighlightMatch.Size = new System.Drawing.Size(230, 17);
             this.checkBoxHighlightMatch.TabIndex = 4;
-            this.checkBoxHighlightMatch.Text = "Highlight the matched text when searching.";
+            this.checkBoxHighlightMatch.Text = "&Highlight the matched text when searching.";
             this.checkBoxHighlightMatch.UseVisualStyleBackColor = true;
             // 
             // checkBoxBoldParameter
@@ -145,7 +146,7 @@
             this.checkBoxBoldParameter.Name = "checkBoxBoldParameter";
             this.checkBoxBoldParameter.Size = new System.Drawing.Size(173, 17);
             this.checkBoxBoldParameter.TabIndex = 3;
-            this.checkBoxBoldParameter.Text = "Display parameters in bold font.";
+            this.checkBoxBoldParameter.Text = "Display &parameters in bold font.";
             this.checkBoxBoldParameter.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -170,7 +171,7 @@
             this.propertyGridTagColors.Name = "propertyGridTagColors";
             this.propertyGridTagColors.PropertySort = System.Windows.Forms.PropertySort.NoSort;
             this.propertyGridTagColors.Size = new System.Drawing.Size(424, 67);
-            this.propertyGridTagColors.TabIndex = 0;
+            this.propertyGridTagColors.TabIndex = 2;
             this.propertyGridTagColors.ToolbarVisible = false;
             // 
             // groupBox1
@@ -206,7 +207,7 @@
             this.checkBoxColorLevel.Name = "checkBoxColorLevel";
             this.checkBoxColorLevel.Size = new System.Drawing.Size(362, 17);
             this.checkBoxColorLevel.TabIndex = 0;
-            this.checkBoxColorLevel.Text = "Display log lines in customized background colors according to its level.";
+            this.checkBoxColorLevel.Text = "&Display log lines in customized background colors according to its level.";
             this.checkBoxColorLevel.UseVisualStyleBackColor = true;
             this.checkBoxColorLevel.CheckedChanged += new System.EventHandler(this.checkBoxColorLevel_CheckedChanged);
             // 
@@ -230,8 +231,8 @@
             this.checkBoxDataVirtual.Name = "checkBoxDataVirtual";
             this.checkBoxDataVirtual.Size = new System.Drawing.Size(439, 17);
             this.checkBoxDataVirtual.TabIndex = 2;
-            this.checkBoxDataVirtual.Text = "Enable data virtualization. (Only enable when a large set of log entries are to b" +
-    "e loaded.)";
+            this.checkBoxDataVirtual.Text = "&Enable data virtualization. (Only enable when a large set of log entries are to " +
+    "be loaded.)";
             this.checkBoxDataVirtual.UseVisualStyleBackColor = true;
             // 
             // checkBoxAutoScroll
@@ -241,7 +242,7 @@
             this.checkBoxAutoScroll.Name = "checkBoxAutoScroll";
             this.checkBoxAutoScroll.Size = new System.Drawing.Size(288, 17);
             this.checkBoxAutoScroll.TabIndex = 1;
-            this.checkBoxAutoScroll.Text = "Automatically scroll to the end when new entries added.";
+            this.checkBoxAutoScroll.Text = "Automatically &scroll to the end when new entries added.";
             this.checkBoxAutoScroll.UseVisualStyleBackColor = true;
             // 
             // checkBoxAutoLoad
@@ -251,11 +252,12 @@
             this.checkBoxAutoLoad.Name = "checkBoxAutoLoad";
             this.checkBoxAutoLoad.Size = new System.Drawing.Size(303, 17);
             this.checkBoxAutoLoad.TabIndex = 0;
-            this.checkBoxAutoLoad.Text = "Automatically load new entries from the opened log source.";
+            this.checkBoxAutoLoad.Text = "&Automatically load new entries from the opened log source.";
             this.checkBoxAutoLoad.UseVisualStyleBackColor = true;
             // 
             // tabPageColumns
             // 
+            this.tabPageColumns.Controls.Add(this.labelColumns);
             this.tabPageColumns.Controls.Add(this.checkBoxAllowReordering);
             this.tabPageColumns.Controls.Add(this.checkedListBoxColumns);
             this.tabPageColumns.Location = new System.Drawing.Point(4, 23);
@@ -268,11 +270,11 @@
             // checkBoxAllowReordering
             // 
             this.checkBoxAllowReordering.AutoSize = true;
-            this.checkBoxAllowReordering.Location = new System.Drawing.Point(18, 188);
+            this.checkBoxAllowReordering.Location = new System.Drawing.Point(21, 206);
             this.checkBoxAllowReordering.Name = "checkBoxAllowReordering";
             this.checkBoxAllowReordering.Size = new System.Drawing.Size(141, 17);
-            this.checkBoxAllowReordering.TabIndex = 5;
-            this.checkBoxAllowReordering.Text = "Allow column reordering.";
+            this.checkBoxAllowReordering.TabIndex = 2;
+            this.checkBoxAllowReordering.Text = "&Allow column reordering.";
             this.checkBoxAllowReordering.UseVisualStyleBackColor = true;
             // 
             // checkedListBoxColumns
@@ -281,10 +283,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBoxColumns.CheckOnClick = true;
             this.checkedListBoxColumns.FormattingEnabled = true;
-            this.checkedListBoxColumns.Location = new System.Drawing.Point(18, 18);
+            this.checkedListBoxColumns.Location = new System.Drawing.Point(21, 34);
             this.checkedListBoxColumns.Name = "checkedListBoxColumns";
-            this.checkedListBoxColumns.Size = new System.Drawing.Size(428, 154);
-            this.checkedListBoxColumns.TabIndex = 4;
+            this.checkedListBoxColumns.Size = new System.Drawing.Size(423, 154);
+            this.checkedListBoxColumns.TabIndex = 1;
             // 
             // tabPageHotKey
             // 
@@ -332,6 +334,7 @@
             // buttonCancel
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCancel.CausesValidation = false;
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.buttonCancel.Location = new System.Drawing.Point(403, 454);
             this.buttonCancel.Name = "buttonCancel";
@@ -355,6 +358,15 @@
             // errorProvider1
             // 
             this.errorProvider1.ContainerControl = this;
+            // 
+            // labelColumns
+            // 
+            this.labelColumns.AutoSize = true;
+            this.labelColumns.Location = new System.Drawing.Point(18, 18);
+            this.labelColumns.Name = "labelColumns";
+            this.labelColumns.Size = new System.Drawing.Size(122, 13);
+            this.labelColumns.TabIndex = 0;
+            this.labelColumns.Text = "&Select columns to show:";
             // 
             // AllSettings
             // 
@@ -415,5 +427,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Functionality;
         private System.Windows.Forms.DataGridViewTextBoxColumn HotKey;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Label labelColumns;
     }
 }

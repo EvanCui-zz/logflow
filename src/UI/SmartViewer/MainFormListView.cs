@@ -67,6 +67,7 @@ namespace LogFlow.Viewer
             HotKeys.KeyActions = new Dictionary<string, Action>()
             {
                 { HotKeys.ActionFocusPatternBox, () => this.toolStripComboBoxString.Focus() },
+                { HotKeys.ActionGoto, () => this.toolStripComboBoxString.Focus() },
                 { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
                 { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
@@ -124,9 +125,9 @@ namespace LogFlow.Viewer
             }
         }
 
-        private void OpenFiles(IEnumerable<string> filePaths)
+        private void OpenFiles(IEnumerable<string> filePaths, IFilter filter = null)
         {
-            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", filePaths)));
+            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(string.Join(",", filePaths)), filter);
             this.AddView(document, true, true);
         }
 
@@ -162,6 +163,7 @@ namespace LogFlow.Viewer
 
                 bw.RunWorkerCompleted += (s, e1) =>
                 {
+                    if (this.IsDisposed) return;
                     this.UpdateStatistics();
 
                     watch.Stop();
@@ -294,10 +296,10 @@ namespace LogFlow.Viewer
 
         private void UpdateStatistics()
         {
-            this.propertyGridStatistics.SelectedObject = this.CurrentView?.Statistics;
-
-            if (this.CurrentView?.Statistics != null)
+            var stat = this.CurrentView?.Statistics;
+            if (stat != null && !this.IsDisposed && !(this.propertyGridStatistics?.IsDisposed ?? true))
             {
+                this.propertyGridStatistics.SelectedObject = stat;
                 this.listViewExceptions.Items.AddRange(
                     this.CurrentView.Statistics.Exceptions.Select(kvp =>
                     {
@@ -305,16 +307,12 @@ namespace LogFlow.Viewer
                         item.SubItems.Add(new ListViewItem.ListViewSubItem() { Text = kvp.Value.ToString() });
                         return item;
                     }).ToArray());
-            }
 
-            this.chartTimeLine.Series.Clear();
-            var currentView = this.CurrentView;
-            if (currentView != null)
-            {
+                this.chartTimeLine.Series.Clear();
                 var series = this.chartTimeLine.Series.Add("timeline");
-                if (currentView.IsInitialized)
+                if (this.CurrentView.IsInitialized)
                 {
-                    foreach (var y in currentView.Statistics.Timeline)
+                    foreach (var y in stat.Timeline)
                     {
                         series.Points.AddY(y);
                     }
@@ -438,6 +436,7 @@ namespace LogFlow.Viewer
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
+                if (this.IsDisposed) return;
                 var result = (Tuple<IFilteredView<DataItemBase>, int?>)e1.Result;
                 if (object.ReferenceEquals(result.Item1, this.CurrentView))
                 {
@@ -475,6 +474,7 @@ namespace LogFlow.Viewer
 
             bw.RunWorkerCompleted += (s, e1) =>
             {
+                if (this.IsDisposed) return;
                 this.toolStripLabelCount.Text = e1.Result.ToString();
 
                 bw.Dispose();
@@ -968,6 +968,9 @@ namespace LogFlow.Viewer
                         break;
                     case DialogResult.Yes:
                         this.OpenFiles(searchFileDialog.SelectedFilePaths);
+                        break;
+                    case DialogResult.Retry:
+                        this.OpenFiles(searchFileDialog.MatchedFilePaths, searchFileDialog.Filter);
                         break;
                 }
             }

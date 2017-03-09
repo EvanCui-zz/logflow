@@ -30,6 +30,7 @@ namespace LogFlow.Viewer
         {
             this.levelBrushes?.ForEach(b => b.Dispose());
             this.levelBrushes = null;
+            this.AllowColumnReorder = Settings.Default.Behavior_AllowColumnReorder;
         }
 
         public IList<Brush> LevelBrushes
