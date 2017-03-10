@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Text;
 
+    using LogFilter.Tokens;
+
     using LogFlow.DataModel;
 
     internal class LogLevelMatchExpression : ContentMatchExpression
@@ -19,16 +21,17 @@
 
         internal LogLevels Levels { get; set; }
 
-        internal LogLevelMatchExpression(string content)
+        internal LogLevelMatchExpression(ContentToken token)
         {
             this.Levels = LogLevels.None;
+            var content = token.Content;
             foreach (char c in content.Substring(ExpressionHeader.Length).Trim('"'))
             {
                 LogLevels level;
 
                 if (!LogLevelMap.TryGetValue(c, out level))
                 {
-                    throw new ArgumentException($"{content} is not of '{ExpressionHeader}{nameof(LogLevels)}' format");
+                    throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(LogLevels)}' format", token.Index);
                 }
                 else
                 {

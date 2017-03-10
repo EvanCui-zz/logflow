@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Globalization;
 
+    using LogFilter.Tokens;
+
     internal class TextMatchExpression : ContentMatchExpression
     {
         internal TextMatchExpression(string content)
@@ -14,6 +16,10 @@
             }
 
             this.TextContent = this.RestoreEscaped(str);
+        }
+
+        internal TextMatchExpression(ContentToken token) : this(token.Content)
+        {
         }
 
         private readonly HashSet<int> matchedTemplateIds = new HashSet<int>();

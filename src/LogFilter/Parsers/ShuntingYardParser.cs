@@ -44,7 +44,7 @@
             }
             else
             {
-                throw new ArgumentException($"Expected {typeof(T)} but get {this.Next().GetType()}");
+                throw new ParsingException($"Expected {typeof(T)} but get {this.Next().GetType()}", this.Next().Index);
             }
         }
 
@@ -96,7 +96,7 @@
             }
             else
             {
-                throw new ArgumentException($"{this.Next().ToString()} is not a valid start of parameter");
+                throw new ParsingException($"{this.Next().ToString()} is not a valid start of parameter", this.Next().Index);
             }
         }
 
@@ -137,7 +137,7 @@
             {
                 return new LogicalOrExpression() { Lhs = oprand1, Rhs = oprand2 };
             }
-            throw new ArgumentException($"{op.ToString()} is not {nameof(BinaryOperaterToken)}");
+            throw new ParsingException($"{op.ToString()} is not {nameof(BinaryOperaterToken)}", op.Index);
         }
 
         private static Expression MkNode(Token op, Expression oprand)
@@ -146,16 +146,16 @@
             {
                 return new LogicalNotExpression { Oprand = oprand };
             }
-            throw new ArgumentException($"{op.ToString()} is not {nameof(UnaryOperatorToken)}");
+            throw new ParsingException($"{op.ToString()} is not {nameof(UnaryOperatorToken)}", op.Index);
         }
 
         private static Expression MkLeaf(Token token)
         {
             if (token is ContentToken)
             {
-                return ContentMatchExpression.CreateContentMatchExpression(((ContentToken)token).Content);
+                return ContentMatchExpression.CreateContentMatchExpression((ContentToken)token);
             }
-            throw new ArgumentException($"{token.ToString()} is not {nameof(ContentToken)}");
+            throw new ParsingException($"{token.ToString()} is not {nameof(ContentToken)}", token.Index);
         }
     }
 }

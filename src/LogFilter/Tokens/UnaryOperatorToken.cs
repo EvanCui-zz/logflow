@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFilter.Tokens
+﻿namespace LogFilter.Tokens
 {
+    using System.Text.RegularExpressions;
+
     internal class UnaryOperatorToken : Token
     {
+        internal UnaryOperatorToken(Match match)
+            : base(match)
+        {
+        }
     }
 }

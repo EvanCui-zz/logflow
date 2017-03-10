@@ -2,16 +2,19 @@
 {
     using System;
 
+    using LogFilter.Tokens;
+
     internal class ProcessIdMatchExpression : ContentMatchExpression
     {
         internal int ProcessIdContent { get; set; }
 
-        internal ProcessIdMatchExpression(string content)
+        internal ProcessIdMatchExpression(ContentToken token)
         {
             int i;
+            string content = token.Content;
             if (!int.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out i))
             {
-                throw new ArgumentException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format");
+                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format", token.Index);
             }
             this.ProcessIdContent = i;
         }

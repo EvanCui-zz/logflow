@@ -2,16 +2,19 @@
 {
     using System;
 
+    using LogFilter.Tokens;
+
     internal class DatetimeBeginMatchExpression : ContentMatchExpression
     {
         internal DateTime DatetimeBeginContent { get; set; }
 
-        internal DatetimeBeginMatchExpression(string content)
+        internal DatetimeBeginMatchExpression(ContentToken token)
         {
             DateTime dt;
+            string content = token.Content;
             if (!DateTime.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out dt))
             {
-                throw new ArgumentException($"{content} is not of '{ExpressionHeader}{nameof(DateTime)}' format");
+                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(DateTime)}' format", token.Index);
             }
             this.DatetimeBeginContent = dt;
         }

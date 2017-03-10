@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFilter.Tokens
+﻿namespace LogFilter.Tokens
 {
-    internal class BinaryOperaterToken : Token
+    using System.Text.RegularExpressions;
+
+    internal abstract class BinaryOperaterToken : Token
     {
+        internal BinaryOperaterToken(Match match)
+            : base(match)
+        {
+        }
     }
 }

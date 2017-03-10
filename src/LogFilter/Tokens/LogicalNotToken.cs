@@ -1,6 +1,12 @@
 ﻿namespace LogFilter.Tokens
 {
-    class LogicalNotToken : UnaryOperatorToken
+    using System.Text.RegularExpressions;
+
+    internal class LogicalNotToken : UnaryOperatorToken
     {
+        internal LogicalNotToken(Match match)
+            : base(match)
+        {
+        }
     }
 }

@@ -63,14 +63,14 @@
     <Compile Include="Expressions\TokenInput.cs" />
     <Compile Include="Expressions\UnaryExpression.cs" />
     <Compile Include="Parsers\ShuntingYardParser.cs" />
+    <Compile Include="ParsingException.cs" />
     <Compile Include="Tokens\BinaryOperaterToken.cs" />
     <Compile Include="Tokens\EndOfFileToken.cs" />
-    <Compile Include="Tokens\FilterStringParser.cs" />
     <Compile Include="LogFilterInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tokens\CloseParenthesisToken.cs" />
     <Compile Include="Tokens\ContentToken.cs" />
-    <Compile Include="Lexer.cs" />
+    <Compile Include="Tokens\Lexer.cs" />
     <Compile Include="Tokens\LogicalAndToken.cs" />
     <Compile Include="Tokens\LogicalOrToken.cs" />
     <Compile Include="Tokens\LogicalNotToken.cs" />

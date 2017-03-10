@@ -2,16 +2,19 @@
 {
     using System;
 
+    using LogFilter.Tokens;
+
     internal class ThreadIdMatchExpression : ContentMatchExpression
     {
         internal int ThreadIdContent { get; set; }
 
-        internal ThreadIdMatchExpression(string content)
+        internal ThreadIdMatchExpression(ContentToken token)
         {
             int i;
+            string content = token.Content;
             if (!int.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out i))
             {
-                throw new ArgumentException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format");
+                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format", token.Index);
             }
             this.ThreadIdContent = i;
         }

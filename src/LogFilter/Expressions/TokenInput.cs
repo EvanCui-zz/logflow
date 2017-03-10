@@ -31,7 +31,10 @@
 
         internal void Unread()
         {
-            this.PreviousIdx();
+            if (this.idx > -1)
+            {
+                this.PreviousIdx();
+            }
         }
 
         internal Token Read()

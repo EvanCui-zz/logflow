@@ -164,7 +164,7 @@
             if (this.input.Peek() is ContentToken)
             {
                 ContentToken ct = (ContentToken)this.input.Read();
-                Expression res = ContentMatchExpression.CreateContentMatchExpression(ct.Content);
+                Expression res = ContentMatchExpression.CreateContentMatchExpression(ct);
                 return this.ParseExPrime(res);
             }
             else

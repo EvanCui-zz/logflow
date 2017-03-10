@@ -3,37 +3,39 @@
     using System;
     using System.Collections.Generic;
 
+    using LogFilter.Tokens;
+
     internal abstract class ContentMatchExpression : UnaryExpression
     {
-        internal static ContentMatchExpression CreateContentMatchExpression(string content)
+        internal static ContentMatchExpression CreateContentMatchExpression(ContentToken token)
         {
-            string header = content.Substring(0, content.IndexOf(':') + 1);
+            string header = token.Content.Substring(0, token.Content.IndexOf(':') + 1);
             if (string.IsNullOrWhiteSpace(header))
             {
-                return new TextMatchExpression(content);
+                return new TextMatchExpression(token);
             }
             else
             {
-                Func<string, ContentMatchExpression> ctor;
+                Func<ContentToken, ContentMatchExpression> ctor;
                 if (Ctors.TryGetValue(header, out ctor))
                 {
-                    return ctor(content);
+                    return ctor(token);
                 }
                 else
                 {
-                    return new TextMatchExpression(content);
+                    return new TextMatchExpression(token);
                 }
             }
         }
 
-        private static readonly Dictionary<string, Func<string, ContentMatchExpression>> Ctors =
-            new Dictionary<string, Func<string, ContentMatchExpression>>
+        private static readonly Dictionary<string, Func<ContentToken, ContentMatchExpression>> Ctors =
+            new Dictionary<string, Func<ContentToken, ContentMatchExpression>>
                 {
-                        { DatetimeBeginMatchExpression.ExpressionHeader, s => new DatetimeBeginMatchExpression(s) },
-                        { DatetimeEndMatchExpression.ExpressionHeader, s => new DatetimeEndMatchExpression(s) },
-                        { ProcessIdMatchExpression.ExpressionHeader, s => new ProcessIdMatchExpression(s) },
-                        { ThreadIdMatchExpression.ExpressionHeader, s => new ThreadIdMatchExpression(s) },
-                        { LogLevelMatchExpression.ExpressionHeader, s => new LogLevelMatchExpression(s) },
+                        { DatetimeBeginMatchExpression.ExpressionHeader, c => new DatetimeBeginMatchExpression(c) },
+                        { DatetimeEndMatchExpression.ExpressionHeader, c => new DatetimeEndMatchExpression(c) },
+                        { ProcessIdMatchExpression.ExpressionHeader, c => new ProcessIdMatchExpression(c) },
+                        { ThreadIdMatchExpression.ExpressionHeader, c => new ThreadIdMatchExpression(c) },
+                        { LogLevelMatchExpression.ExpressionHeader, c => new LogLevelMatchExpression(c) },
                 };
     }
 }
