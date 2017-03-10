@@ -11,7 +11,7 @@
 
         }
 
-        public ILogSource<DataItemBase> GetLogSource(string sourceInitializationData)
+        public ILogSource GetLogSource(string sourceInitializationData)
         {
             // TODO: make the sources dynamic load.
             return new CosmosLogSource(sourceInitializationData);

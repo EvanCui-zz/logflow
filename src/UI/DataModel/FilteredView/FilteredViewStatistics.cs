@@ -35,13 +35,13 @@ namespace LogFlow.DataModel
         private const int SplitCount = 5;
         private double TimeSplitRange;
         private DateTime FirstTime;
-        public void SetFirstLast<T>(T first, T last) where T : DataItemBase
+        public void SetFirstLast(DataItemStruct first, DataItemStruct last)
         {
             this.TimeSplitRange = (last.Time - first.Time).TotalMilliseconds / SplitCount;
             this.FirstTime = first.Time;
         }
 
-        public void Sample<T>(T item, string template) where T : DataItemBase
+        public void Sample(DataItemStruct item, string template)
         {
             int chunk = 0;
             double chunkDouble = (item.Time - this.FirstTime).TotalMilliseconds / this.TimeSplitRange;

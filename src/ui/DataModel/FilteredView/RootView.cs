@@ -5,12 +5,12 @@ namespace LogFlow.DataModel
 {
     using System;
 
-    public class RootView<T> : FilteredView<T>, IDisposable where T : DataItemBase
+    public class RootView : FilteredView, IDisposable
     {
         private Timer internTimer;
         private bool isInInternProgress;
 
-        public RootView(ILogSource<T> logSource, IFilter filter, bool backgroundIntern) : base(filter != null ? $"{logSource.Name} ({filter.Name})" : logSource.Name)
+        public RootView(ILogSource logSource, IFilter filter, bool backgroundIntern) : base(filter != null ? $"{logSource.Name} ({filter.Name})" : logSource.Name)
         {
             this.Data = logSource;
             this.Filter = filter;

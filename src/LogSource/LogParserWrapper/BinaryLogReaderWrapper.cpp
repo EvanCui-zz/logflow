@@ -43,18 +43,18 @@ static LogFlow::DataModel::LogLevels Levels[] =
     LogFlow::DataModel::LogLevels::Critical,
 };
 
-FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
+FullDataItemStruct BinaryLogReaderWrapper::ReadItem()
 {
     bool cstyle = 0;
     DWORD err;
     if ((err = this->reader->MoveNext()) == NO_ERROR)
     {
-        auto node = gcnew CosmosDataItem();
+        auto node = DataItemStruct();
 
-        node->Level = Levels[this->reader->GetLoggingLevelI()];
-        node->Time = DateTime::FromFileTime(this->reader->getEntryTime()).ToUniversalTime();
-        node->ThreadId = this->reader->getEntryTid();
-        node->ProcessId = this->reader->getEntryPid();
+        node.Level = Levels[this->reader->GetLoggingLevelI()];
+        node.Time = DateTime::FromFileTime(this->reader->getEntryTime()).ToUniversalTime();
+        node.ThreadId = this->reader->getEntryTid();
+        node.ProcessId = this->reader->getEntryPid();
 
         if (!cstyle)
         {
@@ -64,7 +64,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             // this method is the second fast one, it takes 5.4s for a sample 4 file data.
             int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
 
-            node->Parameters = gcnew array<String^>(count);
+            node.Parameters = gcnew array<String^>(count);
             int currentPosition = 0;
             for (int i = 0; i < count; i++)
             {
@@ -72,11 +72,11 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
                 // plus string.Intern it takes 8.1s, 142M
                 // plus the LocalStringPool, it takes 9.7s, 155M mem
 //                node->Parameters[i] = LocalStringPool::Intern(gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]));
-                node->Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
+                node.Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
                 currentPosition += indexWidthLength[i * 3 + 2];
             }
 
-            return FullCosmosDataItem(node, gcnew String(formattedEntry));
+            return FullDataItemStruct(node, gcnew String(formattedEntry));
         }
         else
         {
@@ -87,7 +87,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             // This is the fastest way, for a sample data, this takes about 4.7s for 4 files.
             int count = this->reader->GetFormatDataCStyle(buffer, MAX_LOG_ENTRY_SIZE, tokens, MAX_PARAMETER_COUNT);
 
-            node->Parameters = gcnew array<String^>(count);
+            node.Parameters = gcnew array<String^>(count);
 
             for (int i = 0; i < count; i++)
             {
@@ -100,11 +100,11 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
                     gcnew String(tokens[i].Pointer.Wide, 0, tokens[i].Length) :
                     gcnew String(tokens[i].Pointer.Single, 0, tokens[i].Length);
 
-                node->Parameters[i] = str;
+                node.Parameters[i] = str;
             }
 
             // this implementation doesn't have templates, but just concated strings.
-            return FullCosmosDataItem(node, (String^)node->Parameters[0]);
+            return FullDataItemStruct(node, (String^)node.Parameters[0]);
         }
 
         //node->SrcFile = LocalStringPool::Intern(gcnew String(this->reader->getEntryFileName()));
@@ -116,7 +116,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
     }
     else
     {
-        return FullCosmosDataItem(nullptr, nullptr);
+        throw gcnew InvalidOperationException();
     }
 }
 

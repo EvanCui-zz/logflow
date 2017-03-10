@@ -54,7 +54,7 @@
             this.checkBoxAllowReordering.Checked = Settings.Default.Behavior_AllowColumnReorder;
 
             this.checkedListBoxColumns.Items.AddRange(
-                DataItemBase.GetColumnInfos(DataItemBase.GetPropertyInfos<DataItemBase>()).Select(c => (object)c.Name).ToArray());
+                DataItemStruct.GetColumnInfos(DataItemStruct.GetPropertyInfos()).Select(c => (object)c.Name).ToArray());
 
             var hidenColumns = new HashSet<string>();
             foreach (var c in Settings.Default.Display_HidenColumns)

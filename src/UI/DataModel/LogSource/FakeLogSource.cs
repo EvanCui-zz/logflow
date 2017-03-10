@@ -5,7 +5,7 @@ namespace LogFlow.DataModel
     using System;
     using System.Collections.Generic;
 
-    internal class FakeLogSource : LogSourceBase<DataItemBase>
+    internal class FakeLogSource : LogSourceBase
     {
         public override string Name => "Faked Log";
 
@@ -23,7 +23,7 @@ namespace LogFlow.DataModel
             {
                 if (token.IsCancellationRequested) yield break;
                 var rand = r.Next(100);
-                this.AddItem(new DataItemBase()
+                this.AddItem(new DataItemStruct()
                 {
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
@@ -49,7 +49,7 @@ namespace LogFlow.DataModel
             {
                 if (token.IsCancellationRequested) yield break;
                 var rand = r.Next(100);
-                this.AddItem(new DataItemBase()
+                this.AddItem(new DataItemStruct()
                 {
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),

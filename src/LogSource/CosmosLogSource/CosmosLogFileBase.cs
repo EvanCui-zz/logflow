@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Diagnostics;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections;
@@ -9,7 +11,7 @@
     /// The Log file Enumerable, node that this is a bit different from the standard enumerable, this enumerable cannot have multiple enumerators
     /// But it can only work when the last enumerator ends, and the new enumerator will check for file changes after that.
     /// </summary>
-    public abstract class CosmosLogFileBase : IDisposable, IEnumerable<FullCosmosDataItem>
+    public abstract class CosmosLogFileBase : IDisposable, IEnumerable<FullDataItemStruct>
     {
         protected string FilePath;
 
@@ -29,7 +31,7 @@
             }
         }
 
-        public IEnumerator<FullCosmosDataItem> GetEnumerator()
+        public IEnumerator<FullDataItemStruct> GetEnumerator()
         {
             return new CosmosFileEnumerator(this.Reader);
         }
@@ -43,7 +45,7 @@
 
         protected BinaryLogReaderWrapperBase Reader;
 
-        public class CosmosFileEnumerator : IEnumerator<FullCosmosDataItem>
+        public class CosmosFileEnumerator : IEnumerator<FullDataItemStruct>
         {
             private readonly BinaryLogReaderWrapperBase reader;
             public CosmosFileEnumerator(BinaryLogReaderWrapperBase reader)
@@ -55,12 +57,20 @@
             public void Dispose() { }
 
             object IEnumerator.Current => this.Current;
-            public FullCosmosDataItem Current { get; private set; }
+            public FullDataItemStruct Current { get; private set; }
 
             public bool MoveNext()
             {
-                this.Current = this.reader.ReadItem();
-                return this.Current.Item != null;
+                try
+                {
+                    this.Current = this.reader.ReadItem();
+                    return true;
+                }
+                catch (InvalidOperationException)
+                {
+                    Debug.WriteLine("Move next returned false because of InvalidOperationException");
+                    return false;
+                }
             }
 
             public void Reset()

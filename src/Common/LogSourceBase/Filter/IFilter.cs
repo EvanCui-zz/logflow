@@ -3,6 +3,6 @@
     public interface IFilter
     {
         string Name { get; }
-        bool Match<T>(T item, string template) where T : DataItemBase;
+        bool Match(DataItemStruct item, string template);
     }
 }

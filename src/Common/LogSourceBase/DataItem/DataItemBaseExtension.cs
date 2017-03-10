@@ -2,9 +2,9 @@
 {
     using System.Globalization;
 
-    public static class DataItemBaseExtension
+    public static class DataItemStructExtension
     {
-        public static string GetColumnText<T>(this T item, int column) where T : DataItemBase
+        public static string GetColumnText(this DataItemStruct item, int column)
         {
             switch (column)
             {

@@ -6,10 +6,10 @@ namespace LogFlow.DataModel
     using System.Collections.Generic;
     using System.Reflection;
 
-    public interface ILogSource<out T> where T : DataItemBase
+    public interface ILogSource
     {
         string Name { get; }
-        IReadOnlyList<T> Items { get; }
+        IReadOnlyList<DataItemStruct> Items { get; }
         IReadOnlyList<string> Templates { get; }
         IReadOnlyList<PropertyInfo> PropertyInfos { get; }
         IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }

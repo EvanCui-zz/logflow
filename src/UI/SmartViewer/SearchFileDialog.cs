@@ -109,7 +109,7 @@ namespace LogFlow.Viewer
 
                 await Task.WhenAll(Enumerable.Range(0, filePaths.Count).Select(i => Task.Run(() =>
                 {
-                    DataItemBase dataItem;
+                    DataItemStruct dataItem;
                     var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i]);
                     logSource.ItemAdded += (o, i1) =>
                     {

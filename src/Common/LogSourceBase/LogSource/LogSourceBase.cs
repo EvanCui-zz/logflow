@@ -8,20 +8,20 @@ namespace LogFlow.DataModel
     using System.Linq;
     using System.Reflection;
 
-    public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
+    public abstract class LogSourceBase : ILogSource
     {
         protected LogSourceBase()
         {
-            this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
+            this.propertyInfos = DataItemStruct.GetPropertyInfos();
 
-            this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
+            this.columnInfos = DataItemStruct.GetColumnInfos(propertyInfos);
         }
 
         public abstract string Name { get; }
 
-        public IReadOnlyList<T> Items => this.InternalItems;
+        public IReadOnlyList<DataItemStruct> Items => this.InternalItems;
 
-        protected List<T> InternalItems = new List<T>();
+        protected List<DataItemStruct> InternalItems = new List<DataItemStruct>();
 
         public IReadOnlyList<string> Templates => this.templates;
         private readonly List<string> templates = new List<string>();
@@ -46,7 +46,7 @@ namespace LogFlow.DataModel
             this.ItemAdded?.Invoke(this, index);
         }
 
-        protected void AddItem(T item)
+        protected void AddItem(DataItemStruct item)
         {
             this.InternalItems.Add(item);
             item.Id = this.InternalItems.Count - 1;
@@ -115,7 +115,9 @@ namespace LogFlow.DataModel
         {
             while (this.lastInternIndex < this.Items.Count)
             {
-                this.Items[this.lastInternIndex].Parameters = this.Items[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
+                var di = this.InternalItems[this.lastInternIndex];
+                di.Parameters = this.Items[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
+                this.InternalItems[this.lastInternIndex] = di;
                 this.lastInternIndex++;
             }
 

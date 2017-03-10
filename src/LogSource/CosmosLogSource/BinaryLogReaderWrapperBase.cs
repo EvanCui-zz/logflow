@@ -7,7 +7,7 @@ namespace LogFlow.DataModel
 
     public abstract class BinaryLogReaderWrapperBase : IDisposable
     {
-        public abstract FullCosmosDataItem ReadItem();
+        public abstract FullDataItemStruct ReadItem();
 
         public abstract void Refresh();
 

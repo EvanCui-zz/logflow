@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Algorithm\HeapMerger.cs" />
     <Compile Include="Algorithm\LocalStringPool.cs" />
+    <Compile Include="DataItem\DataItemStruct.cs" />
     <Compile Include="DataItem\LogLevels.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
     <Compile Include="DataItem\DataItemBase.cs" />

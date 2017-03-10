@@ -8,7 +8,7 @@ using namespace LogFlow::DataModel;
 namespace LogFlow {
     namespace DataModel {
 
-        // could add a DataItemBase derived class to extend the cosmos specific columns
+        // could add a DataItemStruct derived class to extend the cosmos specific columns
         public ref class CosmosLogSource : CosmosLogSourceBase
         {
         public:

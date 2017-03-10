@@ -147,17 +147,17 @@
 
             Settings.Default.Save();
 
-            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(initializeString), filter, Settings.Default.Behavior_BackgroundInternStrings);
+            var document = new RootView(LogSourceManager.Instance.GetLogSource(initializeString), filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);
         }
 
-        public IFilteredView<DataItemBase> CurrentView { get; set; }
+        public IFilteredView CurrentView { get; set; }
 
         #region TreeView
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            this.CurrentView = e?.Node?.Tag as FilteredView<DataItemBase>;
+            this.CurrentView = e?.Node?.Tag as FilteredView;
 
             this.UpdateDocDisplay();
             this.UpdateTagButtonStatus();
@@ -417,7 +417,7 @@
             this.fastListViewMain.EndUpdate();
         }
 
-        private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true, bool toRoot = false)
+        private void AddView(IFilteredView childView, bool activateView = true, bool toRoot = false)
         {
             childView.ItemAdded += this.UpdateMainGridRowCount;
             childView.ProgressChanged += ChildView_ProgressChanged;
@@ -450,7 +450,7 @@
             if (!node.IsExpanded) node.Expand();
         }
 
-        private void RemoveView(IFilteredView<DataItemBase> view)
+        private void RemoveView(IFilteredView view)
         {
             view.ItemAdded -= this.UpdateMainGridRowCount;
             view.ProgressChanged -= this.ChildView_ProgressChanged;
@@ -492,7 +492,7 @@
             bw.RunWorkerCompleted += (s, e1) =>
             {
                 if (this.IsDisposed) return;
-                var result = (Tuple<IFilteredView<DataItemBase>, int?>)e1.Result;
+                var result = (Tuple<IFilteredView, int?>)e1.Result;
                 if (object.ReferenceEquals(result.Item1, this.CurrentView))
                 {
                     if (result.Item2.HasValue)
@@ -559,7 +559,17 @@
         {
             e.Item = new ListViewItem();
             if (this.CurrentView == null) { return; }
-            var item = this.CurrentView.GetRowValue(e.ItemIndex);
+
+            DataItemStruct item;
+            try
+            {
+                item = this.CurrentView.GetRowValue(e.ItemIndex);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Debug.WriteLine("Index out of range, return on retrieve virtual item");
+                return;
+            }
 
             e.Item.Text = "";
             e.Item.Tag = item;
@@ -572,8 +582,8 @@
                 subItems[i] = new ListViewItem.ListViewSubItem();
             }
 
-            subItems[3] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 3) };
-            subItems[4] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) };
+            subItems[3] = new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 3) };
+            subItems[4] = new ListViewItem.ListViewSubItem() { Tag = this.CurrentView.GetColumnValue(e.ItemIndex, 4) };
 
             e.Item.SubItems.AddRange(subItems);
         }
@@ -584,7 +594,7 @@
             Debug.WriteLine("listview drawItem {0}", e.ItemIndex);
 
             var bound = e.Bounds;
-            DataItemBase item = (DataItemBase)e.Item.Tag;
+            DataItemStruct item = (DataItemStruct)e.Item.Tag;
             bool isSelected = e.Item.Selected;
 
             // draw background
@@ -636,8 +646,7 @@
             //    Debug.WriteLine("Redrawing Row {0} Column {1}", e.ItemIndex, e.ColumnIndex);
             // draw contents.
             var bound = e.Bounds;
-            DataItemBase item = (DataItemBase)e.Item.Tag;
-            if (item == null) return;
+            DataItemStruct item = (DataItemStruct)e.Item.Tag;
             var isSelected = e.Item.Selected;
             StringFormat format = new StringFormat(StringFormatFlags.NoWrap)
             {
@@ -783,7 +792,7 @@
             if (this.fastListViewMain.SelectedIndices.Count > 0)
             {
                 var firstSelectedIndex = this.fastListViewMain.SelectedIndices[0];
-                var item = (DataItemBase)this.fastListViewMain.Items[firstSelectedIndex].Tag;
+                var item = (DataItemStruct)this.fastListViewMain.Items[firstSelectedIndex].Tag;
                 this.labelId.Text = item.Id.ToString();
                 this.labelTime.Text = item.Time.ToString(CultureInfo.InvariantCulture);
                 this.labelThreadId.Text = item.ThreadId.ToString();

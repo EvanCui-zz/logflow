@@ -17,7 +17,7 @@ namespace LogFlow.Viewer
 {
     public partial class MainForm : Form
     {
-        private RootView<DataItemBase> document;
+        private RootView document;
         private Font boldFont;
         private Font normalFont;
         private SolidBrush foreColorBrush;
@@ -176,7 +176,7 @@ namespace LogFlow.Viewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"), null, true);
+            this.document = new RootView(LogSourceManager.Instance.GetLogSource("loaded test"), null, true);
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;
@@ -198,11 +198,11 @@ namespace LogFlow.Viewer
             this.treeViewDoc.SelectedNode = node;
         }
 
-        public FilteredView<DataItemBase> CurrentView { get; set; }
+        public FilteredView CurrentView { get; set; }
 
         private void treeViewDoc_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            this.CurrentView = e.Node.Tag as FilteredView<DataItemBase>;
+            this.CurrentView = e.Node.Tag as FilteredView;
             if (this.CurrentView == null)
             {
                 return;

@@ -28,12 +28,12 @@
             return string.IsNullOrEmpty(pattern) ? null : new Filter(pattern);
         }
 
-        public static IFilter CreateFilter(Func<DataItemBase, string, bool> predicate)
+        public static IFilter CreateFilter(Func<DataItemStruct, string, bool> predicate)
         {
             return new Filter() { Predicate = predicate };
         }
 
-        private Func<DataItemBase, string, bool> Predicate { get; set; }
+        private Func<DataItemStruct, string, bool> Predicate { get; set; }
 
         private Filter() { }
 
@@ -122,7 +122,7 @@
         public Lazy<HashSet<int>> ProcessIds { get; set; } = new Lazy<HashSet<int>>();
         public Lazy<HashSet<string>> Texts { get; set; } = new Lazy<HashSet<string>>();
 
-        public virtual bool Match<T>(T item, string template) where T : DataItemBase
+        public virtual bool Match(DataItemStruct item, string template) 
         {
             if (this.Predicate != null) return this.Predicate(item, template);
 

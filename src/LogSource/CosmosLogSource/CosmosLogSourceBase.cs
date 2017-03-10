@@ -8,7 +8,7 @@ namespace LogFlow.DataModel
     using System.Threading;
     using LogFlow.DataModel.Algorithm;
 
-    public abstract class CosmosLogSourceBase : LogSourceBase<CosmosDataItem>, IDisposable
+    public abstract class CosmosLogSourceBase : LogSourceBase, IDisposable
     {
         protected Dictionary<IntPtr, int> TemplateMap = new Dictionary<IntPtr, int>();
 
@@ -80,8 +80,8 @@ namespace LogFlow.DataModel
             lastReportedProgress += 20;
 
             var merged = HeapMerger.Merge(
-                Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
-                this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
+                Comparer<FullDataItemStruct>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
+                this.LogFiles.Cast<IEnumerable<FullDataItemStruct>>().ToArray());
 
             var count = 0;
 
@@ -95,9 +95,10 @@ namespace LogFlow.DataModel
 
                 if (filter.Match(item.Item.Item, item.Item.Template))
                 {
-                    item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                    item.Item.Item.FileIndex = item.SourceIndex;
-                    this.AddItem(item.Item.Item);
+                    var di = item.Item.Item;
+                    di.TemplateId = this.AddTemplate(item.Item.Template);
+                    di.FileIndex = item.SourceIndex;
+                    this.AddItem(di);
 
                     yield break;
                 }
@@ -125,17 +126,17 @@ namespace LogFlow.DataModel
 
             lastReportedProgress += reportInterval;
 
-            IEnumerable<MergedItem<FullCosmosDataItem>> merged;
+            IEnumerable<MergedItem<FullDataItemStruct>> merged;
             if (filter == null)
             {
                 merged = HeapMerger.Merge(
-                    Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
-                    this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
+                    Comparer<FullDataItemStruct>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
+                    this.LogFiles.Cast<IEnumerable<FullDataItemStruct>>().ToArray());
             }
             else
             {
                 merged = HeapMerger.Merge(
-                    Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
+                    Comparer<FullDataItemStruct>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                         this.LogFiles.Select(f => f.Where(i =>
                         {
                             // the loop should exit immediately when cancel.
@@ -144,16 +145,18 @@ namespace LogFlow.DataModel
                         })).ToArray());
             }
 
-            //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
+            //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullDataItemStruct>(i, 0));
 
             // each time we iterate through the merged, it will refresh all files underneath and load in new InternalItems;
             foreach (var item in merged)
             {
                 if (token.IsCancellationRequested) yield break;
 
-                item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                item.Item.Item.FileIndex = item.SourceIndex;
-                this.AddItem(item.Item.Item);
+                var di = item.Item.Item;
+                di.TemplateId = this.AddTemplate(item.Item.Template);
+                di.FileIndex = item.SourceIndex;
+
+                this.AddItem(di);
 
                 //    var groupData = this.InnerGroupData[item.SourceIndex];
                 //   groupData.Value.Percentage = (int)this.LogFiles[item.SourceIndex].GetPercent();

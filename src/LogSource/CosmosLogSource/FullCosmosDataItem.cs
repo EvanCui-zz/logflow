@@ -1,9 +1,9 @@
 ﻿namespace LogFlow.DataModel
 {
-    public struct FullCosmosDataItem
+    public struct FullDataItemStruct
     {
-        public FullCosmosDataItem(CosmosDataItem item, string template) { this.Item = item; this.Template = template; }
-        public CosmosDataItem Item { get; private set; }
+        public FullDataItemStruct(DataItemStruct item, string template) { this.Item = item; this.Template = template; }
+        public DataItemStruct Item { get; private set; }
         public string Template { get; private set; }
     }
 }

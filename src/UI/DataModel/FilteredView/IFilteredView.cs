@@ -5,7 +5,7 @@ namespace LogFlow.DataModel
     using System;
     using System.Collections.Generic;
 
-    public interface IFilteredView<out T> where T : DataItemBase
+    public interface IFilteredView
     {
         #region Find, Count, Filter, Tag, Indent features.
 
@@ -54,7 +54,7 @@ namespace LogFlow.DataModel
 
         #region Child
 
-        IFilteredView<T> CreateChild(IFilter filter);
+        IFilteredView CreateChild(IFilter filter);
 
         IReadOnlyList<IFilter> GroupFilters { get; }
 
@@ -73,7 +73,7 @@ namespace LogFlow.DataModel
 
         object GetColumnValue(int rowIndex, int columnIndex);
 
-        T GetRowValue(int rowIndex);
+        DataItemStruct GetRowValue(int rowIndex);
 
         int GetPhysicalIndex(int logicalIndex);
 

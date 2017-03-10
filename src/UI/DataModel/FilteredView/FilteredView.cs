@@ -6,7 +6,7 @@ namespace LogFlow.DataModel
     using System.Collections.Generic;
     using System.Linq;
 
-    public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
+    public class FilteredView : IFilteredView 
     {
         #region Find, Count, Filter, Tag, Indent features.
 
@@ -247,9 +247,9 @@ namespace LogFlow.DataModel
 
         #region Child
 
-        public IFilteredView<T> CreateChild(IFilter filter)
+        public IFilteredView CreateChild(IFilter filter)
         {
-            return new FilteredView<T>(filter, this, this.Data);
+            return new FilteredView(filter, this, this.Data);
         }
 
         public IReadOnlyList<IFilter> GroupFilters { get; protected set; }
@@ -266,9 +266,9 @@ namespace LogFlow.DataModel
 
         public int TotalCount => this.ItemIndices?.Count ?? this.Data.Items.Count;
 
-        public T GetRowValue(int rowIndex)
+        public DataItemStruct GetRowValue(int rowIndex)
         {
-            if (rowIndex >= this.TotalCount) return null;
+            if (rowIndex >= this.TotalCount) throw new IndexOutOfRangeException($"{rowIndex} row index is out of range");
             int index = this.GetPhysicalIndex(rowIndex);
             return this.Data.Items[index];
         }
@@ -285,7 +285,7 @@ namespace LogFlow.DataModel
             // only process the tag column
             if (string.Equals(this.Data.ColumnInfos[columnIndex].Name, "Tag"))
             {
-                T item = this.Data.Items[index];
+                DataItemStruct item = this.Data.Items[index];
                 return this.Tags?.Where(kvp => kvp.Value.Match(item, this.Data.Templates[item.TemplateId])).Select(kvp => kvp.Key).ToList();
             }
 
@@ -306,7 +306,7 @@ namespace LogFlow.DataModel
 
         #region Constructors
 
-        internal FilteredView(IFilter filter, FilteredView<T> parent, ILogSource<T> data) : this(filter.Name)
+        internal FilteredView(IFilter filter, FilteredView parent, ILogSource data) : this(filter.Name)
         {
             this.Filter = filter;
             this.Parent = parent;
@@ -353,9 +353,9 @@ namespace LogFlow.DataModel
 
         protected IFilter Filter { get; set; }
 
-        private FilteredView<T> Parent { get; }
+        private FilteredView Parent { get; }
 
-        internal ILogSource<T> Data { get; set; }
+        internal ILogSource Data { get; set; }
 
         private List<int> ItemIndices { get; }
 
