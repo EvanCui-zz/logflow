@@ -8,31 +8,20 @@ namespace LogFilter
 
     using LogFlow.DataModel;
 
-    public class LogFilterInterpreter : IFilter
+    public class LogFilterInterpreter
     {
         internal string FilterString { get; set; }
 
-        private Expression Ast;
+        internal Expression Ast { get; private set; }
 
-        public LogFilterInterpreter(string filterString)
+        public static IFilter Parse(string filterString)
         {
-            this.FilterString = filterString;
-            this.Parse();
-        }
-
-        public void Parse()
-        {
-            var tokens = Lexer.Tokenize(this.FilterString);
+            var tokens = Lexer.Tokenize(filterString);
             ShuntingYardParser parser = new ShuntingYardParser(tokens);
-            this.Ast = parser.Parse();
+            return parser.Parse();
         }
 
         public string Name => this.Ast.Name;
-
-        public bool Match<T>(T item, string template) where T : DataItemBase
-        {
-            return this.Ast.Match(item, template);
-        }
     }
 }
 

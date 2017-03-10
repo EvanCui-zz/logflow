@@ -103,7 +103,7 @@
         private void PushOperator(Token op)
         {
             // Here we use openParenthesisToken as starting token
-            if (op is OpenParenthesisToken)
+            if (!(op is OpenParenthesisToken))
             {
                 while (!(this.operators.Peek() is OpenParenthesisToken))
                 {
