@@ -1,6 +1,6 @@
 ﻿namespace LogFilter.Tokens
 {
-    class LogicalOrToken : Token
+    class LogicalOrToken : BinaryOperaterToken
     {
     }
 }

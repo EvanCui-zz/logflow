@@ -51,7 +51,7 @@
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />
     <Compile Include="Expressions\Expression.cs" />
@@ -62,6 +62,9 @@
     <Compile Include="Expressions\TextMatchExpression.cs" />
     <Compile Include="Expressions\TokenInput.cs" />
     <Compile Include="Expressions\UnaryExpression.cs" />
+    <Compile Include="Parsers\ShuntingYardParser.cs" />
+    <Compile Include="Tokens\BinaryOperaterToken.cs" />
+    <Compile Include="Tokens\EndOfFileToken.cs" />
     <Compile Include="Tokens\FilterStringParser.cs" />
     <Compile Include="LogFilterInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="Tokens\LogicalNotToken.cs" />
     <Compile Include="Tokens\OpenParenthesisToken.cs" />
     <Compile Include="Tokens\Token.cs" />
+    <Compile Include="Tokens\UnaryOperatorToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\GitHub\smartviewer\src\Common\LogSourceBase\LogSourceBase.csproj">

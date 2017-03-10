@@ -1,4 +1,8 @@
-﻿namespace LogFilter
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("LogFilter.UnitTest")]
+
+namespace LogFilter
 {
     using LogFilter.Expressions;
 
@@ -19,7 +23,8 @@
         public void Parse()
         {
             var tokens = Lexer.Tokenize(this.FilterString);
-            this.Ast = Parser.Parse(tokens);
+            ShuntingYardParser parser = new ShuntingYardParser(tokens);
+            this.Ast = parser.Parse();
         }
 
         public string Name => this.Ast.Name;
