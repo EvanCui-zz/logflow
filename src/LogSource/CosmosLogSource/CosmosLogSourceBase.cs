@@ -119,7 +119,11 @@ namespace LogFlow.DataModel
         {
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
-            lastReportedProgress += 20;
+
+            // 1 file split to 5 steps. n file to 5 * n.
+            var reportInterval = Math.Max(5, 100 / (this.LogFiles.Count * 5));
+
+            lastReportedProgress += reportInterval;
 
             IEnumerable<MergedItem<FullCosmosDataItem>> merged;
             if (filter == null)
@@ -160,7 +164,7 @@ namespace LogFlow.DataModel
                 if (totalPercent < lastReportedProgress) continue;
 
                 yield return lastReportedProgress;
-                lastReportedProgress += 20;
+                lastReportedProgress += reportInterval;
             }
         }
     }

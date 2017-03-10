@@ -46,6 +46,7 @@
             this.checkBoxAutoScroll = new System.Windows.Forms.CheckBox();
             this.checkBoxAutoLoad = new System.Windows.Forms.CheckBox();
             this.tabPageColumns = new System.Windows.Forms.TabPage();
+            this.labelColumns = new System.Windows.Forms.Label();
             this.checkBoxAllowReordering = new System.Windows.Forms.CheckBox();
             this.checkedListBoxColumns = new System.Windows.Forms.CheckedListBox();
             this.tabPageHotKey = new System.Windows.Forms.TabPage();
@@ -55,7 +56,7 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.labelColumns = new System.Windows.Forms.Label();
+            this.checkBoxInternStrings = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageDisplay.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -213,6 +214,7 @@
             // 
             // tabPageBehavior
             // 
+            this.tabPageBehavior.Controls.Add(this.checkBoxInternStrings);
             this.tabPageBehavior.Controls.Add(this.checkBoxDataVirtual);
             this.tabPageBehavior.Controls.Add(this.checkBoxAutoScroll);
             this.tabPageBehavior.Controls.Add(this.checkBoxAutoLoad);
@@ -266,6 +268,15 @@
             this.tabPageColumns.TabIndex = 2;
             this.tabPageColumns.Text = "Column Selection";
             this.tabPageColumns.UseVisualStyleBackColor = true;
+            // 
+            // labelColumns
+            // 
+            this.labelColumns.AutoSize = true;
+            this.labelColumns.Location = new System.Drawing.Point(18, 18);
+            this.labelColumns.Name = "labelColumns";
+            this.labelColumns.Size = new System.Drawing.Size(122, 13);
+            this.labelColumns.TabIndex = 0;
+            this.labelColumns.Text = "&Select columns to show:";
             // 
             // checkBoxAllowReordering
             // 
@@ -359,14 +370,15 @@
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // labelColumns
+            // checkBoxInternStrings
             // 
-            this.labelColumns.AutoSize = true;
-            this.labelColumns.Location = new System.Drawing.Point(18, 18);
-            this.labelColumns.Name = "labelColumns";
-            this.labelColumns.Size = new System.Drawing.Size(122, 13);
-            this.labelColumns.TabIndex = 0;
-            this.labelColumns.Text = "&Select columns to show:";
+            this.checkBoxInternStrings.AutoSize = true;
+            this.checkBoxInternStrings.Location = new System.Drawing.Point(18, 87);
+            this.checkBoxInternStrings.Name = "checkBoxInternStrings";
+            this.checkBoxInternStrings.Size = new System.Drawing.Size(324, 17);
+            this.checkBoxInternStrings.TabIndex = 3;
+            this.checkBoxInternStrings.Text = "I&ntern strings in background for optimized memory consumption.";
+            this.checkBoxInternStrings.UseVisualStyleBackColor = true;
             // 
             // AllSettings
             // 
@@ -428,5 +440,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn HotKey;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.Label labelColumns;
+        private System.Windows.Forms.CheckBox checkBoxInternStrings;
     }
 }

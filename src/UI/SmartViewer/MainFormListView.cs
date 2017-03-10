@@ -1,9 +1,5 @@
-﻿using System.Drawing.Drawing2D;
-using System.Drawing.Text;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
-    using LogFlow.DataModel;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -14,7 +10,10 @@ namespace LogFlow.Viewer
     using System.Linq;
     using System.Reflection;
     using System.Threading;
+    using System.Drawing.Drawing2D;
+    using System.Drawing.Text;
     using System.Windows.Forms;
+    using LogFlow.DataModel;
     using LogFlow.Viewer.Properties;
 
     public partial class MainFormListView : Form
@@ -114,12 +113,16 @@ namespace LogFlow.Viewer
                 Settings.Default.Data_LastFilterIndex = this.openFileDialog1.FilterIndex;
                 var path = Path.GetDirectoryName(this.openFileDialog1.FileName);
 
-                if (Settings.Default.Data_RecentDirectories.Contains(path))
+                if (path != null)
                 {
-                    Settings.Default.Data_RecentDirectories.Remove(path);
+                    if (Settings.Default.Data_RecentDirectories.Contains(path))
+                    {
+                        Settings.Default.Data_RecentDirectories.Remove(path);
+                    }
+
+                    Settings.Default.Data_RecentDirectories.Insert(0, path);
                 }
-                
-                Settings.Default.Data_RecentDirectories.Insert(0, path);
+
                 Settings.Default.Save();
 
                 this.OpenFiles(this.openFileDialog1.FileNames);
@@ -144,7 +147,7 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(initializeString), filter);
+            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(initializeString), filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);
         }
 
@@ -786,7 +789,7 @@ namespace LogFlow.Viewer
                 this.labelThreadId.Text = item.ThreadId.ToString();
                 this.labelProcessId.Text = item.ProcessId.ToString();
                 this.labelLevel.Text = item.Level.ToString();
-                this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters);
+                this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters.Cast<object>());
             }
             else
             {
@@ -920,10 +923,22 @@ namespace LogFlow.Viewer
             return true;
         }
 
+        private DateTime lastCollect = DateTime.UtcNow;
+        private Stopwatch lifetime = Stopwatch.StartNew();
+
         private void timerMemory_Tick(object sender, EventArgs e)
         {
+            if (DateTime.UtcNow - this.lastCollect > TimeSpan.FromSeconds(20))
+            {
+                this.lastCollect = DateTime.UtcNow;
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false);
+            }
+
             var memoryMb = ((double)GC.GetTotalMemory(false) / 1024) / 1024;
-            this.toolStripStatusLabelMemory.Text = $"{memoryMb:0.##}MB";
+            var gcText = DateTime.UtcNow - this.lastCollect < TimeSpan.FromSeconds(5) ? " GC" : null;
+            var lifeString = $"{this.lifetime.ElapsedMilliseconds / 1000}s";
+            this.toolStripStatusLabelMemory.Text =
+                $"Since Start: {lifeString} | {memoryMb:####.##}MB{gcText}";
         }
 
         private bool resizeGuide;

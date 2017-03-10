@@ -1,4 +1,6 @@
-﻿namespace LogFlow.DataModel
+﻿using System.Threading;
+
+namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
@@ -22,7 +24,7 @@
 
         [ColumnInfo(Name = "Text", Computed = true, Width = 200)]
         public int TemplateId { get; set; } = -1;
-        public object[] Parameters { get; set; }
+        public string[] Parameters { get; set; }
 
         [ColumnInfo(Name = "ActId", Computed = false, Width = 120)]
         public int ActivityIdIndex { get; set; }

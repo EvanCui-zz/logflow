@@ -102,6 +102,7 @@
             this.panelMain = new System.Windows.Forms.Panel();
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.splitContainerDetails = new System.Windows.Forms.SplitContainer();
+            this.fastListViewMain = new LogFlow.Viewer.FastListView();
             this.contextMenuStripListView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.filterWithTheSameThreadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.filterWithTheSameActivityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -179,7 +180,7 @@
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.fastListViewMain = new LogFlow.Viewer.FastListView();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -795,6 +796,42 @@
             this.splitContainerDetails.Size = new System.Drawing.Size(691, 485);
             this.splitContainerDetails.SplitterDistance = 284;
             this.splitContainerDetails.TabIndex = 2;
+            // 
+            // fastListViewMain
+            // 
+            this.fastListViewMain.AllowColumnReorder = true;
+            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
+            this.fastListViewMain.AlternateBackColorBrush = null;
+            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.fastListViewMain.ContextMenuStrip = this.contextMenuStripListView;
+            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastListViewMain.FullRowSelect = true;
+            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
+            this.fastListViewMain.GridLineColorPen = null;
+            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.fastListViewMain.HideSelection = false;
+            this.fastListViewMain.LabelWrap = false;
+            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
+            this.fastListViewMain.Name = "fastListViewMain";
+            this.fastListViewMain.OwnerDraw = true;
+            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
+            this.fastListViewMain.SelectionBackColorBrush = null;
+            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.fastListViewMain.SelectionForeColorBrush = null;
+            this.fastListViewMain.ShowGroups = false;
+            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
+            this.fastListViewMain.TabIndex = 2;
+            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
+            this.fastListViewMain.View = System.Windows.Forms.View.Details;
+            this.fastListViewMain.VirtualMode = true;
+            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
+            this.fastListViewMain.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.fastListViewMain_ColumnWidthChanged);
+            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
+            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
+            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
+            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
+            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
+            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
             // 
             // contextMenuStripListView
             // 
@@ -1429,7 +1466,8 @@
             this.toolStripStatusLabelSelected,
             this.toolStripStatusLabel2,
             this.toolStripStatusLabelMemory,
-            this.toolStripStatusLabel3});
+            this.toolStripStatusLabel3,
+            this.toolStripStatusLabel4});
             this.statusStripMain.Location = new System.Drawing.Point(0, 539);
             this.statusStripMain.Name = "statusStripMain";
             this.statusStripMain.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -1451,7 +1489,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(832, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(852, 17);
             this.toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelSelected
@@ -1470,8 +1508,8 @@
             // toolStripStatusLabelMemory
             // 
             this.toolStripStatusLabelMemory.Name = "toolStripStatusLabelMemory";
-            this.toolStripStatusLabelMemory.Size = new System.Drawing.Size(75, 17);
-            this.toolStripStatusLabelMemory.Text = "Memory: 0M";
+            this.toolStripStatusLabelMemory.Size = new System.Drawing.Size(24, 17);
+            this.toolStripStatusLabelMemory.Text = "0M";
             // 
             // toolStripStatusLabel3
             // 
@@ -1490,41 +1528,12 @@
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
             // 
-            // fastListViewMain
+            // toolStripStatusLabel4
             // 
-            this.fastListViewMain.AllowColumnReorder = true;
-            this.fastListViewMain.AlternateBackColor = System.Drawing.Color.RoyalBlue;
-            this.fastListViewMain.AlternateBackColorBrush = null;
-            this.fastListViewMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.fastListViewMain.ContextMenuStrip = this.contextMenuStripListView;
-            this.fastListViewMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastListViewMain.FullRowSelect = true;
-            this.fastListViewMain.GridLineColor = System.Drawing.Color.Gray;
-            this.fastListViewMain.GridLineColorPen = null;
-            this.fastListViewMain.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.fastListViewMain.HideSelection = false;
-            this.fastListViewMain.LabelWrap = false;
-            this.fastListViewMain.Location = new System.Drawing.Point(0, 5);
-            this.fastListViewMain.Name = "fastListViewMain";
-            this.fastListViewMain.OwnerDraw = true;
-            this.fastListViewMain.SelectionBackColor = System.Drawing.Color.DodgerBlue;
-            this.fastListViewMain.SelectionBackColorBrush = null;
-            this.fastListViewMain.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.fastListViewMain.SelectionForeColorBrush = null;
-            this.fastListViewMain.ShowGroups = false;
-            this.fastListViewMain.Size = new System.Drawing.Size(689, 277);
-            this.fastListViewMain.TabIndex = 2;
-            this.fastListViewMain.UseCompatibleStateImageBehavior = false;
-            this.fastListViewMain.View = System.Windows.Forms.View.Details;
-            this.fastListViewMain.VirtualMode = true;
-            this.fastListViewMain.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.fastListViewMain_CacheVirtualItems);
-            this.fastListViewMain.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.fastListViewMain_ColumnWidthChanged);
-            this.fastListViewMain.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.fastListViewMain_DrawColumnHeader);
-            this.fastListViewMain.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.fastListViewMain_DrawItem);
-            this.fastListViewMain.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.fastListViewMain_DrawSubItem);
-            this.fastListViewMain.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.fastListViewMain_RetrieveVirtualItem);
-            this.fastListViewMain.SelectedIndexChanged += new System.EventHandler(this.fastListViewMain_SelectedIndexChanged);
-            this.fastListViewMain.Resize += new System.EventHandler(this.fastListViewMain_Resize);
+            this.toolStripStatusLabel4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.None;
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(0, 17);
+            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
             // 
             // MainFormListView
             // 
@@ -1735,6 +1744,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
     }
 }
 

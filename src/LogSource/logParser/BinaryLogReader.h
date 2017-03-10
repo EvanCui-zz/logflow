@@ -30,6 +30,17 @@ class LogEntry;
 class BinaryLogDecodeSession;
 class XPressWrapper;
 
+struct StringToken
+{
+    union {
+        PCSTR Single;
+        PCWSTR Wide;
+    } Pointer;
+    int IsParameter : 1;
+    int IsUnicode : 1;
+    int Length : 30;
+};
+
 class  BinaryLogReader : public ILogReader
 {
 private:
@@ -113,7 +124,7 @@ public:
 	void getFormatedText(PCHAR);
 
     int BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, size_t formatSize, PCHAR parameters, size_t parametersSize, size_t indexWidthLength[], size_t count);
-    int BinaryLogReader::GetFormatDataCStyle(PCSTR &format, PCHAR parameters, size_t parametersSize, size_t indexWidthLength[], size_t count);
+    int BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, size_t bufferSize, StringToken tokens[], size_t maxTokens);
 
 	PCSTR getEntryFileName();
 

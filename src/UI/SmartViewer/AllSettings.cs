@@ -48,6 +48,7 @@
             this.checkBoxAutoLoad.Checked = Settings.Default.Behavior_AutoLoad;
             this.checkBoxAutoScroll.Checked = Settings.Default.Behavior_AutoScroll;
             this.checkBoxDataVirtual.Checked = Settings.Default.Behavior_DataVirtualization;
+            this.checkBoxInternStrings.Checked = Settings.Default.Behavior_BackgroundInternStrings;
 
             // third page:
             this.checkBoxAllowReordering.Checked = Settings.Default.Behavior_AllowColumnReorder;
@@ -97,6 +98,7 @@
             Settings.Default.Behavior_AutoLoad = this.checkBoxAutoLoad.Checked;
             Settings.Default.Behavior_AutoScroll = this.checkBoxAutoScroll.Checked;
             Settings.Default.Behavior_DataVirtualization = this.checkBoxDataVirtual.Checked;
+            Settings.Default.Behavior_BackgroundInternStrings = this.checkBoxInternStrings.Checked;
 
             // page 3
             Settings.Default.Behavior_AllowColumnReorder = this.checkBoxAllowReordering.Checked;
@@ -117,7 +119,8 @@
         private void textBoxIndentSize_Validating(object sender, CancelEventArgs e)
         {
             int indentSize;
-            if (true == (e.Cancel = !int.TryParse(this.textBoxIndentSize.Text, out indentSize)))
+            e.Cancel = !int.TryParse(this.textBoxIndentSize.Text, out indentSize);
+            if (e.Cancel)
             {
                 this.errorProvider1.SetError(this.textBoxIndentSize, "The value should be an integer.");
             }

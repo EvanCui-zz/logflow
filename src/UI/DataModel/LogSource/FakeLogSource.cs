@@ -28,7 +28,7 @@ namespace LogFlow.DataModel
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
                     TemplateId = r.Next(this.Templates.Count),
-                    Parameters = new object[] { DateTime.UtcNow, i + 255 },
+                    Parameters = new [] { DateTime.UtcNow.ToString("T"), (i + 255).ToString() },
                     ProcessId = i / 100000,
                     Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
                 });
@@ -54,7 +54,7 @@ namespace LogFlow.DataModel
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
                     TemplateId = r.Next(this.Templates.Count),
-                    Parameters = new object[] { DateTime.UtcNow, i + 255 },
+                    Parameters = new [] { DateTime.UtcNow.ToString("T"), (i + 255).ToString() },
                     ProcessId = i / 100000,
                     Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
                 });

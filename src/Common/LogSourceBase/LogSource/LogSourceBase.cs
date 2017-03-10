@@ -55,7 +55,7 @@ namespace LogFlow.DataModel
 
         protected int AddTemplate(string template)
         {
-            template = LocalStringPool.Intern(template);
+            //template = LocalStringPool.Intern(template);
 
             int index;
             if (this.templatesIndex.TryGetValue(template, out index))
@@ -108,5 +108,23 @@ namespace LogFlow.DataModel
 
         protected virtual IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token) { yield break; }
         protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
+
+        private int lastInternIndex;
+        private int lastTemplateInternIndex;
+        public void InternStrings()
+        {
+            while (this.lastInternIndex < this.Items.Count)
+            {
+                this.Items[this.lastInternIndex].Parameters = this.Items[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
+                this.lastInternIndex++;
+            }
+
+            while (this.lastTemplateInternIndex < this.templates.Count)
+            {
+                this.templates[this.lastTemplateInternIndex] =
+                    LocalStringPool.Intern(this.templates[this.lastTemplateInternIndex]);
+                this.lastTemplateInternIndex++;
+            }
+        }
     }
 }

@@ -283,5 +283,17 @@ namespace LogFlow.Viewer.Properties {
                 this["Data_MaxHistoryCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Behavior_BackgroundInternStrings {
+            get {
+                return ((bool)(this["Behavior_BackgroundInternStrings"]));
+            }
+            set {
+                this["Behavior_BackgroundInternStrings"] = value;
+            }
+        }
     }
 }

@@ -373,11 +373,9 @@ int BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, Size_t formatSize, P
     return count;
 }
 
-int BinaryLogReader::GetFormatDataCStyle(PCSTR &format, PCHAR parameters, Size_t parameterSize, Size_t indexWidthLength[], Size_t count)
+int BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, Size_t bufferSize, StringToken tokens[], Size_t maxTokens)
 {
-    count = log_entry_sprintf_cformat(format, parameters, parameterSize, indexWidthLength, count, m_currentLogEntry);
-    parameters[parameterSize - 1] = '\0';
-    return count;
+    return log_entry_sprintf_cformat(buffer, bufferSize, tokens, maxTokens, m_currentLogEntry);
 }
 
 void BinaryLogReader::getFormatedText(PCHAR formattedEntry)

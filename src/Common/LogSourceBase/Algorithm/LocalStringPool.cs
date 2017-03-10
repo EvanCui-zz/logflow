@@ -3,7 +3,7 @@
     using System;
     using System.Runtime.Caching;
 
-    public static class LocalStringPool
+    internal static class LocalStringPool
     {
         private static readonly CacheItemPolicy Sliding2Munites = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromMinutes(2) };
 
@@ -11,8 +11,10 @@
 
         public static string Intern(string str)
         {
-            var newval = StringCache.AddOrGetExisting(str, str, Sliding2Munites) as string;
+            var newval = (string)StringCache.AddOrGetExisting(str, str, Sliding2Munites);
+            //var newval = string.Intern(str);
 
+        //      var newval = str;
             return newval ?? str;
         }
     }
