@@ -275,10 +275,6 @@ namespace LogFlow.DataModel
 
         public object GetColumnValue(int rowIndex, int columnIndex)
         {
-            //            if (columnIndex == 4) return null;
-            //          if (columnIndex == 5) return null;
-            //        return rowIndex;
-
             if (rowIndex >= this.TotalCount) return null;
             int index = this.GetPhysicalIndex(rowIndex);
 

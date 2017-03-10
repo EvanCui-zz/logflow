@@ -10,7 +10,7 @@ namespace LogFlow.DataModel
     [ReadOnly(true)]
     public class FilteredViewStatistics
     {
-        private readonly Regex exceptionRegex = new Regex("(?<name>[\\w]*Exception)", RegexOptions.Compiled);
+        private readonly Regex exceptionRegex = new Regex(@"\.(?<name>[\w]*Exception)", RegexOptions.Compiled);
         public int Errors { get; set; }
         public int Warnings { get; set; }
         public int Criticals { get; set; }
@@ -59,7 +59,7 @@ namespace LogFlow.DataModel
             if (item.Level.HasFlag(LogLevels.Error)) { this.Errors++; }
             if (item.Level.HasFlag(LogLevels.Warning)) { this.Warnings++; }
             if (item.Level.HasFlag(LogLevels.Critical)) { this.Criticals++; }
-            var text = string.Format(template, item.Parameters);
+            var text = string.Format(template, item.Parameters.Cast<object>().ToArray());
 
             // Perf critical
             if (text.Contains("Exception"))

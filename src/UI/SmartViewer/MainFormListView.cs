@@ -94,7 +94,7 @@
             this.showActivityColumnToolStripMenuItem.Checked = !Settings.Default.Display_HidenColumns.Contains("ActId");
             this.boldParametersToolStripMenuItem.Checked = Settings.Default.Display_BoldParameter;
             this.highlightLevelsToolStripMenuItem.Checked = Settings.Default.Display_ColoredLevel;
-            this.showStatisticsToolStripMenuItem.Checked = this.splitContainerStatistics.Visible = Settings.Default.Display_Statistics;
+            this.showStatisticsToolStripMenuItem.Checked = Settings.Default.Display_Statistics;
             this.fastRenderingToolStripMenuItem.Checked = Settings.Default.Display_FastRendering;
             this.autoScrollToolStripMenuItem.Checked = Settings.Default.Behavior_AutoScroll;
             this.detectNewLogsToolStripMenuItem.Checked = Settings.Default.Behavior_AutoLoad;
@@ -789,7 +789,7 @@
                 this.labelThreadId.Text = item.ThreadId.ToString();
                 this.labelProcessId.Text = item.ProcessId.ToString();
                 this.labelLevel.Text = item.Level.ToString();
-                this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters.Cast<object>());
+                this.textBoxText.Text = string.Format(this.CurrentView.Templates[item.TemplateId], item.Parameters.Cast<object>().ToArray());
             }
             else
             {

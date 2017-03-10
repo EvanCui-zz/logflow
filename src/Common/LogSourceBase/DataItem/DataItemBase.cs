@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
