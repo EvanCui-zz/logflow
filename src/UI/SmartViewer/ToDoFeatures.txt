@@ -53,6 +53,7 @@
 44, Help, about
 57, Loading speed
 58, memory analysis
+22, consider structs (it provides no better results, both mem or perf, should be considered in future, fine tune)
 
 17, Detail pane
 	1), detail
@@ -75,7 +76,6 @@
 37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
 41, Plugin system
 21, List view logic refactor.
-22, consider structs
 23, consider size compact.
 25, regex
 19, Doc menues.
