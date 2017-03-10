@@ -51,7 +51,7 @@
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
-    <Compile Include="Parsers\Parser.cs" />
+    <Compile Include="Parsers\BackTrackingParser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />
     <Compile Include="Expressions\Expression.cs" />
