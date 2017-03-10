@@ -79,8 +79,8 @@
     <Compile Include="Tokens\UnaryOperatorToken.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\smartviewer\src\Common\LogSourceBase\LogSourceBase.csproj">
-      <Project>{9786AEEC-16CA-47D6-B125-B4E5BD7CA2A0}</Project>
+    <ProjectReference Include="..\Common\LogSourceBase\LogSourceBase.csproj">
+      <Project>{9786aeec-16ca-47d6-b125-b4e5bd7ca2a0}</Project>
       <Name>LogSourceBase</Name>
     </ProjectReference>
   </ItemGroup>

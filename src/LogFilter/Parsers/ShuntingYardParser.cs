@@ -86,7 +86,7 @@
                 this.operators.Push(new OpenParenthesisToken());
                 this.E();
                 this.Expect<CloseParenthesisToken>();
-                this.operands.Pop();
+                this.operators.Pop();
             }
             else if (this.Next() is UnaryOperatorToken)
             {

@@ -217,3 +217,5 @@ pip-log.txt
 
 **.vc.db
 **.vc.opendb
+**packages/
+**.vs/
