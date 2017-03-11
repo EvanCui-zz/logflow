@@ -5,7 +5,7 @@
 
     using LogFilter.Tokens;
 
-    internal abstract class ContentMatchExpression : UnaryExpression
+    internal abstract class ContentMatchExpression : Expression
     {
         internal static ContentMatchExpression CreateContentMatchExpression(ContentToken token)
         {
@@ -27,6 +27,21 @@
                 }
             }
         }
+
+        internal override string EvalToString(bool showOrder)
+        {
+            string res = this.EvalToStringAcc();
+            if (showOrder)
+            {
+                return $"({res})";
+            }
+            else
+            {
+                return res;
+            }
+        }
+
+        protected abstract string EvalToStringAcc();
 
         private static readonly Dictionary<string, Func<ContentToken, ContentMatchExpression>> Ctors =
             new Dictionary<string, Func<ContentToken, ContentMatchExpression>>

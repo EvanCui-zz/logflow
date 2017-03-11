@@ -19,7 +19,7 @@
             this.ThreadIdContent = i;
         }
 
-        internal override string EvalToString() => $"{ExpressionHeader}{this.ThreadIdContent}";
+        protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.ThreadIdContent}";
 
         public override bool Match<T>(T item, string template) => item.ThreadId == this.ThreadIdContent;
 

@@ -26,7 +26,7 @@
 
         internal string TextContent { get; set; }
 
-        internal override string EvalToString() => $"\"{this.TextContent.Replace("\"", "\"\"")}\"";
+        protected override string EvalToStringAcc() => $"\"{this.TextContent.Replace("\"", "\"\"")}\"";
 
         public override bool Match<T>(T item, string template)
         {

@@ -4,9 +4,9 @@
     {
         internal Expression Oprand { get; set; }
 
-        internal override string EvalToString()
+        internal override string EvalToString(bool showOrder)
         {
-            return $"({this.Oprand.EvalToString()})";
+            return $"({this.Oprand.EvalToString(showOrder)})";
         }
 
         public override bool Match<T>(T item, string template) => this.Oprand.Match(item, template);

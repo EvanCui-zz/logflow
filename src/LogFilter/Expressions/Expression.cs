@@ -2,11 +2,11 @@
 {
     using LogFlow.DataModel;
 
-    internal abstract class Expression : IFilter
+    public abstract class Expression : IFilter
     {
-        internal abstract string EvalToString();
+        internal abstract string EvalToString(bool showOrder);
 
-        public string Name => this.EvalToString();
+        public string Name => this.EvalToString(false);
 
         public abstract bool Match<T>(T item, string template) where T : DataItemBase;
     }

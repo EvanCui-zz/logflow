@@ -19,7 +19,7 @@
             this.DatetimeEndContent = dt;
         }
 
-        internal override string EvalToString() => $"{ExpressionHeader}{this.DatetimeEndContent:s}";
+        protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.DatetimeEndContent:s}";
 
         public override bool Match<T>(T item, string template) => item.Time < this.DatetimeEndContent;
 

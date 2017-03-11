@@ -2,9 +2,9 @@
 {
     internal class LogicalAndExpression : BinaryExpression
     {
-        internal override string EvalToString()
+        protected override string EvalToStringAcc(bool showOrder)
         {
-            return $"{this.Lhs.EvalToString()} && {this.Rhs.EvalToString()}";
+            return $"{this.Lhs.EvalToString(showOrder)} && {this.Rhs.EvalToString(showOrder)}";
         }
 
         public override bool Match<T>(T item, string template)

@@ -40,7 +40,7 @@
             }
         }
 
-        internal override string EvalToString() => $"{ExpressionHeader}{ConstructShortForm(this.Levels)}";
+        protected override string EvalToStringAcc() => $"{ExpressionHeader}{ConstructShortForm(this.Levels)}";
 
         public override bool Match<T>(T item, string template) => this.Levels.HasFlag(item.Level);
 

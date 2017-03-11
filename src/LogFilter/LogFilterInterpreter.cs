@@ -14,7 +14,7 @@ namespace LogFilter
 
         internal Expression Ast { get; private set; }
 
-        public static IFilter Parse(string filterString)
+        public static Expression Parse(string filterString)
         {
             var tokens = Lexer.Tokenize(filterString);
             ShuntingYardParser parser = new ShuntingYardParser(tokens);

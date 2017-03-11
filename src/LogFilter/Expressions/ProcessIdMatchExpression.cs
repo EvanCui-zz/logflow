@@ -19,7 +19,7 @@
             this.ProcessIdContent = i;
         }
 
-        internal override string EvalToString() => $"{ExpressionHeader}{this.ProcessIdContent}";
+        protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.ProcessIdContent}";
 
         public override bool Match<T>(T item, string template) => item.ProcessId == this.ProcessIdContent;
 

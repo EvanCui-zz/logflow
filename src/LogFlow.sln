@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFlow", "UI\SmartViewer\LogFlow.csproj", "{66DD84F8-C54C-4010-8974-0B4143FDE508}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosLogSource", "LogSource\CosmosLogSource\CosmosLogSource.csproj", "{ECEC5B7F-FB49-4A27-9E47-7691B519AC1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFilter", "LogFilter\LogFilter.csproj", "{63A0163A-7B24-4F53-8BFF-8804438C4FAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFilter.UnitTest", "LogFilter.UnitTest\LogFilter.UnitTest.csproj", "{AFE24E30-B920-40B8-B58D-A937B5D2AE73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,18 @@ Global
 		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x64.Build.0 = Release|Any CPU
 		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x86.ActiveCfg = Release|Any CPU
 		{63A0163A-7B24-4F53-8BFF-8804438C4FAA}.Release|x86.Build.0 = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|x64.Build.0 = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Debug|x86.Build.0 = Debug|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|x64.ActiveCfg = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|x64.Build.0 = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|x86.ActiveCfg = Release|Any CPU
+		{AFE24E30-B920-40B8-B58D-A937B5D2AE73}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
