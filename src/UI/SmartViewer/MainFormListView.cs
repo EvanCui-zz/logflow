@@ -355,6 +355,7 @@
             if (stat != null && !this.IsDisposed && !(this.propertyGridStatistics?.IsDisposed ?? true))
             {
                 this.propertyGridStatistics.SelectedObject = stat;
+                this.listViewExceptions.Items.Clear();
                 this.listViewExceptions.Items.AddRange(
                     this.CurrentView.Statistics.Exceptions.Select(kvp =>
                     {

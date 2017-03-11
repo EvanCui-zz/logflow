@@ -55,8 +55,6 @@ namespace LogFlow.DataModel
 
         protected int AddTemplate(string template)
         {
-            //template = LocalStringPool.Intern(template);
-
             int index;
             if (this.templatesIndex.TryGetValue(template, out index))
             {
