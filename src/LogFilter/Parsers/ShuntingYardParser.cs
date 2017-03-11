@@ -11,7 +11,7 @@
     {
         private TokenInput input;
 
-        private Stack<Token> operators;
+        private Stack<OperatorToken> operators;
 
         private Stack<Expression> operands;
 
@@ -50,7 +50,7 @@
 
         internal Expression Parse()
         {
-            this.operators = new Stack<Token>();
+            this.operators = new Stack<OperatorToken>();
             this.operands = new Stack<Expression>();
             this.operators.Push(new OpenParenthesisToken());
             this.E();
@@ -63,7 +63,7 @@
             this.P();
             while (this.Next() is BinaryOperaterToken)
             {
-                this.PushOperator(this.Next());
+                this.PushOperator((BinaryOperaterToken)this.Next());
                 this.Consume();
                 this.P();
             }
@@ -90,7 +90,7 @@
             }
             else if (this.Next() is UnaryOperatorToken)
             {
-                this.PushOperator(this.Next());
+                this.PushOperator((UnaryOperatorToken)this.Next());
                 this.Consume();
                 this.P();
             }
@@ -100,16 +100,14 @@
             }
         }
 
-        private void PushOperator(Token op)
+        private void PushOperator(OperatorToken op)
         {
-            // Here we use openParenthesisToken as starting token
-            if (!(op is OpenParenthesisToken))
+            // Here we use openParenthesisToken as sentinel token
+            while (this.operators.Peek().Precedence() > op.NewPushPrecedence())
             {
-                while (!(this.operators.Peek() is OpenParenthesisToken))
-                {
-                    this.PopOperator();
-                }
+                this.PopOperator();
             }
+
             this.operators.Push(op);
         }
 

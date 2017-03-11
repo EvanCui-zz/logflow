@@ -8,25 +8,53 @@
         [TestMethod]
         public void TestRightAssociate()
         {
-            var a = LogFilterInterpreter.Parse("a && (b || d)");
-            string res = a.EvalToString(true);
+            string res = LogFilterInterpreter.Parse("a && (b || d)").EvalToString(true);
             Assert.AreEqual("((\"a\") && ((\"b\") || (\"d\")))", res);
         }
 
         [TestMethod]
         public void TestLeftAssociate()
         {
-            var a = LogFilterInterpreter.Parse("a && b || d");
-            string res = a.EvalToString(true);
+            string res = LogFilterInterpreter.Parse("a && b || d").EvalToString(true);
             Assert.AreEqual("(((\"a\") && (\"b\")) || (\"d\"))", res);
         }
 
         [TestMethod]
         public void TestUnary1()
         {
-            var a = LogFilterInterpreter.Parse("a && !b");
-            string res = a.EvalToString(true);
-            Assert.AreEqual("((\"a\") && (!(\"b\"))) ", res);
+            string res = LogFilterInterpreter.Parse("a && !b").EvalToString(true);
+            Assert.AreEqual("((\"a\") && (!(\"b\")))", res);
+        }
+
+        [TestMethod]
+        public void TestUnary2()
+        {
+            string res = LogFilterInterpreter.Parse("a && !!b").EvalToString(true);
+            Assert.AreEqual("((\"a\") && (!(!(\"b\"))))", res);
+        }
+
+        [TestMethod]
+        public void TestUnary3()
+        {
+            string res = LogFilterInterpreter.Parse("a && !(!b)").EvalToString(true);
+            Assert.AreEqual("((\"a\") && (!(!(\"b\"))))", res);
+        }
+
+        [TestMethod]
+        public void TestGetParseResult1()
+        {
+            var res = LogFilterInterpreter.GetFilterParseResult("a");
+            Assert.AreEqual(true, res.Succeed);
+            Assert.AreEqual("a", res.Input);
+            Assert.AreEqual("(\"a\")", res.Ast.EvalToString(true));
+        }
+
+        [TestMethod]
+        public void TestGetParseResult2()
+        {
+            var res = LogFilterInterpreter.GetFilterParseResult("a || ");
+            Assert.AreEqual(false, res.Succeed);
+            Assert.AreEqual("a || ", res.Input);
         }
     }
 }

@@ -16,7 +16,9 @@
         internal static List<Token> Tokenize(string input)
         {
             MatchCollection tokenMatches = FilterStringRegex.Matches(input);
-            return tokenMatches.Cast<Match>().Select(CreateToken).ToList();
+            var tokens = tokenMatches.Cast<Match>().Select(CreateToken).ToList();
+            tokens.Add(new EndOfFileToken { Index = input.Length });
+            return tokens;
         }
 
         internal static Token CreateToken(Match tokenMatch)

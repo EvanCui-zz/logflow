@@ -14,7 +14,7 @@
             this.Length = tokenMatch.Length;
         }
 
-        internal int Index { get; }
+        internal int Index { get; set; }
 
         internal int Length { get; }
     }

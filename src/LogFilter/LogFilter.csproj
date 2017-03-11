@@ -51,6 +51,7 @@
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
+    <Compile Include="FilterParseResult.cs" />
     <Compile Include="Parsers\BackTrackingParser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Tokens\LogicalOrToken.cs" />
     <Compile Include="Tokens\LogicalNotToken.cs" />
     <Compile Include="Tokens\OpenParenthesisToken.cs" />
+    <Compile Include="Tokens\OperatorToken.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\UnaryOperatorToken.cs" />
   </ItemGroup>

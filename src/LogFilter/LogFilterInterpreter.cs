@@ -10,10 +10,6 @@ namespace LogFilter
 
     public class LogFilterInterpreter
     {
-        internal string FilterString { get; set; }
-
-        internal Expression Ast { get; private set; }
-
         public static Expression Parse(string filterString)
         {
             var tokens = Lexer.Tokenize(filterString);
@@ -21,7 +17,18 @@ namespace LogFilter
             return parser.Parse();
         }
 
-        public string Name => this.Ast.Name;
+        public static FilterParseResult GetFilterParseResult(string filterString)
+        {
+            try
+            {
+                Expression ast = Parse(filterString);
+                return new FilterParseResult(filterString, ast);
+            }
+            catch (ParsingException ex)
+            {
+                return new FilterParseResult(filterString, ex);
+            }
+        }
     }
 }
 
