@@ -78,6 +78,7 @@
     <Compile Include="Tokens\LogicalNotToken.cs" />
     <Compile Include="Tokens\OpenParenthesisToken.cs" />
     <Compile Include="Tokens\OperatorToken.cs" />
+    <Compile Include="Tokens\SyntaxHighlightHint.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\UnaryOperatorToken.cs" />
   </ItemGroup>

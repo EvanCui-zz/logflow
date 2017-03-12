@@ -4,7 +4,10 @@
 
 namespace LogFilter
 {
+    using System.Collections.Generic;
+
     using LogFilter.Expressions;
+    using LogFilter.Tokens;
 
     using LogFlow.DataModel;
 
@@ -29,6 +32,8 @@ namespace LogFilter
                 return new FilterParseResult(filterString, ex);
             }
         }
+
+        public static List<SyntaxHighlightHint> GetHighlightHints(string filterString) => Lexer.GetHighlightHints(filterString);
     }
 }
 

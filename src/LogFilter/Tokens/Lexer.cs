@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Net;
     using System.Text.RegularExpressions;
 
     using LogFilter.Tokens;
@@ -16,16 +17,32 @@
         internal static List<Token> Tokenize(string input)
         {
             MatchCollection tokenMatches = FilterStringRegex.Matches(input);
-            var tokens = tokenMatches.Cast<Match>().Select(CreateToken).ToList();
+            var tokens = tokenMatches.Cast<Match>().Select(m => CreateToken(m, true)).ToList();
             tokens.Add(new EndOfFileToken { Index = input.Length });
             return tokens;
         }
 
-        internal static Token CreateToken(Match tokenMatch)
+        internal static List<SyntaxHighlightHint> GetHighlightHints(string input)
+        {
+            MatchCollection tokenMatches = FilterStringRegex.Matches(input);
+            return tokenMatches.Cast<Match>()
+                    .Select(m => CreateToken(m, false))
+                    .Where(t => t != null)
+                    .Select(t => t.HighlightHint).ToList();
+        }
+
+        internal static Token CreateToken(Match tokenMatch, bool throwEx)
         {
             if (string.IsNullOrWhiteSpace(tokenMatch.Value))
             {
-                throw new ArgumentException("Parsed string should not be null or empty");
+                if (throwEx)
+                {
+                    throw new ArgumentException("Parsed string should not be null or empty");
+                }
+                else
+                {
+                    return null;
+                }
             }
             else if (tokenMatch.Value == "&&")
             {
@@ -49,7 +66,14 @@
             }
             else if (tokenMatch.Value == "\"")
             {
-                throw new ParsingException("Failed to match double quotes.", tokenMatch.Index);
+                if (throwEx)
+                {
+                    throw new ParsingException("Failed to match double quotes.", tokenMatch.Index);
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {

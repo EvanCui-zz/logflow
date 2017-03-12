@@ -17,5 +17,9 @@
         internal int Index { get; set; }
 
         internal int Length { get; }
+
+        internal abstract TokenType Type { get; }
+
+        internal SyntaxHighlightHint HighlightHint => new SyntaxHighlightHint(this);
     }
 }

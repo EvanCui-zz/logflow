@@ -7,5 +7,7 @@
         internal CloseParenthesisToken(Match match) : base(match)
         {
         }
+
+        internal override TokenType Type => TokenType.Keyword;
     }
 }

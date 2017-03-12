@@ -13,6 +13,8 @@
         {
         }
 
+        internal override TokenType Type => TokenType.Keyword;
+
         internal abstract int Precedence();
 
         internal virtual int NewPushPrecedence() => this.Precedence();

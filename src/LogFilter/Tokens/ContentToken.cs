@@ -16,5 +16,7 @@
         {
             this.Content = match.Value;
         }
+
+        internal override TokenType Type => TokenType.Content;
     }
 }
