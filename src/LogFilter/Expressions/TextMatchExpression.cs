@@ -57,17 +57,5 @@
         }
 
         internal static string ExpressionHeader => "c:";
-
-        private string RestoreEscaped(string str)
-        {
-            if (str.StartsWith("\"") && str.EndsWith("\""))
-            {
-                return str.Substring(1, str.Length - 2).Replace("\"\"", "\"");
-            }
-            else
-            {
-                return str;
-            }
-        }
     }
 }

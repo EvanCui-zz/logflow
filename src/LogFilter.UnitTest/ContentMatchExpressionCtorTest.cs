@@ -71,5 +71,21 @@
             Assert.IsInstanceOfType(res, typeof(LogLevelMatchExpression));
             Assert.AreEqual("l:ew", res.EvalToString(false));
         }
+
+        [TestMethod]
+        public void TestRegexMatch1()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"r:\w+"));
+            Assert.IsInstanceOfType(res, typeof(RegexMatchExpression));
+            Assert.AreEqual(@"r:""\w+""", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestRegexMatch2()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"r:""\w+ """""""""""));
+            Assert.IsInstanceOfType(res, typeof(RegexMatchExpression));
+            Assert.AreEqual(@"r:""\w+ """"""""""", res.EvalToString(false));
+        }
     }
 }

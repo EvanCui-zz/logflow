@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Expressions\ProcessIdMatchExpression.cs" />
     <Compile Include="Expressions\LogLevelMatchExpression.cs" />
+    <Compile Include="Expressions\RegexMatchExpression.cs" />
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
