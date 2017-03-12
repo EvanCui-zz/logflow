@@ -6,10 +6,17 @@
     public class LogFilterInterpreterUnitTest
     {
         [TestMethod]
-        public void TestRightAssociate()
+        public void TestParenthesis1()
         {
             string res = LogFilterInterpreter.Parse("a && (b || d)").EvalToString(true);
-            Assert.AreEqual("((\"a\") && ((\"b\") || (\"d\")))", res);
+            Assert.AreEqual("((\"a\") && (((\"b\") || (\"d\"))))", res);
+        }
+
+        [TestMethod]
+        public void TestParenthesis2()
+        {
+            string res = LogFilterInterpreter.Parse("a && (b || d)").EvalToString(false);
+            Assert.AreEqual("\"a\" && (\"b\" || \"d\")", res);
         }
 
         [TestMethod]
@@ -37,7 +44,7 @@
         public void TestUnary3()
         {
             string res = LogFilterInterpreter.Parse("a && !(!b)").EvalToString(true);
-            Assert.AreEqual("((\"a\") && (!(!(\"b\"))))", res);
+            Assert.AreEqual("((\"a\") && (!((!(\"b\")))))", res);
         }
 
         [TestMethod]

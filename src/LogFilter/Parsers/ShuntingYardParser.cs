@@ -86,6 +86,7 @@
                 this.operators.Push(new OpenParenthesisToken());
                 this.E();
                 this.Expect<CloseParenthesisToken>();
+                this.operands.Push(new ParenthesisedExpression { Oprand = this.operands.Pop() });
                 this.operators.Pop();
             }
             else if (this.Next() is UnaryOperatorToken)
@@ -96,7 +97,7 @@
             }
             else
             {
-                throw new ParsingException($"{this.Next().ToString()} is not a valid start of parameter", this.Next().Index);
+                throw new ParsingException($"{this.Next().ToString()} is not a valid start of parameter. Expected filter content, open parenthesis or logical not operator.", this.Next().Index);
             }
         }
 
