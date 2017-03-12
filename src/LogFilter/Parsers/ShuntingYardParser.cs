@@ -1,12 +1,18 @@
 ﻿namespace LogFilter
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
     using LogFilter.Expressions;
     using LogFilter.Tokens;
 
+    /// <summary>
+    /// Parse LL(1) grammar
+    ///     E -> P{BP|P}
+    ///     P -> v|(E)|UP
+    ///     B -> && | ||
+    ///     V -> !
+    /// </summary>
     internal class ShuntingYardParser
     {
         private TokenInput input;
@@ -28,7 +34,10 @@
             {
                 return new EndOfFileToken();
             }
-            else return peek;
+            else
+            {
+                return peek;
+            }
         }
 
         private void Consume()
@@ -61,12 +70,26 @@
         internal void E()
         {
             this.P();
-            while (this.Next() is BinaryOperaterToken)
+            while (true)
             {
-                this.PushOperator((BinaryOperaterToken)this.Next());
-                this.Consume();
-                this.P();
+                if (this.Next() is BinaryOperaterToken)
+                {
+                    this.PushOperator((BinaryOperaterToken)this.Next());
+                    this.Consume();
+                    this.P();
+                }
+                else if (this.Next() is ContentToken || this.Next() is OpenParenthesisToken || this.Next() is UnaryOperatorToken)
+                {
+                    // Check all P's possible starts here to get the syntax sugar "P P = P && P".
+                    this.PushOperator(new LogicalAndToken());
+                    this.P();
+                }
+                else
+                {
+                    break;
+                }
             }
+
             while (!(this.operators.Peek() is OpenParenthesisToken))
             {
                 this.PopOperator();
@@ -132,10 +155,11 @@
             {
                 return new LogicalAndExpression() { Lhs = oprand1, Rhs = oprand2 };
             }
-            if (op is LogicalOrToken)
+            else if (op is LogicalOrToken)
             {
                 return new LogicalOrExpression() { Lhs = oprand1, Rhs = oprand2 };
             }
+
             throw new ParsingException($"{op.ToString()} is not {nameof(BinaryOperaterToken)}", op.Index);
         }
 
@@ -145,6 +169,7 @@
             {
                 return new LogicalNotExpression { Oprand = oprand };
             }
+
             throw new ParsingException($"{op.ToString()} is not {nameof(UnaryOperatorToken)}", op.Index);
         }
 
@@ -154,6 +179,7 @@
             {
                 return ContentMatchExpression.CreateContentMatchExpression((ContentToken)token);
             }
+
             throw new ParsingException($"{token.ToString()} is not {nameof(ContentToken)}", token.Index);
         }
     }

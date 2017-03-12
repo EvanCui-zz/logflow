@@ -4,6 +4,10 @@
 
     internal abstract class BinaryOperaterToken : OperatorToken
     {
+        internal BinaryOperaterToken()
+        {
+        }
+
         internal BinaryOperaterToken(Match match)
             : base(match)
         {

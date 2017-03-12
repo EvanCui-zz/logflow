@@ -48,6 +48,27 @@
         }
 
         [TestMethod]
+        public void TestAndSyntaxSugar1()
+        {
+            string res = LogFilterInterpreter.Parse("a b").EvalToString(true);
+            Assert.AreEqual("((\"a\") && (\"b\"))", res);
+        }
+
+        [TestMethod]
+        public void TestAndSyntaxSugar2()
+        {
+            string res = LogFilterInterpreter.Parse("!a !b").EvalToString(true);
+            Assert.AreEqual("((!(\"a\")) && (!(\"b\")))", res);
+        }
+
+        [TestMethod]
+        public void TestAndSyntaxSugar3()
+        {
+            string res = LogFilterInterpreter.Parse("a (b)").EvalToString(true);
+            Assert.AreEqual("((\"a\") && ((\"b\")))", res);
+        }
+
+        [TestMethod]
         public void TestGetParseResult1()
         {
             var res = LogFilterInterpreter.GetFilterParseResult("a");

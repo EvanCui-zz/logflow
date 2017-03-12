@@ -4,6 +4,10 @@
 
     internal class LogicalAndToken : BinaryOperaterToken
     {
+        public LogicalAndToken()
+        {
+        }
+
         public LogicalAndToken(Match match)
             : base(match)
         {
