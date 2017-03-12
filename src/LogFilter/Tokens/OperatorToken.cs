@@ -15,8 +15,8 @@
 
         internal override TokenType Type => TokenType.Keyword;
 
-        internal abstract int Precedence();
+        internal abstract int Precedence { get; }
 
-        internal virtual int NewPushPrecedence() => this.Precedence();
+        internal virtual int NewPushPrecedence => this.Precedence;
     }
 }

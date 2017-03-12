@@ -9,6 +9,6 @@
         {
         }
 
-        internal override int Precedence() => 3;
+        internal override int Precedence => 3;
     }
 }

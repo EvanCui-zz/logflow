@@ -13,8 +13,8 @@
         {
         }
 
-        internal override int Precedence() => 2;
+        internal override int Precedence => 2;
 
-        internal override int NewPushPrecedence() => this.Precedence() - 1;
+        internal override int NewPushPrecedence => this.Precedence - 1;
     }
 }

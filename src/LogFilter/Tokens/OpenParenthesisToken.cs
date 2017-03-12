@@ -12,6 +12,6 @@
         {
         }
 
-        internal override int Precedence() => 0;
+        internal override int Precedence => 0;
     }
 }

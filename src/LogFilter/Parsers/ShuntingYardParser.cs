@@ -127,7 +127,7 @@
         private void PushOperator(OperatorToken op)
         {
             // Here we use openParenthesisToken as sentinel token
-            while (this.operators.Peek().Precedence() > op.NewPushPrecedence())
+            while (this.operators.Peek().Precedence > op.NewPushPrecedence)
             {
                 this.PopOperator();
             }
