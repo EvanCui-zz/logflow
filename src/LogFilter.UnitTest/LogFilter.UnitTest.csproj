@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="LogFilterInterpreterUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContentMatchExpressionCtorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
