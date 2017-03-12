@@ -12,35 +12,40 @@ namespace LogFlow.DataModel
     {
         public bool IsCompressed
         {
-            get { return (this.pid & 0x1) == 1; }
-            set { this.pid = (byte)(value ? (this.pid | 1) : (this.pid & ~1)); }
+            get { return (this.pidTidIsCompress & 0x1) == 1; }
+            set { this.pidTidIsCompress = (ushort)(value ? (this.pidTidIsCompress | 1) : (this.pidTidIsCompress & ~1)); }
         }
 
-        public byte Pid
+        public int Pid
         {
-            get { return (byte)(this.pid >> 1); }
-            set { this.pid = (byte)((value << 1) | (this.pid & 1)); }
+            get { return (this.pidTidIsCompress >> 12); }
+            set { this.pidTidIsCompress = (ushort)((value << 12) | (this.pidTidIsCompress & 0xFFF)); }
         }
 
-        public byte FileIndex
+        public int Tid
         {
-            get { return (byte)(this.fileIndexLevel >> 3); }
+            get { return ((this.pidTidIsCompress << 4) >> 5); }
+            set { this.pidTidIsCompress = (ushort)((value << 1) | (this.pidTidIsCompress & 1) | (this.pidTidIsCompress & 0xF000)); }
+        }
+
+        public int FileIndex
+        {
+            get { return (this.fileIndexLevel >> 3); }
             set { this.fileIndexLevel = (byte)((value << 3) | (this.fileIndexLevel & 7)); }
         }
 
-        public byte Level
+        public int Level
         {
-            get { return (byte)(this.fileIndexLevel & 7); }
+            get { return (this.fileIndexLevel & 7); }
             set { this.fileIndexLevel = (byte)(value | (this.fileIndexLevel & ~7)); }
         }
 
         [FieldOffset(4)]
         public int Index;
 
+        // pid 4 bit, (0-7) tid 11 bit, (0-2047) compress 1 bit (0-1)
         [FieldOffset(0)]
-        private byte pid;
-        [FieldOffset(1)]
-        public byte Tid;
+        private ushort pidTidIsCompress;
         [FieldOffset(2)]
         public byte Aid;
         [FieldOffset(3)]

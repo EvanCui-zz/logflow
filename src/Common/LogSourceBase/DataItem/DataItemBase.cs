@@ -22,9 +22,9 @@
         {
             item = new CompressedDataItem8();
 
-            if ((this.ProcessId >> 8) > 0) return false;
+            if ((this.ProcessId >> 4) > 0) return false;
             item.Pid = (byte)this.ProcessId;
-            if ((this.ThreadId >> 8) > 0) return false;
+            if ((this.ThreadId >> 11) > 0) return false;
             item.Tid = (byte)this.ThreadId;
             if ((this.ActivityIdIndex >> 8) > 0) return false;
             item.Aid = (byte)this.ActivityIdIndex;

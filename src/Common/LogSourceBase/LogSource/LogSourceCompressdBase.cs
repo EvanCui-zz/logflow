@@ -63,6 +63,7 @@
             this.CompressedItems8.Add(compressed);
             int index = this.CompressedItems8.Count - 1;
             this.Parameters.Add(item.Parameters);
+            item.Id = index;
 
             Debug.Assert(index == this.Parameters.Count - 1, "compressed item list doesn't match parameters list");
             this.OnItemAdded(index);
