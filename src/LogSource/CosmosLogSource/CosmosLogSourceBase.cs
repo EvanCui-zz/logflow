@@ -8,7 +8,7 @@ namespace LogFlow.DataModel
     using System.Threading;
     using LogFlow.DataModel.Algorithm;
 
-    public abstract class CosmosLogSourceBase : LogSourceBase<CosmosDataItem>, IDisposable
+    public abstract class CosmosLogSourceBase : LogSourceCompressdBase<CosmosDataItem>, IDisposable
     {
         protected Dictionary<IntPtr, int> TemplateMap = new Dictionary<IntPtr, int>();
 
@@ -16,13 +16,6 @@ namespace LogFlow.DataModel
 
         public override string Name => this.LogFiles.Count == 1 ? this.LogFiles[0].FileName :
             (this.LogFiles.Count == 0 ? "No File Loaded" : $"{this.LogFiles[0].FileName} .. {this.LogFiles[this.LogFiles.Count - 1].FileName}");
-
-        public override object GetColumnValue(int rowIndex, int columnIndex)
-        {
-            return string.Equals(this.ColumnInfos[columnIndex].Name, "File", StringComparison.Ordinal) ?
-                this.LogFiles[this.Items[rowIndex].FileIndex].FileName
-                : base.GetColumnValue(rowIndex, columnIndex);
-        }
 
         private bool isInProgress;
         private CancellationTokenSource cts = new CancellationTokenSource();
@@ -96,7 +89,7 @@ namespace LogFlow.DataModel
                 if (filter.Match(item.Item.Item, item.Item.Template))
                 {
                     item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                    item.Item.Item.FileIndex = item.SourceIndex;
+                    item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
                     this.AddItem(item.Item.Item);
 
                     yield break;
@@ -152,7 +145,7 @@ namespace LogFlow.DataModel
                 if (token.IsCancellationRequested) yield break;
 
                 item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                item.Item.Item.FileIndex = item.SourceIndex;
+                item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
                 this.AddItem(item.Item.Item);
 
                 //    var groupData = this.InnerGroupData[item.SourceIndex];

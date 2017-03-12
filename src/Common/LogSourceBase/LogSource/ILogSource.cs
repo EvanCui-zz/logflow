@@ -9,13 +9,16 @@ namespace LogFlow.DataModel
     public interface ILogSource<out T> where T : DataItemBase
     {
         string Name { get; }
-        IReadOnlyList<T> Items { get; }
+        T this[int index] { get; }
+        int Count { get; }
         IReadOnlyList<string> Templates { get; }
+
+        object GetColumnValue(DataItemBase item, int columnIndex);
         IReadOnlyList<PropertyInfo> PropertyInfos { get; }
         IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }
         // for performance, only pass int value
         event EventHandler<int> ItemAdded;
-        object GetColumnValue(int rowIndex, int columnIndex);
+      //  object GetColumnValue(int rowIndex, int columnIndex);
 
         IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token);
 

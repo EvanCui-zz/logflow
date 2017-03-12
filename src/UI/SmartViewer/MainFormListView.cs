@@ -573,8 +573,8 @@
                 subItems[i] = new ListViewItem.ListViewSubItem();
             }
 
-            subItems[3] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 3) };
-            subItems[4] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(e.ItemIndex, 4) };
+            subItems[3] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(item, 3) };
+            subItems[4] = new ListViewItem.ListViewSubItem() { Tag = item == null ? null : this.CurrentView.GetColumnValue(item, 4) };
 
             e.Item.SubItems.AddRange(subItems);
         }
@@ -735,7 +735,7 @@
                     break;
 
                 default:
-                    e.Graphics.DrawString(this.CurrentView?.GetColumnValue(e.ItemIndex, this.columnDataIndexMapping[e.ColumnIndex]).ToString(), e.SubItem.Font, foreBrush, bound, format);
+                    e.Graphics.DrawString(this.CurrentView?.GetColumnValue((DataItemBase)e.Item.Tag, this.columnDataIndexMapping[e.ColumnIndex]).ToString(), e.SubItem.Font, foreBrush, bound, format);
                     break;
             }
         }
@@ -848,7 +848,8 @@
                 return;
             }
 
-            var threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
+          //  var threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
             var f = new Filter($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
@@ -863,7 +864,7 @@
                 return;
             }
 
-            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
 
             this.CurrentView.IndentThread(threadId);
             this.fastListViewMain.Refresh();
@@ -882,7 +883,7 @@
                 return;
             }
 
-            int threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
+            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
 
             this.CurrentView.UnIndentThread(threadId);
             this.fastListViewMain.Refresh();
@@ -905,7 +906,9 @@
                 return;
             }
 
-            var itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
+            var itemId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
+
+        //    var itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
 
             this.treeViewDoc.SelectedNode = node;
 
@@ -961,7 +964,8 @@
                 return;
             }
 
-            var id = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
+            var id = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
+          //  var id = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
 
             var childView = this.CurrentView.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
             this.AddView(childView);

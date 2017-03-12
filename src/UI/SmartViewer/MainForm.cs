@@ -53,7 +53,7 @@ namespace LogFlow.Viewer
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
         //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
-            e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
+         //   e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -99,7 +99,7 @@ namespace LogFlow.Viewer
             Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
           //  return;
 
-            var level = (LogLevels)this.CurrentView.GetColumnValue(e.RowIndex, 3);
+            var level = (LogLevels)this.CurrentView.GetColumnValue(this.CurrentView.GetRowValue(e.RowIndex), 3);
             int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
 
             if (index < this.levelBrushes.Count)

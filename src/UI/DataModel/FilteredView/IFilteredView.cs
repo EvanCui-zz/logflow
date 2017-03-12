@@ -71,7 +71,7 @@ namespace LogFlow.DataModel
 
         int TotalCount { get; }
 
-        object GetColumnValue(int rowIndex, int columnIndex);
+        object GetColumnValue(DataItemBase baseItem, int columnIndex);
 
         T GetRowValue(int rowIndex);
 

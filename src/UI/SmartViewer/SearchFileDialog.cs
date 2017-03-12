@@ -113,7 +113,7 @@ namespace LogFlow.Viewer
                     var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i]);
                     logSource.ItemAdded += (o, i1) =>
                     {
-                        dataItem = logSource.Items[i1];
+                        dataItem = logSource[i1];
                         this.dataGridViewResult.Rows[i].Cells[1].Value =
                             string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
                     };

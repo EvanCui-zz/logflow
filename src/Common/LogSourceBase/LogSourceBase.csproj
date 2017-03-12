@@ -42,7 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\HeapMerger.cs" />
+    <Compile Include="Algorithm\IdentifierCache.cs" />
     <Compile Include="Algorithm\LocalStringPool.cs" />
+    <Compile Include="DataItem\CompressdDataItem16.cs" />
+    <Compile Include="DataItem\CompressedDataItem8.cs" />
     <Compile Include="DataItem\LogLevels.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
     <Compile Include="DataItem\DataItemBase.cs" />
@@ -52,6 +55,7 @@
     <Compile Include="LogSource\InnerGroupData.cs" />
     <Compile Include="LogSource\LogSourceBase.cs" />
     <Compile Include="CustomizedDataType\ParametricString.cs" />
+    <Compile Include="LogSource\LogSourceCompressdBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

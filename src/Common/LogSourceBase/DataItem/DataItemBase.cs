@@ -8,6 +8,52 @@
     // Consider change it to struct and compact the integers.
     public class DataItemBase
     {
+        public readonly LogLevels[] LevelMapping = { LogLevels.None, LogLevels.Critical, LogLevels.Error, LogLevels.Warning, LogLevels.Info, LogLevels.Verbose, LogLevels.Detail };
+        public readonly byte[] LevelReverseMapping =
+        {
+            0, 1, 2, 0, 3, 0, 0, 0,
+            4, 0, 0, 0, 0, 0, 0, 0,
+            5, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            6, 0, 0, 0, 0, 0, 0, 0
+        };
+
+        internal virtual bool Compress8(DateTime baseTime, out CompressedDataItem8 item)
+        {
+            item = new CompressedDataItem8();
+
+            if ((this.ProcessId >> 8) > 0) return false;
+            item.Pid = (byte)this.ProcessId;
+            if ((this.ThreadId >> 8) > 0) return false;
+            item.Tid = (byte)this.ThreadId;
+            if ((this.ActivityIdIndex >> 8) > 0) return false;
+            item.Aid = (byte)this.ActivityIdIndex;
+            if ((this.FileIndex >> 5) > 0) return false;
+            item.FileIndex = (byte)this.FileIndex;
+            item.Level = LevelReverseMapping[(int)this.Level];
+
+            int timeDiff = (int)(this.Time - baseTime).TotalSeconds;
+            if ((timeDiff >> 16) > 0) return false;
+            item.TimeOffsetSeconds = (ushort)timeDiff;
+
+            if ((this.TemplateId >> 16) > 0) return false;
+            item.TemplateId = (ushort)this.TemplateId;
+
+            return true;
+        }
+
+        internal virtual void DeCompress8(CompressedDataItem8 item, DateTime baseTime)
+        {
+            this.ProcessId = item.Pid;
+            this.ThreadId = item.Tid;
+            this.ActivityIdIndex = item.Aid;
+            this.FileIndex = item.FileIndex;
+            this.Level = LevelMapping[item.Level];
+
+            this.Time = baseTime.AddSeconds(item.TimeOffsetSeconds);
+            this.TemplateId = item.TemplateId;
+        }
+
         [ColumnInfo(Name = "Id", Width = 50)]
         public int Id { get; set; }
 
