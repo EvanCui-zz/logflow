@@ -132,6 +132,7 @@ namespace LogFlow.Viewer
                         new Action(() => this.progressBar1.Value = 100 * this.currentFinished / this.totalCount));
                 })));
 
+                this.progressBar1.Value = 100;
                 this.EnableButtons(true);
 
                 // add to history

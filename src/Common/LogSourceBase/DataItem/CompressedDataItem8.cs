@@ -1,43 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
+    using System.Runtime.InteropServices;
+
     [StructLayout(LayoutKind.Explicit, Size = 8)]
     public struct CompressedDataItem8
     {
-        public bool IsCompressed
+        public const int StateSize = 2;
+        public CompressState State
         {
-            get { return (this.pidTidIsCompress & 0x1) == 1; }
-            set { this.pidTidIsCompress = (ushort)(value ? (this.pidTidIsCompress | 1) : (this.pidTidIsCompress & ~1)); }
+            get { return (CompressState)GetValue(this.FirstField, 0, StateSize); }
+            set { SetValue(ref this.FirstField, 0, StateSize, (int)value); }
         }
 
-        public int Pid
-        {
-            get { return (this.pidTidIsCompress >> 12); }
-            set { this.pidTidIsCompress = (ushort)((value << 12) | (this.pidTidIsCompress & 0xFFF)); }
-        }
-
-        public int Tid
-        {
-            get { return ((this.pidTidIsCompress << 4) >> 5); }
-            set { this.pidTidIsCompress = (ushort)((value << 1) | (this.pidTidIsCompress & 1) | (this.pidTidIsCompress & 0xF000)); }
-        }
-
-        public int FileIndex
-        {
-            get { return (this.fileIndexLevel >> 3); }
-            set { this.fileIndexLevel = (byte)((value << 3) | (this.fileIndexLevel & 7)); }
-        }
-
+        public const int LevelSize = 3;
         public int Level
         {
-            get { return (this.fileIndexLevel & 7); }
-            set { this.fileIndexLevel = (byte)(value | (this.fileIndexLevel & ~7)); }
+            get { return GetValue(this.FirstField, StateSize, LevelSize); }
+            set { SetValue(ref this.FirstField, StateSize, LevelSize, value); }
+        }
+
+        public const int TidSize = 11;
+        public int Tid
+        {
+            get { return GetValue(this.FirstField, StateSize + LevelSize, TidSize); }
+            set { SetValue(ref this.FirstField, StateSize + LevelSize, TidSize, value); }
+        }
+
+        public const int TimeSize = 16;
+        public int TimeOffsetSeconds
+        {
+            get { return GetValue(this.FirstField, StateSize + LevelSize + TidSize, TimeSize); }
+            set { SetValue(ref this.FirstField, StateSize + LevelSize + TidSize, TimeSize, value); }
+        }
+
+        public const int PidSize = 5;
+        public int Pid
+        {
+            get { return GetValue(this.SecondField, 0, PidSize); }
+            set { SetValue(ref this.SecondField, 0, PidSize, value); }
+        }
+
+        public const int AidSize = 11;
+        public int Aid
+        {
+            get { return GetValue(this.SecondField, PidSize, AidSize); }
+            set { SetValue(ref this.SecondField, PidSize, AidSize, value); }
+        }
+
+        public const int TemplateIdSize = 10;
+        public int TemplateId
+        {
+            get { return GetValue(this.SecondField, PidSize + AidSize, TemplateIdSize); }
+            set { SetValue(ref this.SecondField, PidSize + AidSize, TemplateIdSize, value); }
+        }
+
+        public const int FileIndexSize = 6;
+        public int FileIndex
+        {
+            get { return GetValue(this.SecondField, PidSize + AidSize + TemplateIdSize, FileIndexSize); }
+            set { SetValue(ref this.SecondField, PidSize + AidSize + TemplateIdSize, FileIndexSize, value); }
+        }
+
+        private static int GetValue(uint field, int start, int length)
+        {
+            return (int)((field << start) >> (32 - length));
+        }
+
+        private static void SetValue(ref uint field, int start, int length, int value)
+        {
+            field = (start == 0 ? 0 : ((field >> (32 - start)) << (32 - start)))
+                | (uint)value << (32 - start - length)
+                | (start + length == 32 ? 0 : ((field << (start + length)) >> (start + length)));
         }
 
         [FieldOffset(4)]
@@ -45,15 +78,8 @@ namespace LogFlow.DataModel
 
         // pid 4 bit, (0-7) tid 11 bit, (0-2047) compress 1 bit (0-1)
         [FieldOffset(0)]
-        private ushort pidTidIsCompress;
-        [FieldOffset(2)]
-        public byte Aid;
-        [FieldOffset(3)]
-        private byte fileIndexLevel;
-
+        private uint FirstField;
         [FieldOffset(4)]
-        public ushort TimeOffsetSeconds;
-        [FieldOffset(6)]
-        public ushort TemplateId;
+        private uint SecondField;
     }
 }

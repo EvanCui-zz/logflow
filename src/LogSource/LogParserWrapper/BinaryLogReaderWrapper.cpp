@@ -65,14 +65,14 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
 
             node->Parameters = gcnew array<String^>(count);
-            int currentPosition = 0;
+            size_t currentPosition = 0;
             for (int i = 0; i < count; i++)
             {
                 // plus new string it takes 6.5s, 572M
                 // plus string.Intern it takes 8.1s, 142M
                 // plus the LocalStringPool, it takes 9.7s, 155M mem
 //                node->Parameters[i] = LocalStringPool::Intern(gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]));
-                node->Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
+                node->Parameters[i] = gcnew String(parameters, (int)currentPosition, (int)indexWidthLength[i * 3 + 2]);
                 currentPosition += indexWidthLength[i * 3 + 2];
             }
 

@@ -11,6 +11,9 @@ namespace LogFlow.DataModel
         string Name { get; }
         T this[int index] { get; }
         int Count { get; }
+
+        int Tier1Count { get; }
+        int Tier2Count { get; }
         IReadOnlyList<string> Templates { get; }
 
         object GetColumnValue(DataItemBase item, int columnIndex);

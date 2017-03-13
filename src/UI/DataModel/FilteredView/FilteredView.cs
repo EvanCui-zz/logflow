@@ -82,7 +82,7 @@ namespace LogFlow.DataModel
             this.OnReportStart("Searching");
             yield return 0;
 
-            int total = this.ItemIndices?.Count ?? this.Data.Count;
+            int total = this.ItemIndices?.Count ?? this.Source.Count;
 
             bool loopedBack = false;
             for (int i = 1; i < total; i++)
@@ -103,7 +103,7 @@ namespace LogFlow.DataModel
 
                 int index = this.GetPhysicalIndex(logicalIndex);
 
-                if (filter.Match(this.Data[index], this.Data.Templates[this.Data[index].TemplateId]))
+                if (filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
                 {
                     this.SelectedRowIndex = logicalIndex;
                     break;
@@ -135,7 +135,7 @@ namespace LogFlow.DataModel
 
                 int index = this.GetPhysicalIndex(i);
 
-                if (filter.Match(this.Data[index], this.Data.Templates[this.Data[index].TemplateId]))
+                if (filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
                 {
                     count++;
                 }
@@ -160,14 +160,14 @@ namespace LogFlow.DataModel
 
             if (this.Parent == null)
             {
-                foreach (var progress in this.Data.Load(this.Filter, token))
+                foreach (var progress in this.Source.Load(this.Filter, token))
                 {
                     var p = 5 + progress * 65 / 100;
                     this.OnReportProgress(p);
                     yield return p;
                 }
 
-                this.Data.ItemAdded += (s, e) =>
+                this.Source.ItemAdded += (s, e) =>
                 {
                     this.OnItemAdded(e);
                 };
@@ -200,7 +200,7 @@ namespace LogFlow.DataModel
 
                     var index = this.Parent.GetPhysicalIndex(i);
 
-                    if (this.Filter.Match(this.Data[index], this.Data.Templates[this.Data[index].TemplateId]))
+                    if (this.Filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
                     {
                         // we don't use this.AddItem here, to avoid flushing many events when initialize.
                         // only initialized is true, we fire events.
@@ -212,7 +212,7 @@ namespace LogFlow.DataModel
             if (statistics && this.TotalCount > 0)
             {
                 int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
-                this.Statistics.SetFirstLast(this.Data[firstIndex], this.Data[lastIndex]);
+                this.Statistics.SetFirstLast(this.Source[firstIndex], this.Source[lastIndex]);
 
                 var reportIndex = Math.Max(this.TotalCount / reportInterval, 2);
                 for (var i = 0; i < this.TotalCount; i++)
@@ -226,7 +226,7 @@ namespace LogFlow.DataModel
                     }
 
                     var index = this.GetPhysicalIndex(i);
-                    this.Statistics.Sample(this.Data[index], this.Data.Templates[this.Data[index].TemplateId]);
+                    this.Statistics.Sample(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]);
                 }
             }
 
@@ -250,7 +250,7 @@ namespace LogFlow.DataModel
 
         public IFilteredView<T> CreateChild(IFilter filter)
         {
-            return new FilteredView<T>(filter, this, this.Data);
+            return new FilteredView<T>(filter, this, this.Source);
         }
 
         public IReadOnlyList<IFilter> GroupFilters { get; protected set; }
@@ -259,19 +259,21 @@ namespace LogFlow.DataModel
 
         #region Display
 
+        public ILogSource<T> Source { get; set; }
+
         public event EventHandler<ProgressItem> ProgressChanged;
         public int? FirstDisplayedScrollingRowIndex { get; set; }
         public int? SelectedRowIndex { get; set; }
 
         public string Name { get; }
 
-        public int TotalCount => this.ItemIndices?.Count ?? this.Data.Count;
+        public int TotalCount => this.ItemIndices?.Count ?? this.Source.Count;
 
         public T GetRowValue(int rowIndex)
         {
             if (rowIndex >= this.TotalCount) return null;
             int index = this.GetPhysicalIndex(rowIndex);
-            return this.Data[index];
+            return this.Source[index];
         }
 
         public object GetColumnValue(DataItemBase baseItem, int columnIndex)
@@ -281,11 +283,11 @@ namespace LogFlow.DataModel
             // only process the tag column
             if (string.Equals(ci.Name, "Tag", StringComparison.Ordinal))
             {
-                return this.Tags?.Where(kvp => kvp.Value.Match(baseItem, this.Data.Templates[baseItem.TemplateId])).Select(kvp => kvp.Key).ToList();
+                return this.Tags?.Where(kvp => kvp.Value.Match(baseItem, this.Source.Templates[baseItem.TemplateId])).Select(kvp => kvp.Key).ToList();
             }
             else
             {
-                return this.Data.GetColumnValue(baseItem, columnIndex);
+                return this.Source.GetColumnValue(baseItem, columnIndex);
             }
         }
 
@@ -294,21 +296,21 @@ namespace LogFlow.DataModel
             return this.ItemIndices?[logicalIndex] ?? logicalIndex;
         }
 
-        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.Data.ColumnInfos;
-        public IReadOnlyList<PropertyInfo> PropertyInfos => this.Data.PropertyInfos;
+        public IReadOnlyList<ColumnInfoAttribute> ColumnInfos => this.Source.ColumnInfos;
+        public IReadOnlyList<PropertyInfo> PropertyInfos => this.Source.PropertyInfos;
 
-        public IReadOnlyList<string> Templates => this.Data.Templates;
+        public IReadOnlyList<string> Templates => this.Source.Templates;
         public FilteredViewStatistics Statistics { get; } = new FilteredViewStatistics();
 
         #endregion
 
         #region Constructors
 
-        internal FilteredView(IFilter filter, FilteredView<T> parent, ILogSource<T> data) : this(filter.Name)
+        internal FilteredView(IFilter filter, FilteredView<T> parent, ILogSource<T> source) : this(filter.Name)
         {
             this.Filter = filter;
             this.Parent = parent;
-            this.Data = data;
+            this.Source = source;
 
             if (this.Parent != null)
             {
@@ -316,7 +318,7 @@ namespace LogFlow.DataModel
 
                 this.Parent.ItemAdded += (s, e) =>
                 {
-                    if (this.IsInitialized && filter.Match(this.Data[e], this.Data.Templates[this.Data[e].TemplateId]))
+                    if (this.IsInitialized && filter.Match(this.Source[e], this.Source.Templates[this.Source[e].TemplateId]))
                     {
                         this.AddItem(e);
                     }
@@ -330,13 +332,13 @@ namespace LogFlow.DataModel
         }
 
         /*
-        internal FilteredView(string name, FilteredView<T> parent, InnerGroupData groupData, ILogSource<T> data) : this(name)
+        internal FilteredView(string name, FilteredView<T> parent, InnerGroupData groupData, ILogSource<T> Source) : this(name)
         {
             this.Parent = parent;
             // this.GroupData = groupData;
             // Change this to filter design.
             this.ItemIndices = groupData.InnerGroupIndexes;
-            this.Data = data;
+            this.Source = Source;
             this.IsInitialized = true;
         }
         */
@@ -352,8 +354,6 @@ namespace LogFlow.DataModel
         protected IFilter Filter { get; set; }
 
         private FilteredView<T> Parent { get; }
-
-        internal ILogSource<T> Data { get; set; }
 
         private List<int> ItemIndices { get; }
 

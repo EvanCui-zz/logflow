@@ -178,9 +178,11 @@
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelMemory = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelCompress = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -1463,6 +1465,8 @@
             this.toolStripStatusLabel,
             this.toolStripStatusLabelFill,
             this.toolStripStatusLabel1,
+            this.toolStripStatusLabelCompress,
+            this.toolStripStatusLabel5,
             this.toolStripStatusLabelSelected,
             this.toolStripStatusLabel2,
             this.toolStripStatusLabelMemory,
@@ -1489,7 +1493,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(852, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(771, 17);
             this.toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelSelected
@@ -1517,6 +1521,13 @@
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(13, 17);
             // 
+            // toolStripStatusLabel4
+            // 
+            this.toolStripStatusLabel4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.None;
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(0, 17);
+            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
+            // 
             // openFileDialog1
             // 
             this.openFileDialog1.Filter = "Cosmos files|*.bin|Log files|*.log|Text files|*.txt|All files|*.*";
@@ -1528,12 +1539,17 @@
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
             // 
-            // toolStripStatusLabel4
+            // toolStripStatusLabel5
             // 
-            this.toolStripStatusLabel4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.None;
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(0, 17);
-            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
+            this.toolStripStatusLabel5.AutoSize = false;
+            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(20, 17);
+            // 
+            // toolStripStatusLabelCompress
+            // 
+            this.toolStripStatusLabelCompress.Name = "toolStripStatusLabelCompress";
+            this.toolStripStatusLabelCompress.Size = new System.Drawing.Size(92, 17);
+            this.toolStripStatusLabelCompress.Text = "Tier1: 0 | Tier2: 0";
             // 
             // MainFormListView
             // 
@@ -1745,6 +1761,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelCompress;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
     }
 }
 

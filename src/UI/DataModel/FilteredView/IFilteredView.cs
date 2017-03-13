@@ -62,6 +62,8 @@ namespace LogFlow.DataModel
 
         #region Display
 
+        ILogSource<T> Source { get; }
+
         event EventHandler<ProgressItem> ProgressChanged;
         int? FirstDisplayedScrollingRowIndex { get; set; }
         int? SelectedRowIndex { get; set; }

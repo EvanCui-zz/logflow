@@ -18,31 +18,71 @@
             6, 0, 0, 0, 0, 0, 0, 0
         };
 
-        internal virtual bool Compress8(DateTime baseTime, out CompressedDataItem8 item)
+        internal virtual bool Compress(DateTime baseTime, out CompressedDataItem16 item)
         {
-            item = new CompressedDataItem8();
+            item = new CompressedDataItem16();
 
-            if ((this.ProcessId >> 4) > 0) return false;
-            item.Pid = (byte)this.ProcessId;
-            if ((this.ThreadId >> 11) > 0) return false;
-            item.Tid = (byte)this.ThreadId;
-            if ((this.ActivityIdIndex >> 8) > 0) return false;
-            item.Aid = (byte)this.ActivityIdIndex;
-            if ((this.FileIndex >> 5) > 0) return false;
-            item.FileIndex = (byte)this.FileIndex;
+            if ((this.ProcessId >> CompressedDataItem16.PidSize) > 0) return false;
+            item.Pid = this.ProcessId;
+            if ((this.ThreadId >> CompressedDataItem16.TidSize) > 0) return false;
+            item.Tid = this.ThreadId;
+            if ((this.ActivityIdIndex >> CompressedDataItem16.AidSize) > 0) return false;
+            item.Aid = this.ActivityIdIndex;
+            if ((this.FileIndex >> CompressedDataItem16.FileIndexSize) > 0) return false;
+            item.FileIndex = this.FileIndex;
             item.Level = LevelReverseMapping[(int)this.Level];
 
-            int timeDiff = (int)(this.Time - baseTime).TotalSeconds;
-            if ((timeDiff >> 16) > 0) return false;
-            item.TimeOffsetSeconds = (ushort)timeDiff;
+            var timeDiff = (int)(this.Time - baseTime).TotalSeconds;
+            if ((timeDiff >> CompressedDataItem16.TimeSize) > 0) return false;
+            item.TimeOffsetSeconds = timeDiff;
 
-            if ((this.TemplateId >> 16) > 0) return false;
+            if ((this.TemplateId >> CompressedDataItem16.TemplateIdSize) > 0) return false;
             item.TemplateId = (ushort)this.TemplateId;
+
+            item.State = CompressState.Compressed16;
 
             return true;
         }
 
-        internal virtual void DeCompress8(CompressedDataItem8 item, DateTime baseTime)
+        internal virtual void DeCompress(CompressedDataItem16 item, DateTime baseTime)
+        {
+            this.ProcessId = item.Pid;
+            this.ThreadId = item.Tid;
+            this.ActivityIdIndex = item.Aid;
+            this.FileIndex = item.FileIndex;
+            this.Level = LevelMapping[item.Level];
+
+            this.Time = baseTime.AddSeconds(item.TimeOffsetSeconds);
+            this.TemplateId = item.TemplateId;
+        }
+
+        internal virtual bool Compress(DateTime baseTime, out CompressedDataItem8 item)
+        {
+            item = new CompressedDataItem8();
+
+            if ((this.ProcessId >> CompressedDataItem8.PidSize) > 0) return false;
+            item.Pid = this.ProcessId;
+            if ((this.ThreadId >> CompressedDataItem8.TidSize) > 0) return false;
+            item.Tid = this.ThreadId;
+            if ((this.ActivityIdIndex >> CompressedDataItem8.AidSize) > 0) return false;
+            item.Aid = this.ActivityIdIndex;
+            if ((this.FileIndex >> CompressedDataItem8.FileIndexSize) > 0) return false;
+            item.FileIndex = this.FileIndex;
+            item.Level = LevelReverseMapping[(int)this.Level];
+
+            var timeDiff = (int)(this.Time - baseTime).TotalSeconds;
+            if ((timeDiff >> CompressedDataItem8.TimeSize) > 0) return false;
+            item.TimeOffsetSeconds = timeDiff;
+
+            if ((this.TemplateId >> CompressedDataItem8.TemplateIdSize) > 0) return false;
+            item.TemplateId = (ushort)this.TemplateId;
+
+            item.State = CompressState.Compressed8;
+
+            return true;
+        }
+
+        internal virtual void DeCompress(CompressedDataItem8 item, DateTime baseTime)
         {
             this.ProcessId = item.Pid;
             this.ThreadId = item.Tid;

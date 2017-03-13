@@ -1,13 +1,10 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
-using LogFlow.Viewer.Properties;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Drawing;
     using System.Windows.Forms;
+    using Properties;
 
     public partial class FastListView
     {

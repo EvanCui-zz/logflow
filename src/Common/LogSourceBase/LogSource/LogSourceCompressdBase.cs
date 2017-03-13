@@ -4,64 +4,117 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     public abstract class LogSourceCompressdBase<T> : LogSourceBase<T> where T : DataItemBase, new()
     {
-        private DateTime? baseTime;
-        private IdentifierCache<int> threadIds = new IdentifierCache<int>();
-        private IdentifierCache<int> processIds = new IdentifierCache<int>();
+        private class FileCompressMetaData
+        {
+            public DateTime? BaseTime { get; set; }
+            public IdentifierCache<int> ThreadIds { get; } = new IdentifierCache<int>();
+            public IdentifierCache<int> ProcessIds { get; } = new IdentifierCache<int>();
+            public IdentifierCache<Guid> ActivityIds { get; } = new IdentifierCache<Guid>();
+
+            // todo put template in
+        }
+
+        private readonly Dictionary<int, FileCompressMetaData> fileMetaData = new Dictionary<int, FileCompressMetaData>();
+        private readonly FileCompressMetaData metaData = new FileCompressMetaData();
 
         public override int Count => this.CompressedItems8.Count;
+        public override int Tier1Count => this.CompressedItems16.Count;
+        public override int Tier2Count => this.InternalItems.Count;
+
+        private FileCompressMetaData GetFileMetaData(int fileIndex)
+        {
+            FileCompressMetaData meta;
+            if (!this.fileMetaData.TryGetValue(fileIndex, out meta))
+            {
+                meta = this.fileMetaData[fileIndex] = new FileCompressMetaData(); ;
+            }
+
+            return meta;
+            //return this.metaData;
+        }
 
         public override T this[int index]
         {
             get
             {
                 var compressed = this.CompressedItems8[index];
-                if (compressed.IsCompressed)
+                switch (compressed.State)
                 {
-                    var item = new T();
-                    item.DeCompress8(compressed, this.baseTime.Value);
-                    item.ProcessId = this.processIds[item.ProcessId];
-                    item.ThreadId = this.threadIds[item.ThreadId];
-                    item.Id = index;
-                    item.Parameters = this.Parameters[index];
-                    return item;
-                }
+                    case CompressState.Compressed8:
+                        {
+                            var item = new T();
+                            var meta = this.GetFileMetaData(index);
+                            item.DeCompress(compressed, meta.BaseTime.Value);
+                            item.ProcessId = meta.ProcessIds[item.ProcessId];
+                            item.ThreadId = meta.ThreadIds[item.ThreadId];
+                            // todo: Aid
+                            item.Id = index;
+                            item.Parameters = this.Parameters[index];
+                            return item;
+                        }
 
-                return base[compressed.Index];
+                    case CompressState.Compressed16:
+                        {
+                            var item = new T();
+                            var compress16 = this.CompressedItems16[compressed.Index];
+                            var meta = this.GetFileMetaData(compress16.FileIndex);
+                            item.DeCompress(compress16, meta.BaseTime.Value);
+                            item.ProcessId = meta.ProcessIds[item.ProcessId];
+                            item.ThreadId = meta.ThreadIds[item.ThreadId];
+
+                            // todo: Aid
+                            item.Id = index;
+                            item.Parameters = this.Parameters[index];
+
+                            return item;
+                        }
+
+                    case CompressState.NotCompressed:
+                        return base[compressed.Index];
+                    default:
+                        return default(T);
+                }
             }
         }
 
-        private List<CompressedDataItem8> CompressedItems8 = new List<CompressedDataItem8>();
+        private readonly List<CompressedDataItem8> CompressedItems8 = new List<CompressedDataItem8>();
+        private readonly List<CompressedDataItem16> CompressedItems16 = new List<CompressedDataItem16>();
 
         protected override void AddItem(T item)
         {
-            if (!this.baseTime.HasValue) this.baseTime = item.Time;
+            var meta = this.GetFileMetaData(item.FileIndex);
 
-            item.ProcessId = this.processIds.Put(item.ProcessId);
-            item.ThreadId = this.threadIds.Put(item.ThreadId);            
+            if (!meta.BaseTime.HasValue) meta.BaseTime = item.Time;
+
+            item.ProcessId = meta.ProcessIds.Put(item.ProcessId);
+            item.ThreadId = meta.ThreadIds.Put(item.ThreadId);
 
             CompressedDataItem8 compressed;
 
-            if (item.Compress8(this.baseTime.Value, out compressed))
+            if (!item.Compress(meta.BaseTime.Value, out compressed))
             {
-                compressed.IsCompressed = true;
-            }
+                CompressedDataItem16 compressed16;
+                if (item.Compress(meta.BaseTime.Value, out compressed16))
+                {
+                    compressed16.State = CompressState.Compressed16;
+                    this.CompressedItems16.Add(compressed16);
 
-            if (!compressed.IsCompressed)
-            {
-                // link;
-                this.InternalItems.Add(item);
-                int internalIndex = this.InternalItems.Count - 1;
-                compressed.Index = internalIndex;
+                    compressed.State = CompressState.Compressed16;
+                    compressed.Index = this.CompressedItems16.Count - 1;
+                }
+                else
+                {
+                    this.InternalItems.Add(item);
+                    compressed.State = CompressState.NotCompressed;
+                    compressed.Index = this.InternalItems.Count - 1;
+                }
             }
 
             this.CompressedItems8.Add(compressed);
-            int index = this.CompressedItems8.Count - 1;
+            var index = this.CompressedItems8.Count - 1;
             this.Parameters.Add(item.Parameters);
             item.Id = index;
 

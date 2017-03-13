@@ -12,13 +12,13 @@ namespace LogFlow.DataModel
 
         public RootView(ILogSource<T> logSource, IFilter filter, bool backgroundIntern) : base(filter != null ? $"{logSource.Name} ({filter.Name})" : logSource.Name)
         {
-            this.Data = logSource;
+            this.Source = logSource;
             this.Filter = filter;
             this.GroupFilters = logSource.GroupFilters;
 
             if (backgroundIntern)
             {
-                this.internTimer = new Timer(this.BackGroundIntern, null, 20000, -1);
+                this.internTimer = new Timer(this.BackGroundIntern, null, 5000, -1);
             }
 
             //if (logSource.GroupData != null)
@@ -30,7 +30,7 @@ namespace LogFlow.DataModel
         private void BackGroundIntern(object state)
         {
             this.isInInternProgress = true;
-            this.Data?.InternStrings();
+            this.Source?.InternStrings();
             this.internTimer?.Change(20000, -1);
             this.isInInternProgress = false;
         }
@@ -54,9 +54,9 @@ namespace LogFlow.DataModel
                 this.internTimer?.Dispose();
                 this.internTimer = null;
 
-                var data = this.Data as IDisposable;
+                var data = this.Source as IDisposable;
                 data?.Dispose();
-                this.Data = null;
+                this.Source = null;
             }
         }
     }

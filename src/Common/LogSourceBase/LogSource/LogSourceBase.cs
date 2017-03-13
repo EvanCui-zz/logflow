@@ -20,6 +20,8 @@ namespace LogFlow.DataModel
         public abstract string Name { get; }
 
         public virtual int Count => this.InternalItems.Count;
+        public virtual int Tier1Count { get; } = 0;
+        public virtual int Tier2Count { get; } = 0;
 
         public virtual T this[int index] => this.InternalItems[index];
 
@@ -40,7 +42,7 @@ namespace LogFlow.DataModel
         public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
         protected List<IFilter> InnerGroupFilters = null;
 
-        public object GetColumnValue(DataItemBase item, int columnIndex)
+        public virtual object GetColumnValue(DataItemBase item, int columnIndex)
         {
             ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
 

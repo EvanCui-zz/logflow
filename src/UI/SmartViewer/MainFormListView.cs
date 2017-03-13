@@ -260,7 +260,7 @@ namespace LogFlow.Viewer
         {
             if (object.ReferenceEquals(sender, this.CurrentView) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize && this.fastListViewMain.VirtualListSize < 100000000)
             {
-                if (this.CurrentView.TotalCount > 100000000)
+                if (this.CurrentView.TotalCount >= 100000000)
                 {
                     MessageBox.Show(
                         Resources.TooManyRowsText,
@@ -271,7 +271,7 @@ namespace LogFlow.Viewer
                 }
                 else
                 {
-;                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
                 }
             }
         }
@@ -288,6 +288,7 @@ namespace LogFlow.Viewer
                     this.toolStripStatusLabel.Text = e.ProgressDescription;
                     this.progressBarMain.Visible = this.CurrentView.IsInProgress;
                     this.UpdateSelectedStatus();
+                    this.UpdateTierStatus();
                     Application.DoEvents();
                 }
                 catch (ObjectDisposedException) { }
@@ -808,6 +809,12 @@ namespace LogFlow.Viewer
             UpdateSelectedStatus();
         }
 
+        private void UpdateTierStatus()
+        {
+            this.toolStripStatusLabelCompress.Text =
+                $"Tier1: {this.CurrentView.Source.Tier1Count} | Tier2: {this.CurrentView.Source.Tier2Count}";
+        }
+
         private void UpdateSelectedStatus()
         {
             var firstSelectedIndex = this.fastListViewMain.SelectedIndices.Count > 0
@@ -853,7 +860,6 @@ namespace LogFlow.Viewer
             }
 
             var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
-          //  var threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
             var f = LogFilterInterpreter.Parse($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
@@ -912,8 +918,6 @@ namespace LogFlow.Viewer
 
             var itemId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
 
-        //    var itemId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
-
             this.treeViewDoc.SelectedNode = node;
 
             // the item can always be found.
@@ -969,7 +973,6 @@ namespace LogFlow.Viewer
             }
 
             var id = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
-          //  var id = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).Id;
 
             var childView = this.CurrentView.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
             this.AddView(childView);
