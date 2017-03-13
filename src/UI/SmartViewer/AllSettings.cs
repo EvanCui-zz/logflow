@@ -49,6 +49,7 @@
             this.checkBoxAutoScroll.Checked = Settings.Default.Behavior_AutoScroll;
             this.checkBoxDataVirtual.Checked = Settings.Default.Behavior_DataVirtualization;
             this.checkBoxInternStrings.Checked = Settings.Default.Behavior_BackgroundInternStrings;
+            this.checkBoxCompression.Checked = Settings.Default.Behavior_EnabledCompression;
 
             // third page:
             this.checkBoxAllowReordering.Checked = Settings.Default.Behavior_AllowColumnReorder;
@@ -99,6 +100,7 @@
             Settings.Default.Behavior_AutoScroll = this.checkBoxAutoScroll.Checked;
             Settings.Default.Behavior_DataVirtualization = this.checkBoxDataVirtual.Checked;
             Settings.Default.Behavior_BackgroundInternStrings = this.checkBoxInternStrings.Checked;
+            Settings.Default.Behavior_EnabledCompression = this.checkBoxCompression.Checked;
 
             // page 3
             Settings.Default.Behavior_AllowColumnReorder = this.checkBoxAllowReordering.Checked;

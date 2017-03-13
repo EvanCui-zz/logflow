@@ -10,8 +10,6 @@ namespace LogFlow.DataModel
 
     public abstract class CosmosLogSourceBase : LogSourceCompressdBase<CosmosDataItem>, IDisposable
     {
-        protected Dictionary<IntPtr, int> TemplateMap = new Dictionary<IntPtr, int>();
-
         protected List<CosmosLogFileBase> LogFiles;
 
         public override string Name => this.LogFiles.Count == 1 ? this.LogFiles[0].FileName :
@@ -60,6 +58,11 @@ namespace LogFlow.DataModel
             }
         }
 
+        private void SetAutoLoading()
+        {
+            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.AutoLoadingEnabled);
+        }
+
         public override IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token)
         {
             return this.CancellableProgress(t => this.PeekInternal(filter, peekCount, t), token);
@@ -67,6 +70,7 @@ namespace LogFlow.DataModel
 
         public IEnumerable<int> PeekInternal(IFilter filter, int peekCount, CancellationToken token)
         {
+            this.SetAutoLoading();
             this.isInProgress = true;
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
@@ -103,18 +107,36 @@ namespace LogFlow.DataModel
             }
         }
 
-        public override IEnumerable<int> Load(IFilter filter, CancellationToken token)
+        protected override IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token)
+        {
+            return this.Load(filter, token);
+        }
+
+        protected override IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token)
+        {
+            if (this.AutoLoadingEnabled)
+            {
+                return this.Load(filter, token);
+            }
+
+            return base.LoadIncremental(filter, token);
+        }
+
+        public new IEnumerable<int> Load(IFilter filter, CancellationToken token)
         {
             return this.CancellableProgress(t => this.LoadInternal(filter, t), token);
         }
 
         private IEnumerable<int> LoadInternal(IFilter filter, CancellationToken token)
         {
+            this.SetAutoLoading();
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
 
             // 1 file split to 5 steps. n file to 5 * n.
-            var reportInterval = Math.Max(5, 100 / (this.LogFiles.Count * 5));
+            var reportInterval = Math.Max(1, 100 / (this.LogFiles.Count * 5));
+            var firstReportCount = 100;
+            int count = 0;
 
             lastReportedProgress += reportInterval;
 
@@ -144,6 +166,7 @@ namespace LogFlow.DataModel
             {
                 if (token.IsCancellationRequested) yield break;
 
+                count++;
                 item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
                 item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
                 this.AddItem(item.Item.Item);
@@ -154,7 +177,7 @@ namespace LogFlow.DataModel
                 //   groupData.Value.InnerGroupIndexes.Add(item.Item.Item.Id);
 
                 var totalPercent = (int)this.LogFiles.Average(f => f.GetPercent());
-                if (totalPercent < lastReportedProgress) continue;
+                if (totalPercent < lastReportedProgress && count != firstReportCount) continue;
 
                 yield return lastReportedProgress;
                 lastReportedProgress += reportInterval;

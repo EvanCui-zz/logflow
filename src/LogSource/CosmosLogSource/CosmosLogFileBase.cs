@@ -12,6 +12,8 @@
     public abstract class CosmosLogFileBase : IDisposable, IEnumerable<FullCosmosDataItem>
     {
         protected string FilePath;
+        private bool isDisposed;
+        public bool AutoLoadEnabled { get; set; }
 
         public string FileName => Path.GetFileName(FilePath);
 
@@ -25,13 +27,15 @@
         {
             if (isDisposing)
             {
+                this.isDisposed = true;
                 this.Reader?.Dispose();
+                this.Reader = null;
             }
         }
 
         public IEnumerator<FullCosmosDataItem> GetEnumerator()
         {
-            return new CosmosFileEnumerator(this.Reader);
+            return new CosmosFileEnumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -39,17 +43,17 @@
             return this.GetEnumerator();
         }
 
-        public double GetPercent() { return this.Reader.GetPercent(); }
+        public double GetPercent() { return this.isDisposed ? 100 : this.Reader.GetPercent(); }
 
         protected BinaryLogReaderWrapperBase Reader;
 
         public class CosmosFileEnumerator : IEnumerator<FullCosmosDataItem>
         {
-            private readonly BinaryLogReaderWrapperBase reader;
-            public CosmosFileEnumerator(BinaryLogReaderWrapperBase reader)
+            private readonly CosmosLogFileBase file;
+            public CosmosFileEnumerator(CosmosLogFileBase file)
             {
-                this.reader = reader;
-                this.reader.Refresh();
+                this.file = file;
+                this.file.Reader.Refresh();
             }
 
             public void Dispose() { }
@@ -59,13 +63,19 @@
 
             public bool MoveNext()
             {
-                this.Current = this.reader.ReadItem();
+                this.Current = this.file.Reader.ReadItem();
+
+                if (this.Current.Item == null && !this.file.AutoLoadEnabled)
+                {
+                    this.file.Dispose();
+                }
+
                 return this.Current.Item != null;
             }
 
             public void Reset()
             {
-                this.reader.Reset();
+                this.file.Reader.Reset();
             }
         }
     }

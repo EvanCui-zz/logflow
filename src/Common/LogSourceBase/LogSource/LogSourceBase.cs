@@ -19,6 +19,8 @@ namespace LogFlow.DataModel
 
         public abstract string Name { get; }
 
+        public bool CompressionEnabled { get; set; }
+        public bool AutoLoadingEnabled { get; set; }
         public virtual int Count => this.InternalItems.Count;
         public virtual int Tier1Count { get; } = 0;
         public virtual int Tier2Count { get; } = 0;

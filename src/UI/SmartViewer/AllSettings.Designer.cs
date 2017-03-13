@@ -42,6 +42,7 @@
             this.propertyGridLevelColor = new System.Windows.Forms.PropertyGrid();
             this.checkBoxColorLevel = new System.Windows.Forms.CheckBox();
             this.tabPageBehavior = new System.Windows.Forms.TabPage();
+            this.checkBoxInternStrings = new System.Windows.Forms.CheckBox();
             this.checkBoxDataVirtual = new System.Windows.Forms.CheckBox();
             this.checkBoxAutoScroll = new System.Windows.Forms.CheckBox();
             this.checkBoxAutoLoad = new System.Windows.Forms.CheckBox();
@@ -56,7 +57,7 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.checkBoxInternStrings = new System.Windows.Forms.CheckBox();
+            this.checkBoxCompression = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageDisplay.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -214,6 +215,7 @@
             // 
             // tabPageBehavior
             // 
+            this.tabPageBehavior.Controls.Add(this.checkBoxCompression);
             this.tabPageBehavior.Controls.Add(this.checkBoxInternStrings);
             this.tabPageBehavior.Controls.Add(this.checkBoxDataVirtual);
             this.tabPageBehavior.Controls.Add(this.checkBoxAutoScroll);
@@ -225,6 +227,16 @@
             this.tabPageBehavior.TabIndex = 1;
             this.tabPageBehavior.Text = "Behavior";
             this.tabPageBehavior.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxInternStrings
+            // 
+            this.checkBoxInternStrings.AutoSize = true;
+            this.checkBoxInternStrings.Location = new System.Drawing.Point(18, 87);
+            this.checkBoxInternStrings.Name = "checkBoxInternStrings";
+            this.checkBoxInternStrings.Size = new System.Drawing.Size(324, 17);
+            this.checkBoxInternStrings.TabIndex = 3;
+            this.checkBoxInternStrings.Text = "I&ntern strings in background for optimized memory consumption.";
+            this.checkBoxInternStrings.UseVisualStyleBackColor = true;
             // 
             // checkBoxDataVirtual
             // 
@@ -370,15 +382,15 @@
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // checkBoxInternStrings
+            // checkBoxCompression
             // 
-            this.checkBoxInternStrings.AutoSize = true;
-            this.checkBoxInternStrings.Location = new System.Drawing.Point(18, 87);
-            this.checkBoxInternStrings.Name = "checkBoxInternStrings";
-            this.checkBoxInternStrings.Size = new System.Drawing.Size(324, 17);
-            this.checkBoxInternStrings.TabIndex = 3;
-            this.checkBoxInternStrings.Text = "I&ntern strings in background for optimized memory consumption.";
-            this.checkBoxInternStrings.UseVisualStyleBackColor = true;
+            this.checkBoxCompression.Location = new System.Drawing.Point(18, 110);
+            this.checkBoxCompression.Name = "checkBoxCompression";
+            this.checkBoxCompression.Size = new System.Drawing.Size(426, 35);
+            this.checkBoxCompression.TabIndex = 4;
+            this.checkBoxCompression.Text = "Enable &compression on loading. Slightly impact loading performance, but with tin" +
+    "y memory footprint.";
+            this.checkBoxCompression.UseVisualStyleBackColor = true;
             // 
             // AllSettings
             // 
@@ -441,5 +453,6 @@
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.Label labelColumns;
         private System.Windows.Forms.CheckBox checkBoxInternStrings;
+        private System.Windows.Forms.CheckBox checkBoxCompression;
     }
 }

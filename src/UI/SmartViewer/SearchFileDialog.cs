@@ -110,28 +110,43 @@ namespace LogFlow.Viewer
                 await Task.WhenAll(Enumerable.Range(0, filePaths.Count).Select(i => Task.Run(() =>
                 {
                     DataItemBase dataItem;
+
                     var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i]);
-                    logSource.ItemAdded += (o, i1) =>
-                    {
-                        dataItem = logSource[i1];
-                        this.dataGridViewResult.Rows[i].Cells[1].Value =
-                            string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
-                    };
 
-                    foreach (var progress in logSource.Peek(this.Filter, lineCount, cts.Token))
+                    try
                     {
-                        this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
+                        logSource.ItemAdded += (o, i1) =>
+                        {
+                            if (cts.IsCancellationRequested) return;
+                            dataItem = logSource[i1];
+                            this.dataGridViewResult.Rows[i].Cells[1].Value =
+                                string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
+                        };
+
+                        foreach (var progress in logSource.Peek(this.Filter, lineCount, cts.Token))
+                        {
+                            if (this.cts.IsCancellationRequested) return;
+                            this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
+                        }
+
+                        if (this.cts.IsCancellationRequested) return;
+                        this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
+
+                        this.currentFinished++;
                     }
+                    finally
+                    {
+                        (logSource as IDisposable)?.Dispose();
 
-                    this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
-
-                    this.currentFinished++;
-                    (logSource as IDisposable)?.Dispose();
-
-                    this.progressBar1.Invoke(
-                        new Action(() => this.progressBar1.Value = 100 * this.currentFinished / this.totalCount));
+                        if (!this.cts.IsCancellationRequested)
+                        {
+                            this.progressBar1.Invoke(
+                                new Action(() => this.progressBar1.Value = 100 * this.currentFinished / this.totalCount));
+                        }
+                    }
                 })));
 
+                if (this.cts.IsCancellationRequested) return;
                 this.progressBar1.Value = 100;
                 this.EnableButtons(true);
 

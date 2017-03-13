@@ -1,0 +1,21 @@
+﻿Before compress
+	With stat
+		8.73s load
+		227.47M 
+		3,360,473 objects
+Object Type	Count	Size (Bytes)	Inclusive Size (Bytes)	Module	
+ + LogFlow.DataModel.CosmosDataItem	1,545,144	201,599,432	201,599,432	CosmosLogSource.dll
+ + List<LogFlow.DataModel.CosmosDataItem>	1	16,777,280	218,376,712	mscorlib.dll
+ + Hashtable	220	15,281,240	15,316,752	mscorlib.dll
+After compress
+	With stat
+		11.14s no stat 8.13
+		140.93M
+		1,819,131 objects
+Object Type	Count	Size (Bytes)	Inclusive Size (Bytes)	Module	
+ + LogFlow.DataModel.CosmosLogSource	1	99,762,216	174,168,896	LogParserWrapper.dll
+ + LogFlow.DataModel.CosmosDataItem	184,511	47,315,320	47,315,320	CosmosLogSource.dll
+ + List<LogFlow.DataModel.CompressedDataItem8>	1	16,777,280	16,777,280	mscorlib.dll
+ + Hashtable	220	15,279,440	15,316,752	mscorlib.dll
+ + String (Bytes > 1K)	1,857	8,225,080	8,225,080	mscorlib.dll
+ + List<LogFlow.DataModel.CosmosDataItem>	1	2,097,216	49,412,536	mscorlib.dll

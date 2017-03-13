@@ -295,5 +295,17 @@ namespace LogFlow.Viewer.Properties {
                 this["Behavior_BackgroundInternStrings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Behavior_EnabledCompression {
+            get {
+                return ((bool)(this["Behavior_EnabledCompression"]));
+            }
+            set {
+                this["Behavior_EnabledCompression"] = value;
+            }
+        }
     }
 }

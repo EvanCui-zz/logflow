@@ -12,6 +12,8 @@ namespace LogFlow.DataModel
         T this[int index] { get; }
         int Count { get; }
 
+        bool CompressionEnabled { get; set; }
+        bool AutoLoadingEnabled { get; set; }
         int Tier1Count { get; }
         int Tier2Count { get; }
         IReadOnlyList<string> Templates { get; }

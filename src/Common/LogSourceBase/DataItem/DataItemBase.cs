@@ -36,7 +36,8 @@
             if ((timeDiff >> CompressedDataItem16.TimeSize) > 0) return false;
             item.TimeOffsetSeconds = timeDiff;
 
-            if ((this.TemplateId >> CompressedDataItem16.TemplateIdSize) > 0) return false;
+            // caution with the bug, >> 32 means nothing.
+            if (CompressedDataItem16.TemplateIdSize < 32 && (this.TemplateId >> CompressedDataItem16.TemplateIdSize) > 0) return false;
             item.TemplateId = (ushort)this.TemplateId;
 
             item.State = CompressState.Compressed16;

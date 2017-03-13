@@ -149,7 +149,10 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource(initializeString), filter, Settings.Default.Behavior_BackgroundInternStrings);
+            var logSource = LogSourceManager.Instance.GetLogSource(initializeString);
+            logSource.CompressionEnabled = Settings.Default.Behavior_EnabledCompression;
+            logSource.AutoLoadingEnabled = Settings.Default.Behavior_AutoLoad;
+            var document = new RootView<DataItemBase>(logSource, filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);
         }
 
@@ -205,7 +208,7 @@ namespace LogFlow.Viewer
                 bw.ProgressChanged += (s, e1) =>
                 {
                     // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
-                    this.UpdateMainGridRowCount(e1.UserState, this.CurrentView.TotalCount);
+                    this.UpdateMainGridRowCount(e1.UserState, this.CurrentView?.TotalCount ?? 0);
                 };
 
                 bw.DoWork += (o, args) =>

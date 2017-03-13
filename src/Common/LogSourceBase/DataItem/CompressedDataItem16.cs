@@ -21,7 +21,7 @@
             set { SetValue(ref this.FirstField, StateSize, LevelSize, value); }
         }
 
-        public const int TimeSize = 27;
+        public const int TimeSize = 28;
 
         public int TimeOffsetSeconds
         {
@@ -29,7 +29,8 @@
             set { SetValue(ref this.FirstField, StateSize + LevelSize, TimeSize, value); }
         }
 
-        public const int TemplateIdSize = 32;
+        // note: 32 will easily lead to a bug, that the >> operation fails.
+        public const int TemplateIdSize = 31;
 
         public int TemplateId
         {
