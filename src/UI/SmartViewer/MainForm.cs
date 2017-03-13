@@ -15,6 +15,8 @@ using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
+    using LogFilter;
+
     public partial class MainForm : Form
     {
         private RootView<DataItemBase> document;
@@ -82,7 +84,7 @@ namespace LogFlow.Viewer
                 var currentMenuItem = (ToolStripMenuItem)s;
                 bool tag = !string.IsNullOrEmpty(this.toolStripTextBoxPattern.Text);
                 currentMenuItem.Checked = tag;
-                this.TagCurrentView(index, tag ? new Filter(this.toolStripTextBoxPattern.Text) : null);
+                this.TagCurrentView(index, tag ? LogFilterInterpreter.Parse(this.toolStripTextBoxPattern.Text) : null);
             })
             {
                 BackColor = t.Item1,
@@ -97,7 +99,7 @@ namespace LogFlow.Viewer
         private void dataGridViewMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
-          //  return;
+            //  return;
 
             var level = (LogLevels)this.CurrentView.GetColumnValue(this.CurrentView.GetRowValue(e.RowIndex), 3);
             int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
@@ -209,7 +211,7 @@ namespace LogFlow.Viewer
             }
 
             // *** DataGridView population ***
-           // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
+            // SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, false, 0);
             Debug.WriteLine("Suspend layout");
             this.dataGridViewMain.Rows.Clear();
 
@@ -259,7 +261,7 @@ namespace LogFlow.Viewer
             if (this.CurrentView.FirstDisplayedScrollingRowIndex.HasValue)
                 this.dataGridViewMain.FirstDisplayedScrollingRowIndex = this.CurrentView.FirstDisplayedScrollingRowIndex.Value;
             // Add rows to DGV here
-          //  SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, true, 0);
+            //  SendMessage(this.dataGridViewMain.Handle, WM_SETREDRAW, true, 0);
             this.dataGridViewMain.Refresh();
             Debug.WriteLine("Resume layout");
         }
@@ -297,7 +299,7 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(new Filter(this.toolStripTextBoxPattern.Text));
+            var childView = this.CurrentView.CreateChild(LogFilterInterpreter.Parse(this.toolStripTextBoxPattern.Text));
             childView.ItemAdded += this.UpdateMainGridRowCount;
 
             var node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
@@ -335,7 +337,7 @@ namespace LogFlow.Viewer
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
-            var f = new Filter(this.toolStripTextBoxPattern.Text);
+            var f = LogFilterInterpreter.Parse(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;
@@ -382,7 +384,7 @@ namespace LogFlow.Viewer
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
-            IFilter f = new Filter(this.toolStripTextBoxPattern.Text);
+            IFilter f = LogFilterInterpreter.Parse(this.toolStripTextBoxPattern.Text);
 
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;

@@ -1,5 +1,7 @@
-﻿namespace LogFlow.Viewer
+namespace LogFlow.Viewer
 {
+    using LogFilter;
+
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -29,7 +31,7 @@
                 new SolidBrush(Settings.Default.Display_TagColors.Tag2),
                 new SolidBrush(Settings.Default.Display_TagColors.Tag3),
             });
-
+ 
         private List<SolidBrush> tagBrushes;
 
         private void RefreshTagColors()
@@ -269,7 +271,7 @@
                 }
                 else
                 {
-                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+;                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
                 }
             }
         }
@@ -339,7 +341,7 @@
             Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
             Settings.Default.Save();
 
-            return new Filter(pattern);
+            return LogFilterInterpreter.Parse(pattern);
         }
 
         private void UpdateDocDisplay()
@@ -486,6 +488,7 @@
         private void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
+
             var f = this.GetCurrentFilter();
 
             var bw = new BackgroundWorker();
@@ -524,6 +527,7 @@
         private void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
+
             var f = this.GetCurrentFilter();
 
             var bw = new BackgroundWorker();
@@ -698,7 +702,7 @@
 
                             // draw a >> sign to indicate multiline
                             e.Graphics.DrawString(
-                                "↓↓↓",
+                                "???",
                                 currentFont,
                                 Brushes.Moccasin,
                                 bound,
@@ -851,7 +855,7 @@
             var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
           //  var threadId = this.CurrentView.GetRowValue(this.fastListViewMain.SelectedIndices[0]).ThreadId;
 
-            var f = new Filter($"t:{threadId}");
+            var f = LogFilterInterpreter.Parse($"t:{threadId}");
             var childView = this.CurrentView.CreateChild(f);
 
             this.AddView(childView);
