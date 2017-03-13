@@ -247,12 +247,12 @@ Size_t __CRTDECL log_entry_sprintf(
     LogEntry *pLogEntry
     );
 
+struct StringToken;
 Size_t __CRTDECL log_entry_sprintf_cformat(
-	PCSTR &format,
-	PCHAR out,
-	Size_t cbOut,
-	Size_t indexWidthLength[],
-	Size_t parameterMaxCount,
+    PCHAR buffer, 
+    Size_t bufferSize, 
+    StringToken tokens[], 
+    Size_t maxTokens,
 	LogEntry* pLogEntry);
 
 Size_t __CRTDECL log_entry_sprintf_csformat(
@@ -287,5 +287,4 @@ LogEntry * __CRTDECL WriteLogEntryStatic(
     int bufferSize,
     format_preprocess_block *pPreprocessBlock,
     va_list argptr);
-
 

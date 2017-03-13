@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
@@ -53,8 +54,8 @@ namespace LogFlow.Viewer
 
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
-            e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
+        //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
+         //   e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -100,7 +101,7 @@ namespace LogFlow.Viewer
             Debug.WriteLine("RowPrePaint {0}", e.RowIndex);
             //  return;
 
-            var level = (LogLevels)this.CurrentView.GetColumnValue(e.RowIndex, 3);
+            var level = (LogLevels)this.CurrentView.GetColumnValue(this.CurrentView.GetRowValue(e.RowIndex), 3);
             int index = level == LogLevels.Critical ? 0 : (level == LogLevels.Error ? 1 : (level == LogLevels.Warning ? 2 : 3));
 
             if (index < this.levelBrushes.Count)
@@ -177,7 +178,7 @@ namespace LogFlow.Viewer
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"));
+            this.document = new RootView<DataItemBase>(LogSourceManager.Instance.GetLogSource("loaded test"), null, true);
             this.treeViewDoc.Nodes.Clear();
             var node = this.treeViewDoc.Nodes.Add("Root", this.document.Name);
             node.Tag = this.document;
@@ -242,7 +243,7 @@ namespace LogFlow.Viewer
 
                 bw.DoWork += (s, e1) =>
                 {
-                    foreach (int progress in this.CurrentView.Initialize(this.cts.Token))
+                    foreach (int progress in this.CurrentView.Initialize(Settings.Default.Display_Statistics, this.cts.Token))
                     {
                         bw.ReportProgress(progress);
                     }

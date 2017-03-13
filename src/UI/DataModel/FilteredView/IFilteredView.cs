@@ -26,6 +26,7 @@ namespace LogFlow.DataModel
         /// <param name="filter">the filter</param>
         void Tag(int index, IFilter filter);
         void UnTag(int index);
+        bool IsTagged(int index);
 
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
@@ -39,7 +40,7 @@ namespace LogFlow.DataModel
 
         IEnumerable<int> Count(IFilter filter);
 
-        IEnumerable<int> Initialize(CancellationToken token);
+        IEnumerable<int> Initialize(bool statistics, CancellationToken token);
 
         bool IsInitialized { get; }
 
@@ -70,7 +71,7 @@ namespace LogFlow.DataModel
 
         int TotalCount { get; }
 
-        object GetColumnValue(int rowIndex, int columnIndex);
+        object GetColumnValue(DataItemBase baseItem, int columnIndex);
 
         T GetRowValue(int rowIndex);
 

@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using LogFlow.DataModel.Algorithm;
 
 namespace LogFlow.DataModel
 {
@@ -11,30 +12,24 @@ namespace LogFlow.DataModel
     {
         protected LogSourceBase()
         {
-            var currentType = typeof(T);
+            this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
-            this.propertyInfos = new List<PropertyInfo>(0);
-
-            while (currentType != null)
-            {
-                this.propertyInfos = currentType.GetProperties()
-                    .Where(f => f.IsDefined(typeof(ColumnInfoAttribute), true) && f.DeclaringType == currentType).Concat(this.propertyInfos).ToList();
-
-                currentType = currentType.BaseType;
-            }
-
-            this.columnInfos = this.PropertyInfos.Select(p => p.GetCustomAttribute<ColumnInfoAttribute>(true)).ToList();
+            this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
         }
 
         public abstract string Name { get; }
 
-        public IReadOnlyList<T> Items => this.InternalItems;
+        public virtual int Count => this.InternalItems.Count;
+
+        public virtual T this[int index] => this.InternalItems[index];
 
         protected List<T> InternalItems = new List<T>();
+        protected List<string[]> Parameters = new List<string[]>();
+
+        protected IdentifierCache<string> files = new IdentifierCache<string>();
 
         public IReadOnlyList<string> Templates => this.templates;
-        private readonly List<string> templates = new List<string>();
-        private readonly Dictionary<string, int> templatesIndex = new Dictionary<string, int>();
+        private readonly IdentifierCache<string> templates = new IdentifierCache<string>();
 
         public IReadOnlyList<PropertyInfo> PropertyInfos => this.propertyInfos;
         private readonly List<PropertyInfo> propertyInfos;
@@ -45,8 +40,26 @@ namespace LogFlow.DataModel
         public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
         protected List<IFilter> InnerGroupFilters = null;
 
-        //public IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData => this.InnerGroupData;
-        //protected List<KeyValuePair<string, InnerGroupData>> InnerGroupData = null;
+        public object GetColumnValue(DataItemBase item, int columnIndex)
+        {
+            ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
+
+            if (string.Equals(ci.Name, "Text", StringComparison.Ordinal))
+            {
+                return new ParametricString(
+                    this.Templates[item.TemplateId],
+                    item.Parameters);
+            }
+            else if (string.Equals(ci.Name, "File", StringComparison.Ordinal))
+            {
+                return this.files[item.FileIndex];
+            }
+            else
+            {
+                PropertyInfo pi = this.PropertyInfos[columnIndex];
+                return pi.GetMethod.Invoke(item, null);
+            }
+        }
 
         // for performance, only pass int value
         public event EventHandler<int> ItemAdded;
@@ -55,7 +68,7 @@ namespace LogFlow.DataModel
             this.ItemAdded?.Invoke(this, index);
         }
 
-        protected void AddItem(T item)
+        protected virtual void AddItem(T item)
         {
             this.InternalItems.Add(item);
             item.Id = this.InternalItems.Count - 1;
@@ -64,54 +77,48 @@ namespace LogFlow.DataModel
 
         protected int AddTemplate(string template)
         {
-            template = string.Intern(template);
-
-            int index;
-            if (this.templatesIndex.TryGetValue(template, out index))
-            {
-                return index;
-            }
-            else
-            {
-                this.templates.Add(template);
-                return this.templatesIndex[template] = this.templates.Count - 1;
-            }
-        }
-
-        public virtual object GetColumnValue(int rowIndex, int columnIndex)
-        {
-            var dataItem = this.Items[rowIndex];
-
-            PropertyInfo pi = this.PropertyInfos[columnIndex];
-
-            ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
-
-            if (!ci.Computed)
-            {
-                return pi.GetMethod.Invoke(dataItem, null);
-            }
-            else if (ci.Name == "Text")
-            {
-                return new ParametricString(
-                    this.Templates[dataItem.TemplateId],
-                    dataItem.Parameters);
-            }
-            else
-            {
-                return null;
-            }
+            return this.templates.Put(template);
         }
 
         private bool firstBatchLoaded;
         protected int CurrentId = 0;
 
-        public virtual IEnumerable<int> Load(IFilter filter, bool stopAtFirst, CancellationToken token)
+        public virtual IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token) { yield break; }
+
+        public virtual IEnumerable<int> Load(IFilter filter, CancellationToken token)
         {
-            if (firstBatchLoaded) { return this.LoadIncremental(filter, token); }
-            else { firstBatchLoaded = true; return this.LoadFirst(filter, stopAtFirst, token); }
+            if (firstBatchLoaded) return this.LoadIncremental(filter, token);
+
+            firstBatchLoaded = true;
+            return this.LoadFirst(filter, token);
         }
 
-        protected virtual IEnumerable<int> LoadFirst(IFilter filter, bool stopAtFirst, CancellationToken token) { yield break; }
+        protected virtual IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token) { yield break; }
         protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
+
+        private int lastInternIndex;
+        private int lastTemplateInternIndex;
+        private int lastParameterInternIndex;
+        public virtual void InternStrings()
+        {
+            while (this.lastInternIndex < this.InternalItems.Count)
+            {
+                this.InternalItems[this.lastInternIndex].Parameters = this.InternalItems[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
+                this.lastInternIndex++;
+            }
+
+            while (this.lastParameterInternIndex < this.Parameters.Count)
+            {
+                this.Parameters[this.lastParameterInternIndex] = this.Parameters[this.lastParameterInternIndex].Select(LocalStringPool.Intern).ToArray();
+                this.lastParameterInternIndex++;
+            }
+
+            while (this.lastTemplateInternIndex < this.templates.Count)
+            {
+                this.templates[this.lastTemplateInternIndex] =
+                    LocalStringPool.Intern(this.templates[this.lastTemplateInternIndex]);
+                this.lastTemplateInternIndex++;
+            }
+        }
     }
 }

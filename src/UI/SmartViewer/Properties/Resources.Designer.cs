@@ -61,6 +61,15 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Didn&apos;t find the item Id {0} in the current view, try to switch to parent or root. .
+        /// </summary>
+        internal static string GotoFailed {
+            get {
+                return ResourceManager.GetString("GotoFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello, you will see a dialog box for filter/tag/search/count operations. This is to be implemented, if you want this feature, you can send feedback to us..
         /// </summary>
         internal static string NotImplementedText {
@@ -79,6 +88,24 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The search failed with an exception {0}..
+        /// </summary>
+        internal static string SearchFailedText {
+            get {
+                return ResourceManager.GetString("SearchFailedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string SomethingWrong {
+            get {
+                return ResourceManager.GetString("SomethingWrong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wow~ You got so many log entries! (&gt;100,000,000) Please consider opening with filters, or doing a preloading search to narrow down the logs you want to focus on. We only show the first 100,000,000 entries..
         /// </summary>
         internal static string TooManyRowsText {
@@ -93,6 +120,15 @@ namespace LogFlow.Viewer.Properties {
         internal static string TooManyRowsTitle {
             get {
                 return ResourceManager.GetString("TooManyRowsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The version history file is stolen by someone. Please report!.
+        /// </summary>
+        internal static string VersionFileMissingText {
+            get {
+                return ResourceManager.GetString("VersionFileMissingText", resourceCulture);
             }
         }
     }

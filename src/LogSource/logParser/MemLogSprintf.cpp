@@ -42,6 +42,7 @@
 #include "MemoryLog.h"
 #include "MemLogSprintf.h"
 #include "binarylogger.h"
+#include "BinaryLogReader.h"
 
 
 #pragma warning(disable:4995)
@@ -2500,20 +2501,23 @@ exit:
 }
 
 Size_t __CRTDECL log_entry_sprintf_cformat(
-    PCSTR &format,
     PCHAR out,
     Size_t cbOut,
-    Size_t indexWidthLength[],
-    Size_t parameterMaxCount,
+    StringToken tokens[],
+    Size_t maxTokenCount,
     LogEntry* pLogEntry)
 {
+    memset(tokens, 0, sizeof(tokens));
     format_preprocess_block *pPreprocessBlock = pLogEntry->m_pPreprocessBlock;
-    format = pPreprocessBlock->m_format;
+    PCSTR format = pPreprocessBlock->m_format;
+
+    Size_t tokenCount = 0;
+    if (tokenCount >= maxTokenCount) return tokenCount;
 
     Size_t   iformat = 0;
     Size_t cbWritten = 0;
     Size_t cbLastWritten = 0;
-    int count = MIN(parameterMaxCount, pPreprocessBlock->m_nDescInUse);
+    int count = pPreprocessBlock->m_nDescInUse;
     for (int i = 0; i < count; i++)
     {
         // copy up to the first format specifier into the output buffer.
@@ -2522,20 +2526,24 @@ Size_t __CRTDECL log_entry_sprintf_cformat(
 
         // copy non-format specifiers bytes since the last format specifier
         Size_t BytesToCopy = pCurDesc->m_offset - iformat;
-        indexWidthLength[i * 3] = pCurDesc->m_offset;
-        indexWidthLength[i * 3 + 1] = pCurDesc->m_len;
 
-        //memcpy(out+cbWritten, &format[iformat],BytesToCopy);
+        tokens[tokenCount].Pointer.Single = &format[iformat];
+        tokens[tokenCount].Length = BytesToCopy;
+        tokenCount++;
 
-        // update our position in the format string to be past this format specifier
-      //  iformat   += BytesToCopy+pCurDesc->m_len;
-      //  cbWritten += BytesToCopy;
+        if (tokenCount >= maxTokenCount) return tokenCount;
 
-        if (cbWritten == cbOut)
-        {
-            // out of target buffer
-            goto exit;
-        }
+        tokens[tokenCount].Pointer.Single = out + cbWritten;
+        tokens[tokenCount].IsParameter = 1;
+
+        //        indexWidthLength[i * 3] = pCurDesc->m_offset;
+          //      indexWidthLength[i * 3 + 1] = pCurDesc->m_len;
+
+                //memcpy(out+cbWritten, &format[iformat],BytesToCopy);
+
+                // update our position in the format string to be past this format specifier
+        iformat += BytesToCopy + pCurDesc->m_len;
+        //  cbWritten += BytesToCopy;
 
         param p = pLogEntry->m_args[i];
         switch (Ordinal)
@@ -2548,8 +2556,9 @@ Size_t __CRTDECL log_entry_sprintf_cformat(
                 p.pstr = __nullstring;
             }
 
-            Size_t len = strlen(p.pstr); // length without NULL termination
 
+            Size_t len = strlen(p.pstr); // length without NULL termination
+            /*
             if (pCurDesc->m_precision != -1 && (Int32)len > pCurDesc->m_precision)
             {
                 len = pCurDesc->m_precision;
@@ -2560,9 +2569,15 @@ Size_t __CRTDECL log_entry_sprintf_cformat(
                 len = cbOut - cbWritten;
             }
 
-            // copy all the bytes, without the NULL termination, see epilogue
             memcpy(out + cbWritten, p.pstr, len);
-            cbWritten += len;
+            */
+
+            // copy all the bytes, without the NULL termination, see epilogue
+           // Size_t len = sprintf_s(out + cbWritten, cbOut - cbWritten, "%ld", p.pstr);
+           // cbWritten += len;
+
+            tokens[tokenCount].Pointer.Single = p.pstr;
+            tokens[tokenCount].Length = len;
             break;
         }
 
@@ -2575,18 +2590,23 @@ Size_t __CRTDECL log_entry_sprintf_cformat(
                 p.pwstr = __wnullstring;
             }
 
+            
             Size_t WCharsToCopy = wcslen(p.pwstr); // length without NULL termination.
-
+            
             if (pCurDesc->m_precision != -1 && (Int32)WCharsToCopy > pCurDesc->m_precision)
             {
                 WCharsToCopy = pCurDesc->m_precision;
             }
 
-            // copies the bytes with NULL termination, returns length without NULL termination                
+            // copies the bytes with NULL termination, returns length without NULL termination
             Size_t len = WCharToUTF8(out + cbWritten, cbOut - cbWritten, p.pwstr, WCharsToCopy);
 
             // only count the bytes, not the NULL termination, see epilogue
             cbWritten += len;
+
+            tokens[tokenCount].IsUnicode = 1;
+            tokens[tokenCount].Length = WCharsToCopy;
+            tokens[tokenCount].Pointer.Wide = p.pwstr;
             break;
         }
 
@@ -2875,8 +2895,10 @@ Size_t __CRTDECL log_entry_sprintf_cformat(
         }
         }
 
-        indexWidthLength[i * 3 + 2] = cbWritten - cbLastWritten;
-        cbLastWritten = cbWritten;
+        if (cbWritten > cbLastWritten) tokens[tokenCount].Length = cbWritten - cbLastWritten;
+
+        tokenCount++;
+        if (tokenCount >= maxTokenCount) return tokenCount;
     }
 
 exit:
@@ -2889,7 +2911,7 @@ exit:
     }
     out[cbWritten++] = '\0';
 
-    return count;
+    return tokenCount;
 }
 
 /***

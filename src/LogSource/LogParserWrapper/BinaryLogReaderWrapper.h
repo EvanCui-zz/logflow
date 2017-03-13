@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "BinaryLogReader.h"
 
 using namespace System;

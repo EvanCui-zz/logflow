@@ -2,8 +2,10 @@
 #include "BinaryLogReaderWrapper.h"
 #include <vcclr.h>
 
+using namespace System::Diagnostics;
 using namespace System::IO;
 using namespace LogFlow::DataModel;
+using namespace LogFlow::DataModel::Algorithm;
 
 BinaryLogReaderWrapper::BinaryLogReaderWrapper(String^ filename)
 {
@@ -43,6 +45,7 @@ static LogFlow::DataModel::LogLevels Levels[] =
 
 FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
 {
+    bool cstyle = 0;
     DWORD err;
     if ((err = this->reader->MoveNext()) == NO_ERROR)
     {
@@ -51,40 +54,65 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
         node->Level = Levels[this->reader->GetLoggingLevelI()];
         node->Time = DateTime::FromFileTime(this->reader->getEntryTime()).ToUniversalTime();
         node->ThreadId = this->reader->getEntryTid();
+        node->ProcessId = this->reader->getEntryPid();
 
-        CHAR formattedEntry[MAX_LOG_ENTRY_SIZE];
-        CHAR parameters[MAX_LOG_ENTRY_SIZE];
-        size_t indexWidthLength[MAX_PARAMETER_COUNT * 3];
-        int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
-
-        // TODO: one possible optimization is to map the raw point
-
-        //PCSTR format = NULL;
-        //int count = this->reader->GetFormatDataCStyle(format, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
-
-        //if (!this->templateMap->TryGetValue(IntPtr((void*)format), node->TemplateId))
-        //{
-        //    node->TemplateId = this->AddTemplate(gcnew String(format));
-        //    this->templateMap->Add(IntPtr((void*)format), node->TemplateId);
-        //}
-
-        node->Parameters = gcnew array<Object^>(count);
-        int currentPosition = 0;
-        for (int i = 0; i < count; i++)
+        if (!cstyle)
         {
-            node->Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
-            currentPosition += indexWidthLength[i * 3 + 2];
+            CHAR formattedEntry[MAX_LOG_ENTRY_SIZE];
+            CHAR parameters[MAX_LOG_ENTRY_SIZE];
+            size_t indexWidthLength[MAX_PARAMETER_COUNT * 3];
+            // this method is the second fast one, it takes 5.4s for a sample 4 file data.
+            int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
+
+            node->Parameters = gcnew array<String^>(count);
+            int currentPosition = 0;
+            for (int i = 0; i < count; i++)
+            {
+                // plus new string it takes 6.5s, 572M
+                // plus string.Intern it takes 8.1s, 142M
+                // plus the LocalStringPool, it takes 9.7s, 155M mem
+//                node->Parameters[i] = LocalStringPool::Intern(gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]));
+                node->Parameters[i] = gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]);
+                currentPosition += indexWidthLength[i * 3 + 2];
+            }
+
+            return FullCosmosDataItem(node, gcnew String(formattedEntry));
+        }
+        else
+        {
+            // c style
+            CHAR buffer[MAX_LOG_ENTRY_SIZE];
+            StringToken tokens[MAX_PARAMETER_COUNT];
+
+            // This is the fastest way, for a sample data, this takes about 4.7s for 4 files.
+            int count = this->reader->GetFormatDataCStyle(buffer, MAX_LOG_ENTRY_SIZE, tokens, MAX_PARAMETER_COUNT);
+
+            node->Parameters = gcnew array<String^>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                bool isInBuffer = (tokens[i].Pointer.Single >= buffer && tokens[i].Pointer.Single < buffer + MAX_LOG_ENTRY_SIZE);
+
+                // plus new strings, it takes 6.6s, why? maybe the string count is larger.
+                // plus string.Intern, it takes 7.8s.
+                // plus LocalStringPool, it takes 25s.
+                String^ str = tokens[i].IsUnicode ?
+                    gcnew String(tokens[i].Pointer.Wide, 0, tokens[i].Length) :
+                    gcnew String(tokens[i].Pointer.Single, 0, tokens[i].Length);
+
+                node->Parameters[i] = str;
+            }
+
+            // this implementation doesn't have templates, but just concated strings.
+            return FullCosmosDataItem(node, (String^)node->Parameters[0]);
         }
 
         //node->SrcFile = LocalStringPool::Intern(gcnew String(this->reader->getEntryFileName()));
 
-        node->ProcessId = this->reader->getEntryPid();
 
         //CHAR TS[21];
         //this->reader->getEntryTS(TS);
         //node->TimeStap=gcnew String(TS);
-
-        return FullCosmosDataItem(node, String::Intern(gcnew String(formattedEntry)));
     }
     else
     {

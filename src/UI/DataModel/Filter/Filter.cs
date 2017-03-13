@@ -23,6 +23,11 @@
 
         private readonly HashSet<int> matchedTemplateIds = new HashSet<int>();
 
+        public static IFilter CreateFilter(string pattern)
+        {
+            return string.IsNullOrEmpty(pattern) ? null : new Filter(pattern);
+        }
+
         public static IFilter CreateFilter(Func<DataItemBase, string, bool> predicate)
         {
             return new Filter() { Predicate = predicate };
