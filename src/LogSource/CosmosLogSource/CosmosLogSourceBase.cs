@@ -133,6 +133,8 @@ namespace LogFlow.DataModel
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
 
+            if (this.LogFiles.Count == 0) { yield return 100; yield break; }
+
             // 1 file split to 5 steps. n file to 5 * n.
             var reportInterval = Math.Max(1, 100 / (this.LogFiles.Count * 5));
             var firstReportCount = 100;
@@ -182,6 +184,8 @@ namespace LogFlow.DataModel
                 yield return lastReportedProgress;
                 lastReportedProgress += reportInterval;
             }
+
+            yield return 100;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics;
+
 namespace LogFlow.Viewer
 {
     using System;
@@ -107,6 +109,10 @@ namespace LogFlow.Viewer
                 int lineCount;
                 int.TryParse(this.comboBoxLineCount.Text, out lineCount);
 
+                var token1 = this.cts?.Token;
+                if (!token1.HasValue) return;
+                var token = token1.Value;
+
                 await Task.WhenAll(Enumerable.Range(0, filePaths.Count).Select(i => Task.Run(() =>
                 {
                     DataItemBase dataItem;
@@ -117,19 +123,20 @@ namespace LogFlow.Viewer
                     {
                         logSource.ItemAdded += (o, i1) =>
                         {
-                            if (cts.IsCancellationRequested) return;
+                            if (token.IsCancellationRequested) return;
                             dataItem = logSource[i1];
                             this.dataGridViewResult.Rows[i].Cells[1].Value =
                                 string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
                         };
 
-                        foreach (var progress in logSource.Peek(this.Filter, lineCount, cts.Token))
+
+                        foreach (var progress in logSource.Peek(this.Filter, lineCount, token))
                         {
-                            if (this.cts.IsCancellationRequested) return;
+                            if (token.IsCancellationRequested) return;
                             this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
                         }
 
-                        if (this.cts.IsCancellationRequested) return;
+                        if (token.IsCancellationRequested) return;
                         this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
 
                         this.currentFinished++;
@@ -138,15 +145,15 @@ namespace LogFlow.Viewer
                     {
                         (logSource as IDisposable)?.Dispose();
 
-                        if (!this.cts.IsCancellationRequested)
+                        if (!token.IsCancellationRequested)
                         {
                             this.progressBar1.Invoke(
                                 new Action(() => this.progressBar1.Value = 100 * this.currentFinished / this.totalCount));
                         }
                     }
-                })));
+                }, token)));
 
-                if (this.cts.IsCancellationRequested) return;
+                if (token.IsCancellationRequested) return;
                 this.progressBar1.Value = 100;
                 this.EnableButtons(true);
 
@@ -154,11 +161,16 @@ namespace LogFlow.Viewer
                 Settings.Default.Data_RecentDirectories.Clear();
                 Settings.Default.Data_RecentDirectories.AddRange(this.AdjustHistoryOfComboBox(this.comboBoxSearchFolder));
                 Settings.Default.Data_FileNamePatterns.Clear();
-                Settings.Default.Data_FileNamePatterns.AddRange(this.AdjustHistoryOfComboBox(this.comboBoxFileNamePattern));
+                Settings.Default.Data_FileNamePatterns.AddRange(
+                    this.AdjustHistoryOfComboBox(this.comboBoxFileNamePattern));
 
                 Settings.Default.Data_SearchRecursive = this.checkBoxRecursive.Checked;
 
                 Settings.Default.Save();
+            }
+            catch (ObjectDisposedException ex1)
+            {
+                Debug.WriteLine($"ObjectDisposedException in Search_Click: {ex1}");
             }
             catch (Exception ex)
             {
@@ -169,7 +181,7 @@ namespace LogFlow.Viewer
 
         private void EnableButtons(bool enabled)
         {
-            this.buttonOpenMatched.Enabled = this.buttonOpenSelected.Enabled = enabled;
+            this.buttonOpenMatched.Enabled = this.buttonOpenSelected.Enabled = this.buttonOpenFiltered.Enabled = enabled;
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
