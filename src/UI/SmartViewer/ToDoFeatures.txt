@@ -49,6 +49,9 @@
 57, Loading speed (by multi thread)
 58, memory analysis (by compression)
 22, consider structs (tuned by two tier compression)
+23, consider size compact.
+34, Parsable filter string
+47, Add/hide columns
 
 2, Context operations. Most done
 33, Highlight find content.
@@ -76,13 +79,10 @@
 37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
 41, Plugin system
 21, List view logic refactor.
-23, consider size compact.
 25, regex
 19, Doc menues.
-34, Parsable filter string
 36, Load from log parser
 49, hardcoded value.
 29, Other tools analysis:
 	1), LogParser, multiple source
 	2), Message analyzer, column search.
-47, Add/hide columns
