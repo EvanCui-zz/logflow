@@ -66,6 +66,7 @@ namespace LogFlow.Viewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.Text = Product.GetTitle();
             this.cts = new CancellationTokenSource();
             this.timerMemory.Start();
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);

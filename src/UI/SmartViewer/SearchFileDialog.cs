@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using LogFilter;
 
 namespace LogFlow.Viewer
 {
@@ -84,7 +85,7 @@ namespace LogFlow.Viewer
 
 
                 this.cts = new CancellationTokenSource();
-                this.Filter = new Filter(this.comboBoxSearchPattern.Text);
+                this.Filter = LogFilterInterpreter.Parse(this.comboBoxSearchPattern.Text);
 
                 var filePaths = Directory.EnumerateFiles(
                     this.comboBoxSearchFolder.Text,
