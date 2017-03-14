@@ -3,6 +3,9 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.Concurrent;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.IO;
 
     /// <summary>
@@ -28,8 +31,9 @@
             if (isDisposing)
             {
                 this.isDisposed = true;
-                this.Reader?.Dispose();
-                this.Reader = null;
+
+                var reader = Interlocked.Exchange(ref this.Reader, null);
+                reader?.Dispose();
             }
         }
 
@@ -49,28 +53,83 @@
 
         public class CosmosFileEnumerator : IEnumerator<FullCosmosDataItem>
         {
+            private BlockingCollection<FullCosmosDataItem> itemQueue = new BlockingCollection<FullCosmosDataItem>();
             private readonly CosmosLogFileBase file;
+            private CancellationTokenSource cts;
+            private Task readTask;
             public CosmosFileEnumerator(CosmosLogFileBase file)
             {
+                this.cts = new CancellationTokenSource();
                 this.file = file;
-                this.file.Reader.Refresh();
+                this.readTask = Task.Run(() => this.ReadThread(this.cts.Token));
             }
 
-            public void Dispose() { }
+            public void Dispose()
+            {
+                this.Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool isDisposing)
+            {
+                if (isDisposing)
+                {
+                    this.cts?.Cancel();
+                    this.cts?.Dispose();
+                    this.cts = null;
+
+                    this.readTask.GetAwaiter().GetResult();
+
+                    this.itemQueue?.Dispose();
+                    this.itemQueue = null;
+                }
+            }
+
+            private void ReadThread(CancellationToken token)
+            {
+                try
+                {
+                    this.file.Reader.Refresh();
+
+                    if (token.IsCancellationRequested) return;
+
+                    while (true)
+                    {
+                        var item = this.file.Reader?.ReadItem();
+
+                        if (!item.HasValue || item.Value.Item == null || token.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
+                        this.itemQueue.Add(item.Value, token);
+                    }
+                }
+                finally
+                {
+                    if (!this.file.AutoLoadEnabled)
+                    {
+                        this.file.Dispose();
+                    }
+
+                    this.itemQueue.CompleteAdding();
+                }
+            }
 
             object IEnumerator.Current => this.Current;
             public FullCosmosDataItem Current { get; private set; }
 
             public bool MoveNext()
             {
-                this.Current = this.file.Reader.ReadItem();
-
-                if (this.Current.Item == null && !this.file.AutoLoadEnabled)
+                try
                 {
-                    this.file.Dispose();
+                    this.Current = this.itemQueue.Take();
+                    return true;
                 }
-
-                return this.Current.Item != null;
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
             }
 
             public void Reset()

@@ -76,7 +76,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
                 currentPosition += indexWidthLength[i * 3 + 2];
             }
 
-            return FullCosmosDataItem(node, gcnew String(formattedEntry));
+            return FullCosmosDataItem(node, gcnew String(formattedEntry), (int)this->reader->getPersentage());
         }
         else
         {
@@ -104,7 +104,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             }
 
             // this implementation doesn't have templates, but just concated strings.
-            return FullCosmosDataItem(node, (String^)node->Parameters[0]);
+            return FullCosmosDataItem(node, (String^)node->Parameters[0], (int)this->reader->getPersentage());
         }
 
         //node->SrcFile = LocalStringPool::Intern(gcnew String(this->reader->getEntryFileName()));
@@ -116,7 +116,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
     }
     else
     {
-        return FullCosmosDataItem(nullptr, nullptr);
+        return FullCosmosDataItem(nullptr, nullptr, 100);
     }
 }
 

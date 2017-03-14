@@ -180,7 +180,6 @@
     <Content Include="Docs\VersionHistory.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Mem.txt" />
     <Content Include="Perf.txt" />
     <Content Include="ToDoFeatures.txt" />
   </ItemGroup>

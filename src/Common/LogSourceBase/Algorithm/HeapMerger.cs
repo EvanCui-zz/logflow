@@ -1,6 +1,7 @@
 ﻿namespace LogFlow.DataModel.Algorithm
 {
     using System.Collections.Generic;
+    using System.Threading;
 
     public struct MergedItem<T>
     {
@@ -11,13 +12,13 @@
 
     public class HeapMerger
     {
-        public static IEnumerable<MergedItem<T>> Merge<T>(IComparer<T> comparer = null, params IEnumerable<T>[] sources)
+        public static IEnumerable<MergedItem<T>> Merge<T>(CancellationToken token, IComparer<T> comparer = null, params IEnumerable<T>[] sources)
         {
             comparer = comparer ?? Comparer<T>.Default;
-            return Merge(sources, 0, sources.Length - 1, comparer);
+            return Merge(sources, 0, sources.Length - 1, comparer, token);
         }
 
-        private static IEnumerable<MergedItem<T>> Merge<T>(IEnumerable<T>[] sources, int startIndex, int endIndex, IComparer<T> comparer)
+        private static IEnumerable<MergedItem<T>> Merge<T>(IEnumerable<T>[] sources, int startIndex, int endIndex, IComparer<T> comparer, CancellationToken token)
         {
             if (endIndex == -1) yield break;
             if (endIndex == startIndex)
@@ -26,14 +27,16 @@
             }
             else
             {
-                var left = Merge(sources, startIndex, (startIndex + endIndex) / 2, comparer);
-                var right = Merge(sources, (startIndex + endIndex) / 2 + 1, endIndex, comparer);
+                var left = Merge(sources, startIndex, (startIndex + endIndex) / 2, comparer, token);
+                var right = Merge(sources, (startIndex + endIndex) / 2 + 1, endIndex, comparer, token);
 
                 using (var leftIt = left.GetEnumerator())
                 using (var rightIt = right.GetEnumerator())
                 {
+                    if (token.IsCancellationRequested) yield break;
                     bool leftAvailable = leftIt.MoveNext();
                     bool rightAvailable = rightIt.MoveNext();
+                    if (token.IsCancellationRequested) yield break;
 
                     while (leftAvailable && rightAvailable)
                     {
@@ -41,11 +44,13 @@
                         {
                             yield return leftIt.Current;
                             leftAvailable = leftIt.MoveNext();
+                            if (token.IsCancellationRequested) yield break;
                         }
                         else
                         {
                             yield return rightIt.Current;
                             rightAvailable = rightIt.MoveNext();
+                            if (token.IsCancellationRequested) yield break;
                         }
                     }
 
@@ -56,7 +61,7 @@
 
                     if (lastIt != null)
                     {
-                        while (lastIt.MoveNext()) yield return lastIt.Current;
+                        while (!token.IsCancellationRequested && lastIt.MoveNext()) yield return lastIt.Current;
                     }
                 }
             }

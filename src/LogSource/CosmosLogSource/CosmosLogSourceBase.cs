@@ -16,7 +16,7 @@ namespace LogFlow.DataModel
             (this.LogFiles.Count == 0 ? "No File Loaded" : $"{this.LogFiles[0].FileName} .. {this.LogFiles[this.LogFiles.Count - 1].FileName}");
 
         private bool isInProgress;
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
         public void Dispose()
         {
@@ -76,7 +76,10 @@ namespace LogFlow.DataModel
             yield return lastReportedProgress;
             lastReportedProgress += 20;
 
+            int[] lastPercents = new int[this.LogFiles.Count];
+
             var merged = HeapMerger.Merge(
+                token,
                 Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                 this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
 
@@ -99,7 +102,9 @@ namespace LogFlow.DataModel
                     yield break;
                 }
 
-                var totalPercent = (int)this.LogFiles.Average(f => f.GetPercent());
+                lastPercents[item.SourceIndex] = item.Item.Percent;
+
+                var totalPercent = (int)lastPercents.Average();
                 if (totalPercent < lastReportedProgress) continue;
 
                 yield return lastReportedProgress;
@@ -142,23 +147,23 @@ namespace LogFlow.DataModel
 
             lastReportedProgress += reportInterval;
 
+            int[] lastPercents = new int[this.LogFiles.Count];
+
             IEnumerable<MergedItem<FullCosmosDataItem>> merged;
             if (filter == null)
             {
                 merged = HeapMerger.Merge(
+                    token,
                     Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                     this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
             }
             else
             {
                 merged = HeapMerger.Merge(
+                    token,
                     Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
-                        this.LogFiles.Select(f => f.Where(i =>
-                        {
-                            // the loop should exit immediately when cancel.
-                            token.ThrowIfCancellationRequested();
-                            return filter?.Match(i.Item, i.Template) ?? true;
-                        })).ToArray());
+                    this.LogFiles.Select(f => f.TakeWhile(i => !token.IsCancellationRequested)
+                        .Where(i => filter.Match(i.Item, i.Template))).ToArray());
             }
 
             //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
@@ -178,7 +183,8 @@ namespace LogFlow.DataModel
 
                 //   groupData.Value.InnerGroupIndexes.Add(item.Item.Item.Id);
 
-                var totalPercent = (int)this.LogFiles.Average(f => f.GetPercent());
+                lastPercents[item.SourceIndex] = item.Item.Percent;
+                var totalPercent = (int)lastPercents.Average();
                 if (totalPercent < lastReportedProgress && count != firstReportCount) continue;
 
                 yield return lastReportedProgress;
