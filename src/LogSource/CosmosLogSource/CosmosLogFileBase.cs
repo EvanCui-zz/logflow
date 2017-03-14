@@ -4,8 +4,8 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Threading;
-    using System.Threading.Tasks;
     using System.IO;
 
     /// <summary>
@@ -56,12 +56,14 @@
             private BlockingCollection<FullCosmosDataItem> itemQueue = new BlockingCollection<FullCosmosDataItem>();
             private readonly CosmosLogFileBase file;
             private CancellationTokenSource cts;
-            private Task readTask;
+            private readonly Thread readingThread;
+
             public CosmosFileEnumerator(CosmosLogFileBase file)
             {
                 this.cts = new CancellationTokenSource();
                 this.file = file;
-                this.readTask = Task.Run(() => this.ReadThread(this.cts.Token));
+                this.readingThread = new Thread(() => this.ReadThread(this.cts.Token));
+                this.readingThread.Start();
             }
 
             public void Dispose()
@@ -78,7 +80,7 @@
                     this.cts?.Dispose();
                     this.cts = null;
 
-                    this.readTask.GetAwaiter().GetResult();
+                    this.readingThread.Join();
 
                     this.itemQueue?.Dispose();
                     this.itemQueue = null;
@@ -95,15 +97,19 @@
 
                     while (true)
                     {
-                        var item = this.file.Reader?.ReadItem();
+                        var item = this.file.Reader.ReadItem();
 
-                        if (!item.HasValue || item.Value.Item == null || token.IsCancellationRequested)
+                        if (item.Item == null || token.IsCancellationRequested)
                         {
                             break;
                         }
 
-                        this.itemQueue.Add(item.Value, token);
+                        this.itemQueue.Add(item, token);
                     }
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Debug.WriteLine($"Operation cancelled in reading thread. {ex}");
                 }
                 finally
                 {

@@ -109,9 +109,7 @@ namespace LogFlow.Viewer
                 int lineCount;
                 int.TryParse(this.comboBoxLineCount.Text, out lineCount);
 
-                var token1 = this.cts?.Token;
-                if (!token1.HasValue) return;
-                var token = token1.Value;
+                var token = this.cts.Token;
 
                 await Task.WhenAll(Enumerable.Range(0, filePaths.Count).Select(i => Task.Run(() =>
                 {
@@ -126,7 +124,7 @@ namespace LogFlow.Viewer
                             if (token.IsCancellationRequested) return;
                             dataItem = logSource[i1];
                             this.dataGridViewResult.Rows[i].Cells[1].Value =
-                                string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters);
+                                string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters.Cast<object>().ToArray());
                         };
 
 
@@ -228,7 +226,8 @@ namespace LogFlow.Viewer
         private void comboBoxLineCount_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
             int lineCount;
-            if (true == (e.Cancel = !int.TryParse(this.comboBoxLineCount.Text, out lineCount)))
+            e.Cancel = !int.TryParse(this.comboBoxLineCount.Text, out lineCount);
+            if (e.Cancel)
             {
                 this.errorProvider1.SetError(this.comboBoxLineCount, "An integer is required.");
             }

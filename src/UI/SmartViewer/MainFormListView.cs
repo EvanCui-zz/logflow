@@ -208,7 +208,8 @@ namespace LogFlow.Viewer
                 bw.ProgressChanged += (s, e1) =>
                 {
                     // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
-                    this.UpdateMainGridRowCount(e1.UserState, this.CurrentView?.TotalCount ?? 0);
+                    var currentView = this.CurrentView;
+                    if (currentView != null)this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
                 };
 
                 bw.DoWork += (o, args) =>

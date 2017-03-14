@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     using System;
 
