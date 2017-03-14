@@ -174,6 +174,8 @@
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFill = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelCompress = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSelected = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelMemory = new System.Windows.Forms.ToolStripStatusLabel();
@@ -181,8 +183,8 @@
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelCompress = new System.Windows.Forms.ToolStripStatusLabel();
+            this.findTheTimeInParentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.someOtherViewtodoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -850,13 +852,14 @@
             this.toolStripSeparator7,
             this.findTheLineFromParentToolStripMenuItem,
             this.goToToolStripMenuItem,
+            this.findTheTimeInParentToolStripMenuItem,
             this.toolStripSeparator8,
             this.copyToolStripMenuItem1,
             this.sendViaEmailToolStripMenuItem1,
             this.toolStripSeparator6,
             this.advancedToolStripMenuItem});
             this.contextMenuStripListView.Name = "contextMenuStripListView";
-            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 330);
+            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 374);
             // 
             // filterWithTheSameThreadToolStripMenuItem
             // 
@@ -1496,6 +1499,18 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(771, 17);
             this.toolStripStatusLabel1.Spring = true;
             // 
+            // toolStripStatusLabelCompress
+            // 
+            this.toolStripStatusLabelCompress.Name = "toolStripStatusLabelCompress";
+            this.toolStripStatusLabelCompress.Size = new System.Drawing.Size(92, 17);
+            this.toolStripStatusLabelCompress.Text = "Tier1: 0 | Tier2: 0";
+            // 
+            // toolStripStatusLabel5
+            // 
+            this.toolStripStatusLabel5.AutoSize = false;
+            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(20, 17);
+            // 
             // toolStripStatusLabelSelected
             // 
             this.toolStripStatusLabelSelected.Name = "toolStripStatusLabelSelected";
@@ -1539,17 +1554,19 @@
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
             // 
-            // toolStripStatusLabel5
+            // findTheTimeInParentToolStripMenuItem
             // 
-            this.toolStripStatusLabel5.AutoSize = false;
-            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(20, 17);
+            this.findTheTimeInParentToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.someOtherViewtodoToolStripMenuItem});
+            this.findTheTimeInParentToolStripMenuItem.Name = "findTheTimeInParentToolStripMenuItem";
+            this.findTheTimeInParentToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.findTheTimeInParentToolStripMenuItem.Text = "Find the Time in";
             // 
-            // toolStripStatusLabelCompress
+            // someOtherViewtodoToolStripMenuItem
             // 
-            this.toolStripStatusLabelCompress.Name = "toolStripStatusLabelCompress";
-            this.toolStripStatusLabelCompress.Size = new System.Drawing.Size(92, 17);
-            this.toolStripStatusLabelCompress.Text = "Tier1: 0 | Tier2: 0";
+            this.someOtherViewtodoToolStripMenuItem.Name = "someOtherViewtodoToolStripMenuItem";
+            this.someOtherViewtodoToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.someOtherViewtodoToolStripMenuItem.Text = "Some other view (todo)";
             // 
             // MainFormListView
             // 
@@ -1763,6 +1780,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelCompress;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
+        private System.Windows.Forms.ToolStripMenuItem findTheTimeInParentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem someOtherViewtodoToolStripMenuItem;
     }
 }
 
