@@ -1,6 +1,5 @@
 ﻿
 using System.Diagnostics;
-using LogFilter;
 
 namespace LogFlow.Viewer
 {
@@ -12,6 +11,7 @@ namespace LogFlow.Viewer
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;
 
     public partial class SearchFileDialog : Form

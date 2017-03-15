@@ -1,8 +1,8 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
     using System;
 
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal class DatetimeBeginMatchExpression : ContentMatchExpression
     {

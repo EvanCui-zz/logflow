@@ -7,7 +7,7 @@
     <ProjectGuid>{63A0163A-7B24-4F53-8BFF-8804438C4FAA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LogFilter</RootNamespace>
+    <RootNamespace>LogFlow.Viewer.LogFilter</RootNamespace>
     <AssemblyName>LogFilter</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

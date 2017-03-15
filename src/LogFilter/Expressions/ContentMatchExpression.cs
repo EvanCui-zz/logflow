@@ -1,9 +1,9 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
     using System;
     using System.Collections.Generic;
 
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal abstract class ContentMatchExpression : Expression
     {

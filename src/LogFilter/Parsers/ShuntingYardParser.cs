@@ -1,10 +1,10 @@
-﻿namespace LogFilter
+﻿namespace LogFlow.Viewer.LogFilter.Parsers
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
-    using LogFilter.Expressions;
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Expressions;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     /// <summary>
     /// Parse LL(1) grammar

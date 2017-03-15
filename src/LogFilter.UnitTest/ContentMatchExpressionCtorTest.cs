@@ -1,7 +1,7 @@
-﻿namespace LogFilter.UnitTest
+﻿namespace LogFlow.Viewer.LogFilter.UnitTest
 {
-    using LogFilter.Expressions;
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Expressions;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

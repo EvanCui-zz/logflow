@@ -1,4 +1,4 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
     using LogFlow.DataModel;
 

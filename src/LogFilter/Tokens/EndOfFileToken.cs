@@ -1,4 +1,4 @@
-﻿namespace LogFilter.Tokens
+﻿namespace LogFlow.Viewer.LogFilter.Tokens
 {
     internal class EndOfFileToken : Token
     {

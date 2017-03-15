@@ -1,13 +1,9 @@
-﻿namespace LogFilter
+﻿namespace LogFlow.Viewer.LogFilter.Tokens
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Net;
     using System.Text.RegularExpressions;
-
-    using LogFilter.Tokens;
 
     internal static class Lexer
     {

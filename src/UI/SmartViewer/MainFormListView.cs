@@ -1,7 +1,5 @@
 namespace LogFlow.Viewer
 {
-    using LogFilter;
-
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -16,6 +14,7 @@ namespace LogFlow.Viewer
     using System.Drawing.Text;
     using System.Windows.Forms;
     using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;
 
     public partial class MainFormListView : Form
@@ -31,7 +30,7 @@ namespace LogFlow.Viewer
                 new SolidBrush(Settings.Default.Display_TagColors.Tag2),
                 new SolidBrush(Settings.Default.Display_TagColors.Tag3),
             });
- 
+
         private List<SolidBrush> tagBrushes;
 
         private void RefreshTagColors()
@@ -210,7 +209,7 @@ namespace LogFlow.Viewer
                 {
                     // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
                     var currentView = this.CurrentView;
-                    if (currentView != null)this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
+                    if (currentView != null) this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
                 };
 
                 bw.DoWork += (o, args) =>

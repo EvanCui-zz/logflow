@@ -1,4 +1,4 @@
-﻿namespace LogFilter
+﻿namespace LogFlow.Viewer.LogFilter
 {
     using System;
 
