@@ -2,6 +2,7 @@
 #pragma once
 
 #include <limits.h>
+#include <stdlib.h>
 
 // Add your log entries (areas) here
 // This list must be kept in sync with g_LogIDNames[] below
@@ -34,7 +35,7 @@ typedef enum
     LogID_GetAndRunServices,
     LogID_Categorization,
     LogID_StaticRanker,
-    LogID_CSClient,
+    LogID_CSClient_Unused,
     LogID_CSServer,
     LogID_CSLib,
     LogID_Common,
@@ -237,7 +238,7 @@ typedef enum
     LogID_FexMissingSnippetLog,
     LogID_XifBuilder,
     LogID_SharedModules,
-    LogID_DryadProfiler,    
+    LogID_DryadProfiler,
     LogID_CosmosProxy,
     LogID_RTIndexCoverage,
     LogID_Speller,
@@ -255,6 +256,9 @@ typedef enum
     LogID_XcDataProvider,
     LogID_XcBlob,
     LogID_Journal,
+    LogID_XRL,
+    LogID_XArchive,
+    LogID_Parallax,
 
     // This must be the last entry
     LogID_Count
@@ -262,10 +266,23 @@ typedef enum
 
 //C_ASSERT(LogID_Count < USHRT_MAX);
 
-//extern char *g_LogIDNames[];
+extern char *g_LogIDNames[];
+
+typedef struct _XSTORE_ASSERTION_INFO
+{
+    ULONG FileSize;
+    ULONG FunctionSize;
+    //ULONG64 to indicate that those are pointers of the size of the machine integer.
+    //Useful if using a 32-bit debugger / StorageLogAgent for a 64-bit process, or vice-versa
+    ULONG64 File;
+    ULONG64 Function;
+    ULONG Line;
+    ULONG Spare0; // align the structure naturally
+} XSTORE_ASSERTION_INFO, *PXSTORE_ASSERTION_INFO;
+
 
 #ifdef DECLARE_DATA
-//jwesker
+
 // This is an array of possible log entries (areas)
 // This must be kept in sync with the LogID enumeration above
 char *g_LogIDNames[] =
@@ -296,7 +313,7 @@ char *g_LogIDNames[] =
     "GetAndRunServices",
     "Categorization",
     "StaticRanker",
-    "CSClient",
+    "CSClient_Unused",
     "CSServer",
     "CSLib",
     "Common",
@@ -499,7 +516,7 @@ char *g_LogIDNames[] =
     "FexMissingSnippetLog",
     "XifBuilder",
     "SharedModules",
-    "DryadProfiler",    
+    "DryadProfiler",
     "CosmosProxy",
     "RTIndexCoverage",
     "Speller",
@@ -517,9 +534,13 @@ char *g_LogIDNames[] =
     "XcDataProvider",
     "XcBlob",
     "Journal",
+    "XRDMALib",
+    "XArchive",
+    "Parallax",
 
     // Last entry must be a NULL (for sanity checking)
     NULL
 };
 
+C_ASSERT(_countof(g_LogIDNames) == LogID_Count + 1);
 #endif

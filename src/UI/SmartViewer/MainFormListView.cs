@@ -229,6 +229,10 @@ namespace LogFlow.Viewer
                     {
                         Debug.WriteLine("Initializing operating is cancelled");
                     }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Exception happened with Initialize {ex}");
+                    }
                 };
 
                 bw.RunWorkerAsync();

@@ -123,10 +123,11 @@ public:
 	//jwesker
 	void getFormatedText(PCHAR);
 
-    int BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, size_t formatSize, PCHAR parameters, size_t parametersSize, size_t indexWidthLength[], size_t count);
-    int BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, size_t bufferSize, StringToken tokens[], size_t maxTokens);
-
-	PCSTR getEntryFileName();
+    size_t BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, size_t formatSize, PCHAR parameters, size_t parametersSize, size_t indexWidthLength[], size_t count);
+    size_t BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, size_t bufferSize, StringToken tokens[], size_t maxTokens);
+	
+    virtual LPCSTR GetEntrySourceFile();
+    virtual DWORD GetEntrySourceLine();
 
 	PCSTR getEntryFunction();
 

@@ -37,10 +37,12 @@
 #include <stdio.h>
 #include "types.h"
 #include "logging.h"
+//#include "InternalString.h"
 
 #include "MemLogEntry.h"
 #include "MemoryLog.h"
 #include "MemLogSprintf.h"
+#include "ActivityFactory.h"
 #include "binarylogger.h"
 #include "BinaryLogReader.h"
 
@@ -328,7 +330,8 @@ static CsError CsTimeIntervalToString(CsTimeInterval timeInterval, char *pBuffer
                 i += ret;
             }
         }
-        else {
+        else if (hr != 0 || min != 0 || sec != 0)
+        {
             // fractional seconds
             fOutput = true;
             ret = _snprintf(pBuff + i, k_CsTimeIntervalStringBufferSize - i - 1, "%u.%07u", sec, frac100ns);
@@ -341,6 +344,34 @@ static CsError CsTimeIntervalToString(CsTimeInterval timeInterval, char *pBuffer
 
             pBuff[i++] = 's';
             pBuff[i] = '\0';
+        }
+        else
+        {
+            // log as ms
+            fOutput = true;
+            UInt32 ms = frac100ns / CsTimeInterval_Millisecond;
+            frac100ns = frac100ns % CsTimeInterval_Millisecond;
+
+            if (frac100ns == 0)
+            {
+                ret = _snprintf(pBuff+i, k_CsTimeIntervalStringBufferSize - i - 1, "%ums", ms);
+                i += ret;
+            }
+            else
+            {
+                ret = _snprintf(pBuff+i, k_CsTimeIntervalStringBufferSize - i - 1, "%u.%04u", ms, frac100ns);
+                i += ret;
+
+                // remove traling "0" characters
+                while (i > 0 && pBuff[i-1] == '0')
+                {
+                    --i;
+                }
+
+                pBuff[i++] = 'm';
+                pBuff[i++] = 's';
+                pBuff[i] = '\0';
+            }
         }
     }
 
@@ -664,7 +695,6 @@ static const unsigned char __lookuptable_s[] = {
 #define FIND_NEXT_STATE(lookuptbl, class, state)   \
         (enum STATE)(lookuptbl[(class) * NUMSTATES + (state)] >> 4)
 
-#define __CRTDECL   __cdecl
 #define __CRTDECL_STDCALL __stdcall
 
 // flag definitions
@@ -712,12 +742,13 @@ enum CHARTYPE {
     CH_TYPE             // type specifying character
 };
 
-__declspec(selectany) char *__truncatedstring = "(truncated)";  /* string to print when a parameter cannot be output */
-__declspec(selectany) wchar_t *__wtruncatedstring = L"(truncated)";  /* string to print when a parameter cannot be output */
-__declspec(selectany) char *__nullstring = "(null)";  /* string to print on null ptr */
-__declspec(selectany) wchar_t *__wnullstring = L"(null)";  /* string to print on null ptr */
-__declspec(selectany) GUID __nullguid = { 0 };
-__declspec(selectany) SOCKADDR __nullsockaddr = { 0 };
+__declspec(selectany) UNICODE_STRING_NT __counted_unicode_nullstring = { sizeof(L"(null)") - sizeof(UNICODE_NULL),
+                                                                         sizeof(L"(null)"),
+                                                                         __wnullstring };
+
+__declspec(selectany) ANSI_STRING_NT __counted_ansi_nullstring = { sizeof("(null)") - sizeof(ANSI_NULL),
+                                                                   sizeof("(null)"),
+                                                                   __nullstring };
 
 //
 //// allocates a correctly sized preprocess block from the heap, and fills it in from the source preprocess block
@@ -1604,7 +1635,7 @@ __declspec(selectany) SOCKADDR __nullsockaddr = { 0 };
 
 // returns bytes copied, not including NULL
 // also returns zero when no bytes are copied
-static size_t WCharToUTF8(char *szOut, size_t cbOut, wchar_t const *szIn, size_t iSize)
+size_t WCharToUTF8(char *szOut, size_t cbOut, wchar_t const *szIn, size_t iSize)
 {
     size_t i = 0;
     size_t iOut = 0;
@@ -1617,7 +1648,7 @@ static size_t WCharToUTF8(char *szOut, size_t cbOut, wchar_t const *szIn, size_t
     }
 
     // requires target string to have some extra space, but makes this much more effecient
-    for (; szIn[i] != L'\0' && i < iSize && cbRemaining >= 4; i++)
+    for (; i < iSize && szIn[i] != L'\0' && cbRemaining >= 4; i++)
     {
         wchar_t wch = szIn[i];
 
@@ -1630,20 +1661,45 @@ static size_t WCharToUTF8(char *szOut, size_t cbOut, wchar_t const *szIn, size_t
         {
             // we use WideCharToMultiByte to convert wchar to utf8 if we find a wide char having a value more than 128 
             isMultiByte = true;
+            iOut = 0;
             break;
         }
     }
 
-    if (isMultiByte)
+    if (isMultiByte && cbOut > 1)
     {
-        iOut = WideCharToMultiByte(CP_UTF8, 0, szIn, (Int32)iSize, szOut, (Int32)cbOut, NULL, NULL);
+        // needs to leave space for NULL terminator otherwise the epilogue may break the character
+        // similar to cbRemaining >= 4 above that there could still be buffer left for rendering other args
+        iOut = WideCharToMultiByte(CP_UTF8, 0, szIn, (Int32)iSize, szOut, (Int32)cbOut - 1, NULL, NULL);
 
-
-        if ((iOut == 0) && (cbOut > 1))
+        if (iOut == 0)
         {
-            // Caller's caller assumes we will print something and return >= 1.  If there are 
-            // no characters that can be converted, just stick a something in so that we aren't broken.
-            szOut[iOut++] = '?';
+            if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+            {
+                // Caller's caller assumes we will print something and return >= 1.  If there are
+                // no characters that can be converted, just stick a something in so that we aren't broken.
+                szOut[iOut++] = '?';
+            }
+            else
+            {
+                // convert char by char and truncate the rest
+                size_t ret = 0;
+                while (iOut < cbOut - 1 && iSize > 0)
+                {
+                    ret = WideCharToMultiByte(CP_UTF8, 0, szIn, 1, szOut + iOut, (Int32)(cbOut - iOut) - 1, NULL, NULL);
+                    if (ret == 0)
+                    {
+                        // not enough space for the current char, errors other than insufficient buffer have been handled above
+                        break;
+                    }
+                    else
+                    {
+                        szIn++;
+                        iSize--;
+                        iOut += ret;
+                    }
+                }
+            }
         }
     }
 
@@ -1699,12 +1755,21 @@ Size_t __CRTDECL log_entry_sprintf(
             goto exit;
         }
 
+        //  NB: 'p' in this case may either contain a pointer provided by the
+        //      original caller when we're in direct mode, or point into the
+        //      memory beyond pLogEntry->m_args, but still within pLogEntry
+        //      if LogEntry::FixArgsOffsets() has been called (memory logging
+        //      mode). This complicates SE_COUNTED_STR and SE_COUNTED_WSTR
+        //      since we point to different structures in these two cases.  This
+        //      juggling is due to the NT string types containing a memory
+        //      pointer within the buffer provided to the azure log APIs.
         param p = pLogEntry->m_args[i];
 
         switch (Ordinal)
         {
         case SE_PSTR://         0x01
         case SE_PSTR_STATIC: // 0x0E
+            case SE_PSTR_INTERNAL: // 0x12
         {
             if (p.pstr == NULL)
             {
@@ -1750,8 +1815,98 @@ Size_t __CRTDECL log_entry_sprintf(
             // copies the bytes with NULL termination, returns length without NULL termination                
             len = WCharToUTF8(out + cbWritten, cbOut - cbWritten, p.pwstr, WCharsToCopy);
 
-            // only count the bytes, not the NULL termination, see epilogue
-            cbWritten += len;
+                // only count the bytes, not the NULL termination, see epilogue
+                cbWritten += len;
+
+                break;
+            }
+
+            case SE_COUNTED_STR://  0x10
+            {
+                Size_t len;
+                char *s;
+
+                bool bStringWithinLogEntry =
+                    (((PUCHAR)p.pCountedStr > (PUCHAR)&pLogEntry->m_args[0]) &&
+                     ((PUCHAR)p.pCountedStr < (PUCHAR)&pLogEntry->m_args[0] + pLogEntry->m_argsSize));
+
+                //  See comment above declaration of 'p'.  %Z handling was added after
+                //  the high performance logging was implemented, so it's kinda a hack.
+                if (bStringWithinLogEntry)
+                {
+                    len = p.pCountedStr->usLengthInBytes;   // length without NULL termination
+                    s = &p.pCountedStr->cBuffer[0];
+                }
+                else
+                {
+                    if (ValidAnsiString(p.pAnsiStr))
+                    {
+                        len = p.pAnsiStr->Length;
+                        s = &p.pAnsiStr->Buffer[0];
+                    }
+                    else
+                    {
+                        len = __counted_ansi_nullstring.Length;
+                        s = &__counted_ansi_nullstring.Buffer[0];
+                    }
+                }
+
+                if (pCurDesc->m_precision != -1 && (Int32)len > pCurDesc->m_precision)
+                {
+                    len = pCurDesc->m_precision;
+                }
+
+                if(len+cbWritten > cbOut)
+                {
+                    len = cbOut-cbWritten;
+                }
+
+                memcpy(out+cbWritten, s, len);
+                cbWritten += len;
+
+                break;
+            }
+
+            case SE_COUNTED_WSTR:// 0x11
+            {
+                Size_t WCharsToCopy;
+                wchar_t *s;
+
+                bool bStringWithinLogEntry =
+                    (((PUCHAR)p.pCountedStr > (PUCHAR)&pLogEntry->m_args[0]) &&
+                     ((PUCHAR)p.pCountedStr < (PUCHAR)&pLogEntry->m_args[0] + pLogEntry->m_argsSize));
+
+                //  See comment above declaration of 'p'.  %Z handling was added after
+                //  the high performance logging was implemented, so it's kinda a hack.
+                if (bStringWithinLogEntry)
+                {
+                    WCharsToCopy = p.pCountedStr->usLengthInBytes / sizeof(wchar_t);
+                    s = &p.pCountedStr->wcBuffer[0];
+                } else
+                {
+                    if (ValidUnicodeString(p.pUnicodeStr))
+                    {
+                        WCharsToCopy = p.pUnicodeStr->Length / sizeof(wchar_t);
+                        s = &p.pUnicodeStr->Buffer[0];
+                    } else
+                    {
+                        WCharsToCopy = __counted_unicode_nullstring.Length / sizeof(wchar_t);
+                        s = &__counted_unicode_nullstring.Buffer[0];
+                    }
+                }
+
+                if (pCurDesc->m_precision != -1 && (Int32)WCharsToCopy > pCurDesc->m_precision)
+                {
+                    WCharsToCopy = pCurDesc->m_precision;
+                }
+
+                Size_t len;
+
+                // Convert at most WCharsToCopy chars.  Returns length without NULL termination.
+                len = WCharToUTF8(out+cbWritten,cbOut-cbWritten,s,WCharsToCopy);
+
+                // only count the bytes, not the NULL termination, see epilogue
+                cbWritten += len;
 
             break;
         }
@@ -1863,7 +2018,7 @@ Size_t __CRTDECL log_entry_sprintf(
 
             if (result == 0 && cbIntWritten < pCurDesc->m_fldwidth)
             {
-                if (radix == 16)
+                if((radix == 16) || (pCurDesc->m_flags | FL_LEADZERO))
                 {
                     // add leading 0's for hex values.
                     Size_t leadZeros = pCurDesc->m_fldwidth - cbIntWritten;
@@ -2094,7 +2249,7 @@ Size_t __CRTDECL log_entry_sprintf_csformat(
     Size_t cbWritten = 0;
     Size_t cbLastWritten = 0;
 
-    int count = MIN(parameterMaxCount, pPreprocessBlock->m_nDescInUse);
+    Size_t count = MIN(parameterMaxCount, pPreprocessBlock->m_nDescInUse);
 
     for (int i = 0; i < count; i++)
     {
@@ -2121,11 +2276,20 @@ Size_t __CRTDECL log_entry_sprintf_csformat(
             goto exit;
         }
 
+        //  NB: 'p' in this case may either contain a pointer provided by the
+        //      original caller when we're in direct mode, or point into the
+        //      memory beyond pLogEntry->m_args, but still within pLogEntry
+        //      if LogEntry::FixArgsOffsets() has been called (memory logging
+        //      mode). This complicates SE_COUNTED_STR and SE_COUNTED_WSTR
+        //      since we point to different structures in these two cases.  This
+        //      juggling is due to the NT string types containing a memory
+        //      pointer within the buffer provided to the azure log APIs.
         param p = pLogEntry->m_args[i];
         switch (Ordinal)
         {
         case SE_PSTR://         0x01
         case SE_PSTR_STATIC: // 0x0E
+        case SE_PSTR_INTERNAL: // 0x12
         {
             if (p.pstr == NULL)
             {
@@ -2171,6 +2335,98 @@ Size_t __CRTDECL log_entry_sprintf_csformat(
 
             // only count the bytes, not the NULL termination, see epilogue
             cbWritten += len;
+            break;
+        }
+
+        case SE_COUNTED_STR://  0x10
+        {
+            Size_t len;
+            char *s;
+
+            bool bStringWithinLogEntry =
+                (((PUCHAR)p.pCountedStr > (PUCHAR)&pLogEntry->m_args[0]) &&
+                ((PUCHAR)p.pCountedStr < (PUCHAR)&pLogEntry->m_args[0] + pLogEntry->m_argsSize));
+
+            //  See comment above declaration of 'p'.  %Z handling was added after
+            //  the high performance logging was implemented, so it's kinda a hack.
+            if (bStringWithinLogEntry)
+            {
+                len = p.pCountedStr->usLengthInBytes;   // length without NULL termination
+                s = &p.pCountedStr->cBuffer[0];
+            }
+            else
+            {
+                if (ValidAnsiString(p.pAnsiStr))
+                {
+                    len = p.pAnsiStr->Length;
+                    s = &p.pAnsiStr->Buffer[0];
+                }
+                else
+                {
+                    len = __counted_ansi_nullstring.Length;
+                    s = &__counted_ansi_nullstring.Buffer[0];
+                }
+            }
+
+            if (pCurDesc->m_precision != -1 && (Int32)len > pCurDesc->m_precision)
+            {
+                len = pCurDesc->m_precision;
+            }
+
+            if (len + cbWritten > cbOut)
+            {
+                len = cbOut - cbWritten;
+            }
+
+            memcpy(out + cbWritten, s, len);
+            cbWritten += len;
+
+            break;
+        }
+
+        case SE_COUNTED_WSTR:// 0x11
+        {
+            Size_t WCharsToCopy;
+            wchar_t *s;
+
+            bool bStringWithinLogEntry =
+                (((PUCHAR)p.pCountedStr > (PUCHAR)&pLogEntry->m_args[0]) &&
+                ((PUCHAR)p.pCountedStr < (PUCHAR)&pLogEntry->m_args[0] + pLogEntry->m_argsSize));
+
+            //  See comment above declaration of 'p'.  %Z handling was added after
+            //  the high performance logging was implemented, so it's kinda a hack.
+            if (bStringWithinLogEntry)
+            {
+                WCharsToCopy = p.pCountedStr->usLengthInBytes / sizeof(wchar_t);
+                s = &p.pCountedStr->wcBuffer[0];
+            }
+            else
+            {
+                if (ValidUnicodeString(p.pUnicodeStr))
+                {
+                    WCharsToCopy = p.pUnicodeStr->Length / sizeof(wchar_t);
+                    s = &p.pUnicodeStr->Buffer[0];
+                }
+                else
+                {
+                    WCharsToCopy = __counted_unicode_nullstring.Length / sizeof(wchar_t);
+                    s = &__counted_unicode_nullstring.Buffer[0];
+                }
+            }
+
+            if (pCurDesc->m_precision != -1 && (Int32)WCharsToCopy > pCurDesc->m_precision)
+            {
+                WCharsToCopy = pCurDesc->m_precision;
+            }
+
+            Size_t len;
+
+            // Convert at most WCharsToCopy chars.  Returns length without NULL termination.
+            len = WCharToUTF8(out + cbWritten, cbOut - cbWritten, s, WCharsToCopy);
+
+            // only count the bytes, not the NULL termination, see epilogue
+            cbWritten += len;
+
             break;
         }
 
@@ -2277,7 +2533,7 @@ Size_t __CRTDECL log_entry_sprintf_csformat(
 
             if (result == 0 && cbIntWritten < pCurDesc->m_fldwidth)
             {
-                if (radix == 16)
+                if ((radix == 16) || (pCurDesc->m_flags | FL_LEADZERO))
                 {
                     // add leading 0's for hex values.
                     Size_t leadZeros = pCurDesc->m_fldwidth - cbIntWritten;
@@ -3448,6 +3704,7 @@ ULONG format_preprocess_block::Unserialize(
 //     entry.
 //
 LogEntry *LogEntry::UnserializeEntryBase(
+    __in UINT16 logEntryVersion,
     __in const char *pSourceBuffer,
     __in ULONG sourceBufferSize,
     __in const GUID *pLastActivityId,
@@ -3516,16 +3773,32 @@ LogEntry *LogEntry::UnserializeEntryBase(
         pLogEntry->m_ActivityId = *pLastActivityId;
     }
 
-    if (haveEntrypointId)
+    if (logEntryVersion >= 3)
     {
-        CopyMemory(&pLogEntry->m_EntryPointId, pSourceBuffer + nextReadOffset, sizeof(GUID));
-        nextReadOffset += sizeof(GUID);
-    }
-    else if (useLastEntryId)
-    {
-        pLogEntry->m_EntryPointId = *pLastEntryId;
-    }
+        // In V3, EntryId is a subset of ActivityId.
+        LOGGER_ACTIVITY_ID * pLoggerActivityId = (LOGGER_ACTIVITY_ID *)&pLogEntry->m_ActivityId;
 
+        if (pLoggerActivityId->ChildSourceId != 0)
+        {
+            LOGGER_ACTIVITY_ID * pLoggerEntryId = (LOGGER_ACTIVITY_ID *)&pLogEntry->m_EntryPointId;
+
+            *pLoggerEntryId = *pLoggerActivityId;
+            pLoggerEntryId->ChildSourceId = 0;
+            pLoggerEntryId->ChildSequenceNumber = 0;
+        }
+    }
+    else
+    {
+	    if (haveEntrypointId)
+	    {
+	        CopyMemory(&pLogEntry->m_EntryPointId, pSourceBuffer + nextReadOffset, sizeof(GUID));
+	        nextReadOffset += sizeof(GUID);
+	    }
+	    else if (useLastEntryId)
+	    {
+	        pLogEntry->m_EntryPointId = *pLastEntryId;
+	    }
+	}
     if (useLastTimestamp)
     {
         pLogEntry->m_timestamp = lastTimestamp;
@@ -3579,8 +3852,6 @@ LogEntry *LogEntry::UnserializeEntryBase(
 //      Returns NO_ERROR if the deep copied parameter list was successfully
 //      initialized. Returns appropriate Win32 error code on failure.
 //
-#include <iostream>
-using namespace std;
 DWORD LogEntry::UnserializeParameters(
     __in_bcount(bufferSize) const char *pReadBuffer,
     __in ULONG bufferSize,
@@ -3630,6 +3901,7 @@ DWORD LogEntry::UnserializeParameters(
 
     if (logEntryVersion == 1)
     {
+        //  This is a dead code path.  See common in UnserializeParametersV1().
         ULONG fixedArgsSize = m_pPreprocessBlock->m_nDescInUse * sizeof(m_args[0]);
         ULONG nextWriteOffset = sizeof(LogEntry) + fixedArgsSize;
 
@@ -3653,7 +3925,6 @@ DWORD LogEntry::UnserializeParameters(
 
         DWORD bytesReadV1;
 
-        //std::cout<<"cerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"<<std::endl;
         DWORD err = UnserializeParametersV1(
             pReadBuffer + nextReadOffset,
             bufferSize - nextReadOffset,

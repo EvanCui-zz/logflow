@@ -9,6 +9,80 @@ typedef UINT32 FpbUidType;
 // using a 64bit stack entry covers all integral types: double, int, int32, int64, pointer etc...
 typedef __int64 stack_t;
 
+// ANSI_STRING and UNICODE_STRING, for %Z processing, are not defined in our environment.
+// Or rather it seems some who include us do have them defined and some don't.  Sigh, as a
+// quick fix define some identical types with unique names.
+typedef struct _UNICODE_STRING_NT {
+    USHORT Length;
+    USHORT MaximumLength;
+    __field_bcount_part(MaximumLength, Length) PWCH   Buffer;
+} UNICODE_STRING_NT;
+
+typedef struct _STRING_NT {
+     USHORT Length;
+    USHORT MaximumLength;
+    __field_bcount_part_opt(MaximumLength, Length) PCHAR Buffer;
+} STRING_NT;
+
+typedef STRING_NT *PSTRING_NT;
+typedef STRING_NT ANSI_STRING_NT;
+typedef PSTRING_NT PANSI_STRING_NT;
+
+// We also need a varient that does not contain any pointers and is amenable to being
+// serialized, thus _counted_string (which handles both ANSI and UNICODE strings).
+// When packed after LogEntry::m_args[], there cannot be any pointers.
+#pragma warning(push)
+#pragma warning(disable:4200) // nonstandard extension used : zero-sized array in struct/union
+typedef struct _counted_string {
+    unsigned short usLengthInBytes;
+    union
+    {
+        char cBuffer[0];
+        wchar_t wcBuffer[0];
+    };
+} counted_string;
+#pragma warning(pop)
+
+__inline bool
+ValidUnicodeString (
+    __in UNICODE_STRING_NT * s
+    )
+{
+    //  Verify common requirements of ANSI and UNICODE counted strings.
+    if ((s == NULL) ||
+        (s->Buffer == NULL) ||
+        (s->Length == 0) ||
+        (s->Length > s->MaximumLength))
+    {
+        return false;
+    }
+
+    //  UNICODE_STRINGs must have an even number of bytes.
+    if ((s->Length | s->MaximumLength) & 1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+__inline bool
+ValidAnsiString (
+    __in ANSI_STRING_NT * s
+    )
+{
+    //  Verify common requirements of ANSI and UNICODE counted strings.
+    if ((s == NULL) ||
+        (s->Buffer == NULL) ||
+        (s->Length == 0) ||
+        (s->Length > s->MaximumLength))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 //
 // How to get around type-checking/type conversion constraints...
 //
@@ -27,9 +101,15 @@ typedef union
     void    *pv;
     char    *pstr;
     wchar_t *pwstr;
+    ANSI_STRING_NT *pAnsiStr;
+    UNICODE_STRING_NT *pUnicodeStr;
+    counted_string *pCountedStr;
 } param;
 
-#define LOG_ENTRY_VERSION   2
+// V1: 2010/09/10
+// V2: 2014/03/31
+// V3: Current version
+#define LOG_ENTRY_VERSION   3
 
 typedef INT32 LogParameterOffsetType;
 
@@ -148,6 +228,7 @@ public:
         __in DWORD lastThreadId);
 
     static LogEntry *UnserializeEntryBase(
+        __in UINT16 logEntryVersion,
         __in const char *pSourceBuffer,
         __in ULONG sourceBufferSize,
         __in const GUID *pLastActivityId,
@@ -177,19 +258,23 @@ public:
         __in LogParameterReverseMap& paramMap);
 
     void FixArgsOffsets();
-
+    /*
 public:
 
     static int GetBytesNeeded(
         __in format_preprocess_block *pPreprocessBlock,
+        __inout int *varArgSizes,
+        __in UInt16 varArgSizeArrayCount,
         __in va_list argptr);
 
 private:
 
     static int GetVarSizeArgsSize(
         __in format_preprocess_block *pPreprocessBlock,
+        __inout int *varArgSizes,
+        __in UInt16 varArgSizeArrayCount,
         __in va_list argptr);
-
+        */
 private:
     // Deny copying and assignment.
     LogEntry(const LogEntry&);

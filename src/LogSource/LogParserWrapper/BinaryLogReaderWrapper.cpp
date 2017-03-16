@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+#include "types.h"
 #include "BinaryLogReaderWrapper.h"
 #include <vcclr.h>
 
@@ -34,13 +34,18 @@ BinaryLogReaderWrapper::~BinaryLogReaderWrapper()
 // Debug,Info,Status,Warning,Error,AppAlert,Assert
 static LogFlow::DataModel::LogLevels Levels[] =
 {
-    LogFlow::DataModel::LogLevels::Verbose,
-    LogFlow::DataModel::LogLevels::Info,
-    LogFlow::DataModel::LogLevels::Detail,
+    LogFlow::DataModel::LogLevels::Verbose,  // 0 debug
+    LogFlow::DataModel::LogLevels::Info,     // 1 info
+    LogFlow::DataModel::LogLevels::Detail,   // 2 status
     LogFlow::DataModel::LogLevels::Warning,
-    LogFlow::DataModel::LogLevels::Error,
-    LogFlow::DataModel::LogLevels::Critical,
-    LogFlow::DataModel::LogLevels::Critical,
+    LogFlow::DataModel::LogLevels::Error,    // 4
+    LogFlow::DataModel::LogLevels::Critical, // 5 alert
+    LogFlow::DataModel::LogLevels::Critical, // 6 assert
+    LogFlow::DataModel::LogLevels::Verbose,  // 7 event
+    LogFlow::DataModel::LogLevels::Verbose,  // 8 reserved
+    LogFlow::DataModel::LogLevels::Verbose,  // 9 reserved
+    LogFlow::DataModel::LogLevels::Verbose,  // 10 Perf
+    LogFlow::DataModel::LogLevels::Verbose,  // 11 max
 };
 
 FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
@@ -62,7 +67,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             CHAR parameters[MAX_LOG_ENTRY_SIZE];
             size_t indexWidthLength[MAX_PARAMETER_COUNT * 3];
             // this method is the second fast one, it takes 5.4s for a sample 4 file data.
-            int count = this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
+            int count = (int)this->reader->GetFormatDataCSharpStyle(formattedEntry, MAX_LOG_ENTRY_SIZE, parameters, MAX_LOG_ENTRY_SIZE, indexWidthLength, MAX_PARAMETER_COUNT);
 
             node->Parameters = gcnew array<String^>(count);
             size_t currentPosition = 0;
@@ -85,7 +90,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
             StringToken tokens[MAX_PARAMETER_COUNT];
 
             // This is the fastest way, for a sample data, this takes about 4.7s for 4 files.
-            int count = this->reader->GetFormatDataCStyle(buffer, MAX_LOG_ENTRY_SIZE, tokens, MAX_PARAMETER_COUNT);
+            int count = (int)this->reader->GetFormatDataCStyle(buffer, MAX_LOG_ENTRY_SIZE, tokens, MAX_PARAMETER_COUNT);
 
             node->Parameters = gcnew array<String^>(count);
 

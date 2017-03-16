@@ -1,16 +1,20 @@
+
 #include <windows.h>
 #include <stdio.h>
 #include "types.h"
 #include "logging.h"
-#ifdef t-xijia
-#include "interlocked.h"
 
-#include "circmemorybuffer.h"
-#endif
+//#include "interlocked.h"
+//#include "InternalString.h"
+//#include "circmemorybuffer.h"
+
 #include "MemLogEntry.h"
 #include "MemoryLog.h"
 #include "MemLogSprintf.h"
 #include "binarylogger.h"
+
+extern UNICODE_STRING_NT __counted_unicode_nullstring;
+extern ANSI_STRING_NT __counted_ansi_nullstring;
 
 void BinaryLogProcessHeader::Init()
 {
@@ -32,63 +36,38 @@ bool BinaryLogProcessHeader::Verify()
         (m_logEntryVersion <= LOG_ENTRY_VERSION) &&
         (m_paramDescVersion <= FORMAT_PARAM_DESC_VER);
 }
-
-//int LogEntry::GetBytesNeeded(
+//
+//int LogEntry::GetBytesNeeded (
 //    __in format_preprocess_block *pPreprocessBlock,
+//    __inout int *varArgSizes,
+//    __in UInt16 varArgSizeArrayCount,
 //    __in va_list argptr)
 //{
+//    // Determine va_list size.
+//    int varArgsSize = 0;
+//
+//    if (pPreprocessBlock->m_uNumVarSizedArgs > 0)
+//    {
+//        varArgsSize = LogEntry::GetVarSizeArgsSize (pPreprocessBlock, varArgSizes, varArgSizeArrayCount, argptr);
+//    }
+//
 //    // The bytes needed is the sum of the object size and the size of the
 //    // variable argument list. Start with the object size.
-//    int objectSize = sizeof(LogEntry);
-//
-//    // Determine va_list size.
-//    int argsSize = 0;
-//    BOOL hasVarSizeArgs = false;
-//
-//    // By default each argument gets 64 bits but some types will need more.
-//    argsSize = pPreprocessBlock->m_nDescInUse * sizeof(param);
-//
-//    for(int i = 0; i < pPreprocessBlock->m_nDescInUse; i++)
-//    {
-//        format_param_desc *pCurDesc = &pPreprocessBlock->m_param_descs[i];
-//
-//        switch (pCurDesc->m_stackType)
-//        {
-//            case SE_PSTR://         0x01
-//            case SE_PSTR_STATIC://  0x0E
-//            case SE_PWSTR://        0x02
-//
-//                hasVarSizeArgs = true;
-//                break;
-//
-//            case SE_GUID_BRACE://  0x09
-//            case SE_GUID://        0x0A
-//
-//                argsSize += sizeof(GUID);
-//                break;
-//
-//            case SE_SOCKADDR://    0x0B
-//
-//                argsSize += sizeof(SOCKADDR);
-//                break;
-//        }
-//    }
-//
-//    if (hasVarSizeArgs)
-//    {
-//        argsSize += LogEntry::GetVarSizeArgsSize(pPreprocessBlock, argptr);
-//    }
-//
-//    return (objectSize + argsSize);
+//    return (sizeof(LogEntry) + pPreprocessBlock->m_uFixedArgsSize + varArgsSize);
 //}
 //
-//int LogEntry::GetVarSizeArgsSize(
+//int LogEntry::GetVarSizeArgsSize (
 //    __in format_preprocess_block *pPreprocessBlock,
+//    __inout int *varArgSizes,
+//    __in UInt16 varArgSizeArrayCount,
 //    __in va_list argptr)
 //{
-//    int size = 0;
+//    // This logentry has variable sized arguments, finc out their sizes.
+//    // It is common that the variable sized arguments are at the beginning of a log entry, so exploit that as well.
+//    int size = 0, argSize;
+//    int varSizedArgsSeen = 0;
 //
-//    for(int i = 0; i < pPreprocessBlock->m_nDescInUse; i++)
+//    for (int i = 0; i < pPreprocessBlock->m_nDescInUse && varSizedArgsSeen < pPreprocessBlock->m_uNumVarSizedArgs; i++)
 //    {
 //        format_param_desc *pCurDesc = &pPreprocessBlock->m_param_descs[i];
 //
@@ -98,14 +77,81 @@ bool BinaryLogProcessHeader::Verify()
 //            case SE_PSTR_STATIC://  0x0E
 //            {
 //                char * s = (char *)get_ptr_arg(&argptr);
-//                size += (s != NULL ? (strlen(s) + 1): 0);
+//                argSize = (s != NULL ? (strlen(s) + 1): 1);
+//                size += argSize;
+//                if (varSizedArgsSeen < varArgSizeArrayCount)
+//                {
+//                    varArgSizes[varSizedArgsSeen] = argSize;
+//                }
+//                varSizedArgsSeen++;
+//                break;
+//            }
+//
+//            case SE_PSTR_INTERNAL://  0x12
+//            {
+//                char * s = (char *)get_ptr_arg(&argptr);
+//                argSize = (s != NULL ? (InternalizedStringHeader::GetInternalizedStringLength (s) + 1) : 1);
+//                size += argSize;
+//                if (varSizedArgsSeen < varArgSizeArrayCount)
+//                {
+//                    varArgSizes[varSizedArgsSeen] = argSize;
+//                }
+//                varSizedArgsSeen++;
 //                break;
 //            }
 //
 //            case SE_PWSTR://        0x02
 //            {
 //                wchar_t * ws = (wchar_t *)get_ptr_arg(&argptr);
-//                size += (ws != NULL ? (wcslen(ws) + 1) * sizeof(wchar_t) : 0);
+//                argSize = (ws != NULL ? (wcslen(ws) + 1) * sizeof(wchar_t) : sizeof(wchar_t));
+//                size += argSize;
+//                if (varSizedArgsSeen < varArgSizeArrayCount)
+//                {
+//                    varArgSizes[varSizedArgsSeen] = argSize;
+//                }
+//                varSizedArgsSeen++;
+//                break;
+//            }
+//
+//            // In these paths, the var-arg always points to either a
+//            // UNICODE_STRING or ANSI_STRING (i.e. never a counted_string
+//            // type).  Note that we are cumputing the size required to
+//            // store a serialized counted_string.
+//            case SE_COUNTED_STR://  0x10
+//            {
+//                ANSI_STRING_NT * s = (ANSI_STRING_NT *)get_ptr_arg(&argptr);
+//
+//                if (!ValidAnsiString(s))
+//                {
+//                    s = &__counted_ansi_nullstring;
+//                }
+//
+//                argSize = sizeof(counted_string) + s->Length;
+//                size += argSize;
+//                if (varSizedArgsSeen < varArgSizeArrayCount)
+//                {
+//                    varArgSizes[varSizedArgsSeen] = argSize;
+//                }
+//                varSizedArgsSeen++;
+//                break;
+//            }
+//
+//            case SE_COUNTED_WSTR:// 0x11
+//            {
+//                UNICODE_STRING_NT * s = (UNICODE_STRING_NT *)get_ptr_arg(&argptr);
+//
+//                if (!ValidUnicodeString(s))
+//                {
+//                    s = &__counted_unicode_nullstring;
+//                }
+//
+//                argSize = sizeof(counted_string) + s->Length;
+//                size += argSize;
+//                if (varSizedArgsSeen < varArgSizeArrayCount)
+//                {
+//                    varArgSizes[varSizedArgsSeen] = argSize;
+//                }
+//                varSizedArgsSeen++;
 //                break;
 //            }
 //
@@ -164,7 +210,10 @@ void LogEntry::FixArgsOffsets()
 
         if (pCurDesc->m_stackType == SE_PSTR ||
             pCurDesc->m_stackType == SE_PSTR_STATIC ||
+            pCurDesc->m_stackType == SE_PSTR_INTERNAL ||
             pCurDesc->m_stackType == SE_PWSTR ||
+            pCurDesc->m_stackType == SE_COUNTED_STR ||
+            pCurDesc->m_stackType == SE_COUNTED_WSTR ||
             pCurDesc->m_stackType == SE_GUID_BRACE ||
             pCurDesc->m_stackType == SE_GUID ||
             pCurDesc->m_stackType == SE_SOCKADDR)

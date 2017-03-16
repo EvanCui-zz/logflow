@@ -40,5 +40,10 @@ public:
     virtual void QueryStats(
         __out UINT64 * bytesSkipped,
         __out UINT64 * bytesDecoded) = 0;
+
+    virtual LPCSTR GetEntrySourceFile() = 0;
+
+    virtual DWORD GetEntrySourceLine() = 0;
+
 };
 

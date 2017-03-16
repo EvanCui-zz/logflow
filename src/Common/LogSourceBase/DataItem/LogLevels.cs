@@ -9,8 +9,8 @@
         Critical = 0x1,
         Error = 0x2,
         Warning = 0x4,
-        Info = 0x8,
-        Verbose = 0x10,
-        Detail = 0x20,
+        Detail = 0x8,
+        Info = 0x10,
+        Verbose = 0x20,
     }
 }
