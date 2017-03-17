@@ -116,6 +116,8 @@
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.findTheLineFromParentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findTheTimeInParentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.someOtherViewtodoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.copyToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.sendViaEmailToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -183,8 +185,6 @@
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.timerMemory = new System.Windows.Forms.Timer(this.components);
-            this.findTheTimeInParentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.someOtherViewtodoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelTop.SuspendLayout();
             this.toolStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -245,7 +245,7 @@
             this.toolStripSeparator2});
             this.toolStripMain.Location = new System.Drawing.Point(0, 0);
             this.toolStripMain.Name = "toolStripMain";
-            this.toolStripMain.Size = new System.Drawing.Size(724, 25);
+            this.toolStripMain.Size = new System.Drawing.Size(755, 25);
             this.toolStripMain.TabIndex = 0;
             this.toolStripMain.Text = "toolStrip1";
             // 
@@ -328,7 +328,7 @@
             this.toolStripButtonTag1.Name = "toolStripButtonTag1";
             this.toolStripButtonTag1.Size = new System.Drawing.Size(36, 22);
             this.toolStripButtonTag1.Text = "&Tag1";
-            this.toolStripButtonTag1.CheckedChanged += new System.EventHandler(this.toolStripButtonTag1_CheckedChanged);
+            this.toolStripButtonTag1.Click += new System.EventHandler(this.toolStripButtonTag1_Click);
             // 
             // toolStripSeparator9
             // 
@@ -345,7 +345,7 @@
             this.toolStripButtonTag2.Name = "toolStripButtonTag2";
             this.toolStripButtonTag2.Size = new System.Drawing.Size(36, 22);
             this.toolStripButtonTag2.Text = "T&ag2";
-            this.toolStripButtonTag2.CheckedChanged += new System.EventHandler(this.toolStripButtonTag2_CheckedChanged);
+            this.toolStripButtonTag2.Click += new System.EventHandler(this.toolStripButtonTag2_Click);
             // 
             // toolStripSeparator10
             // 
@@ -361,7 +361,7 @@
             this.toolStripButtonTag3.Name = "toolStripButtonTag3";
             this.toolStripButtonTag3.Size = new System.Drawing.Size(36, 22);
             this.toolStripButtonTag3.Text = "Ta&g3";
-            this.toolStripButtonTag3.CheckedChanged += new System.EventHandler(this.toolStripButtonTag3_CheckedChanged);
+            this.toolStripButtonTag3.Click += new System.EventHandler(this.toolStripButtonTag3_Click);
             // 
             // toolStripSeparator2
             // 
@@ -859,7 +859,7 @@
             this.toolStripSeparator6,
             this.advancedToolStripMenuItem});
             this.contextMenuStripListView.Name = "contextMenuStripListView";
-            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 374);
+            this.contextMenuStripListView.Size = new System.Drawing.Size(222, 352);
             // 
             // filterWithTheSameThreadToolStripMenuItem
             // 
@@ -942,6 +942,20 @@
             this.goToToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.goToToolStripMenuItem.Text = "Find the Line in Root";
             this.goToToolStripMenuItem.Click += new System.EventHandler(this.goToToolStripMenuItem_Click);
+            // 
+            // findTheTimeInParentToolStripMenuItem
+            // 
+            this.findTheTimeInParentToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.someOtherViewtodoToolStripMenuItem});
+            this.findTheTimeInParentToolStripMenuItem.Name = "findTheTimeInParentToolStripMenuItem";
+            this.findTheTimeInParentToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.findTheTimeInParentToolStripMenuItem.Text = "Find the Time in";
+            // 
+            // someOtherViewtodoToolStripMenuItem
+            // 
+            this.someOtherViewtodoToolStripMenuItem.Name = "someOtherViewtodoToolStripMenuItem";
+            this.someOtherViewtodoToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.someOtherViewtodoToolStripMenuItem.Text = "Some other view (todo)";
             // 
             // toolStripSeparator8
             // 
@@ -1553,20 +1567,6 @@
             // 
             this.timerMemory.Interval = 1000;
             this.timerMemory.Tick += new System.EventHandler(this.timerMemory_Tick);
-            // 
-            // findTheTimeInParentToolStripMenuItem
-            // 
-            this.findTheTimeInParentToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.someOtherViewtodoToolStripMenuItem});
-            this.findTheTimeInParentToolStripMenuItem.Name = "findTheTimeInParentToolStripMenuItem";
-            this.findTheTimeInParentToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
-            this.findTheTimeInParentToolStripMenuItem.Text = "Find the Time in";
-            // 
-            // someOtherViewtodoToolStripMenuItem
-            // 
-            this.someOtherViewtodoToolStripMenuItem.Name = "someOtherViewtodoToolStripMenuItem";
-            this.someOtherViewtodoToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-            this.someOtherViewtodoToolStripMenuItem.Text = "Some other view (todo)";
             // 
             // MainFormListView
             // 

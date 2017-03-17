@@ -1179,21 +1179,21 @@ namespace LogFlow.Viewer
             this.toolStripButtonTag3.Checked = this.CurrentView?.IsTagged(2) ?? false;
         }
 
-        private void toolStripButtonTag1_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag1_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(0, button.Checked ? this.GetCurrentFilter() : null);
         }
 
-        private void toolStripButtonTag2_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag2_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(1, button.Checked ? this.GetCurrentFilter() : null);
         }
 
-        private void toolStripButtonTag3_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag3_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 

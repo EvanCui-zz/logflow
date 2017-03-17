@@ -19,3 +19,6 @@ Object Type	Count	Size (Bytes)	Inclusive Size (Bytes)	Module
  + Hashtable	220	15,279,440	15,316,752	mscorlib.dll
  + String (Bytes > 1K)	1,857	8,225,080	8,225,080	mscorlib.dll
  + List<LogFlow.DataModel.CosmosDataItem>	1	2,097,216	49,412,536	mscorlib.dll
+
+ Multi thread loading
+	around 5s.

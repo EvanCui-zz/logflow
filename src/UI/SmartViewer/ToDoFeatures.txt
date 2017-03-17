@@ -50,8 +50,9 @@
 58, memory analysis (by compression)
 22, consider structs (tuned by two tier compression)
 23, consider size compact.
-34, Parsable filter string
+34, Parsable filter string. (p:1,2,3 support)
 47, Add/hide columns
+25, regex (Done)
 
 2, Context operations. Most done
 33, Highlight find content.
@@ -79,7 +80,6 @@
 37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
 41, Plugin system
 21, List view logic refactor.
-25, regex
 19, Doc menues.
 36, Load from log parser
 49, hardcoded value.
