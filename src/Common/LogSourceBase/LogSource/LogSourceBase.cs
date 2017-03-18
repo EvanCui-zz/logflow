@@ -72,11 +72,11 @@ namespace LogFlow.DataModel
             this.ItemAdded?.Invoke(this, index);
         }
 
-        protected virtual void AddItem(T item)
+        protected virtual void AddItem(FullDataItem<T> item)
         {
-            this.InternalItems.Add(item);
-            item.Id = this.InternalItems.Count - 1;
-            this.OnItemAdded(item.Id);
+            this.InternalItems.Add(item.Item);
+            item.Item.Id = this.InternalItems.Count - 1;
+            this.OnItemAdded(item.Item.Id);
         }
 
         protected int AddTemplate(string template)

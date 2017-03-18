@@ -23,7 +23,7 @@ namespace LogFlow.DataModel
             {
                 if (token.IsCancellationRequested) yield break;
                 var rand = r.Next(100);
-                this.AddItem(new DataItemBase()
+                this.AddItem(new FullDataItem<DataItemBase>(new DataItemBase()
                 {
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
@@ -31,7 +31,7 @@ namespace LogFlow.DataModel
                     Parameters = new [] { DateTime.UtcNow.ToString("T"), (i + 255).ToString() },
                     ProcessId = i / 100000,
                     Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
-                });
+                }, this.Templates[0], Guid.Empty, 0));
 
                 if (i % (totalCount / 20) == 0)
                 {
@@ -49,7 +49,7 @@ namespace LogFlow.DataModel
             {
                 if (token.IsCancellationRequested) yield break;
                 var rand = r.Next(100);
-                this.AddItem(new DataItemBase()
+                this.AddItem(new FullDataItem<DataItemBase>(new DataItemBase()
                 {
                     ThreadId = i % 100,
                     Time = DateTime.UtcNow.AddSeconds(i),
@@ -57,7 +57,7 @@ namespace LogFlow.DataModel
                     Parameters = new [] { DateTime.UtcNow.ToString("T"), (i + 255).ToString() },
                     ProcessId = i / 100000,
                     Level = (LogLevels)(1 << (rand < 1 ? 0 : (rand < 5 ? 1 : (rand < 10 ? 2 : (rand < 55 ? 3 : 4))))),
-                });
+                }, this.Templates[0], Guid.Empty, 0));
 
                 yield return i * 100 / 2;
             }

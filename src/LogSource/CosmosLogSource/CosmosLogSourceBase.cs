@@ -83,6 +83,13 @@ namespace LogFlow.DataModel
                 Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                 this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
 
+            for (var i = 0; i < this.LogFiles.Count; i++)
+            {
+                var fileIndex = this.files.Put(this.LogFiles[i].FileName);
+                this.FileMetaData.Put(new FileCompressMetaData());
+                Debug.Assert(fileIndex == i, $"The file index {fileIndex} doesn't equal to i {i}");
+            }
+
             var count = 0;
 
             foreach (var item in merged)
@@ -95,9 +102,8 @@ namespace LogFlow.DataModel
 
                 if (filter.Match(item.Item.Item, item.Item.Template))
                 {
-                    item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                    item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
-                    this.AddItem(item.Item.Item);
+                    item.Item.Item.FileIndex = item.SourceIndex;
+                    this.AddItem(item.Item);
 
                     yield break;
                 }
@@ -168,20 +174,22 @@ namespace LogFlow.DataModel
 
             //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
 
+            for (var i = 0; i < this.LogFiles.Count; i++)
+            {
+                var fileIndex = this.files.Put(this.LogFiles[i].FileName);
+                this.FileMetaData.Put(new FileCompressMetaData());
+                Debug.Assert(fileIndex == i, $"The file index {fileIndex} doesn't equal to i {i}");
+            }
+
             // each time we iterate through the merged, it will refresh all files underneath and load in new InternalItems;
             foreach (var item in merged)
             {
                 if (token.IsCancellationRequested) yield break;
 
                 count++;
-                item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
-                this.AddItem(item.Item.Item);
 
-                //    var groupData = this.InnerGroupData[item.SourceIndex];
-                //   groupData.Value.Percentage = (int)this.LogFiles[item.SourceIndex].GetPercent();
-
-                //   groupData.Value.InnerGroupIndexes.Add(item.Item.Item.Id);
+                item.Item.Item.FileIndex = item.SourceIndex;
+                this.AddItem(item.Item);
 
                 lastPercents[item.SourceIndex] = item.Item.Percent;
                 var totalPercent = (int)lastPercents.Average();
