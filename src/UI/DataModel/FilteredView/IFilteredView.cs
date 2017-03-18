@@ -11,6 +11,12 @@ namespace LogFlow.DataModel
 
         int GetLogicalIndexOfItem(int itemId);
 
+        void UnIndentActivity(int actIdIndex);
+
+        void IndentActivity(int actIdIndex);
+
+        bool IsActivityIndented(int actIdIndex);
+
         void UnIndentThread(int threadId);
 
         void UnIndentAll();

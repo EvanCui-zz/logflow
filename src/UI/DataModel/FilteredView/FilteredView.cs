@@ -23,6 +23,22 @@ namespace LogFlow.DataModel
             }
         }
 
+        public void UnIndentActivity(int actIdIndex)
+        {
+            this.indentedActIdIndices.Remove(actIdIndex);
+        }
+
+        public void IndentActivity(int actIdIndex)
+        {
+            this.indentedActIdIndices.Add(actIdIndex);
+        }
+
+        public bool IsActivityIndented(int actIdIndex)
+        {
+            return this.indentedActIdIndices.Contains(actIdIndex);
+        }
+
+
         public void UnIndentThread(int threadId)
         {
             this.indentedThreads.Remove(threadId);
@@ -31,6 +47,7 @@ namespace LogFlow.DataModel
         public void UnIndentAll()
         {
             this.indentedThreads.Clear();
+            this.indentedActIdIndices.Clear();
         }
 
         public void IndentThread(int threadId)
@@ -358,6 +375,7 @@ namespace LogFlow.DataModel
         private List<int> ItemIndices { get; }
 
         private readonly HashSet<int> indentedThreads = new HashSet<int>();
+        private readonly HashSet<int> indentedActIdIndices = new HashSet<int>();
 
         #endregion
 

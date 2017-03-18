@@ -54,6 +54,10 @@ namespace LogFlow.DataModel
                     this.Templates[item.TemplateId],
                     item.Parameters);
             }
+            else if (string.Equals(ci.Name, "Time", StringComparison.Ordinal))
+            {
+                return item.Time.ToString("s");
+            }
             else if (string.Equals(ci.Name, "File", StringComparison.Ordinal))
             {
                 return this.files[item.FileIndex];

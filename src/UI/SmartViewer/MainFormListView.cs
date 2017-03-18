@@ -31,7 +31,7 @@ namespace LogFlow.Viewer
                 new SolidBrush(Settings.Default.Display_TagColors.Tag2),
                 new SolidBrush(Settings.Default.Display_TagColors.Tag3),
             });
- 
+
         private List<SolidBrush> tagBrushes;
 
         private void RefreshTagColors()
@@ -54,13 +54,14 @@ namespace LogFlow.Viewer
             HotKeys.KeyActions = new Dictionary<string, Action>()
             {
                 { HotKeys.ActionFocusPatternBox, () => this.toolStripComboBoxString.Focus() },
-                { HotKeys.ActionGoto, () => this.toolStripComboBoxString.Focus() },
+                { HotKeys.ActionGoto, () => this.Goto() },
                 { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
                 { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
                 { HotKeys.ActionTag, () => this.toolStripButtonTag1.PerformClick() },
                 { HotKeys.ActionOpen, () => this.openToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionSearchOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionCopy, () => this.Copy() },
             };
         }
 
@@ -210,7 +211,7 @@ namespace LogFlow.Viewer
                 {
                     // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
                     var currentView = this.CurrentView;
-                    if (currentView != null)this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
+                    if (currentView != null) this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
                 };
 
                 bw.DoWork += (o, args) =>
@@ -308,7 +309,8 @@ namespace LogFlow.Viewer
 
         private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(Resources.NotImplementedText, Resources.NotImplementedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.filteredOpenToolStripMenuItem_Click(sender, e);
+            //MessageBox.Show(Resources.NotImplementedText, Resources.NotImplementedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void TagCurrentView(int index, IFilter filter)
@@ -331,8 +333,7 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(this.GetCurrentFilter());
-            this.AddView(childView);
+            this.CreateChild(this.GetCurrentFilter());
         }
 
         private IFilter GetCurrentFilter()
@@ -674,6 +675,7 @@ namespace LogFlow.Viewer
             {
                 case 5:
                     bool isIndented = this.CurrentView?.IsThreadIndented(item.ThreadId) ?? false;
+                    if (!isIndented) isIndented = this.CurrentView?.IsActivityIndented(item.ActivityIdIndex) ?? false;
                     if (isIndented)
                     {
                         bound.Width -= 100;
@@ -768,6 +770,7 @@ namespace LogFlow.Viewer
             bool enabled = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text) && this.CurrentView != null;
             this.toolStripButtonFilter.Enabled = enabled;
             this.toolStripButtonCount.Enabled = enabled;
+            this.toolStripButtonGoto.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
         }
 
@@ -864,29 +867,19 @@ namespace LogFlow.Viewer
 
         private void filterWithTheSameThreadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
 
-            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
-
-            var f = LogFilterInterpreter.Parse($"t:{threadId}");
-            var childView = this.CurrentView.CreateChild(f);
-
-            this.AddView(childView);
+            var threadId = selectedItem.ThreadId;
+            this.CreateChild(LogFilterInterpreter.Parse($"t:{threadId}"));
         }
 
         private void indentTheThreadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
 
-            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
-
-            this.CurrentView.IndentThread(threadId);
+            this.CurrentView.IndentThread(selectedItem.ThreadId);
             this.fastListViewMain.Refresh();
         }
 
@@ -909,12 +902,12 @@ namespace LogFlow.Viewer
             this.fastListViewMain.Refresh();
         }
 
-        private void findTheLineFromParentToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemFindParent_Click(object sender, EventArgs e)
         {
             this.FindInNode(this.treeViewDoc.SelectedNode?.Parent);
         }
 
-        private void goToToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemFindRoot_Click(object sender, EventArgs e)
         {
             this.FindInNode(this.treeViewDoc.Nodes[0]);
         }
@@ -934,15 +927,19 @@ namespace LogFlow.Viewer
             this.GotoId(itemId);
         }
 
-        private bool GotoId(int physicalId)
+        private void GotoId(int physicalId)
         {
             var logicalId = this.CurrentView.GetLogicalIndexOfItem(physicalId);
 
-            if (logicalId < 0) return false;
+            if (logicalId < 0)
+            {
+                MessageBox.Show(string.Format(Resources.GotoFailed, physicalId), Resources.SomethingWrong,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             this.fastListViewMain.Items[logicalId].Selected = this.fastListViewMain.Items[logicalId].Focused = true;
             this.fastListViewMain.Items[logicalId].EnsureVisible();
-
-            return true;
         }
 
         private DateTime lastCollect = DateTime.UtcNow;
@@ -977,15 +974,11 @@ namespace LogFlow.Viewer
 
         private void FilterById(bool isBegin)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+            var id = selectedItem.Id;
 
-            var id = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
-
-            var childView = this.CurrentView.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
-            this.AddView(childView);
+            this.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
         }
 
         private void filterAsStartToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1160,17 +1153,7 @@ namespace LogFlow.Viewer
         {
             if (e.KeyCode != Keys.Enter || this.CurrentView == null) return;
 
-            int gotoId;
-            if (!int.TryParse(this.toolStripComboBoxString.Text, out gotoId))
-            {
-                return;
-            }
-
-            if (!this.GotoId(gotoId))
-            {
-                MessageBox.Show(string.Format(Resources.GotoFailed, gotoId), Resources.SomethingWrong,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            this.Goto();
         }
 
         private void UpdateTagButtonStatus()
@@ -1199,6 +1182,98 @@ namespace LogFlow.Viewer
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(2, button.Checked ? this.GetCurrentFilter() : null);
+        }
+
+        private IEnumerable<DataItemBase> GetSelectedItems()
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                yield break;
+            }
+
+            for (var i = 0; i < this.fastListViewMain.SelectedIndices.Count; i++)
+            {
+                yield return ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[i]].Tag);
+            }
+        }
+
+
+        private DataItemBase GetSelectedItem()
+        {
+            return this.GetSelectedItems().FirstOrDefault();
+        }
+
+        private void CreateChild(IFilter filter)
+        {
+            if (this.CurrentView == null) return;
+            this.AddView(this.CurrentView.CreateChild(filter));
+        }
+
+        private void filterWithTheSameActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            var actIdIndex = selectedItem.ActivityIdIndex;
+            var f = Filter.CreateFilter((di, t) => di.ActivityIdIndex == actIdIndex);
+
+            this.CreateChild(f);
+        }
+
+        private void indentTheActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            this.CurrentView.IndentActivity(selectedItem.ActivityIdIndex);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void unindentTheActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            this.CurrentView.UnIndentActivity(selectedItem.ActivityIdIndex);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void toolStripButtonGoto_Click(object sender, EventArgs e)
+        {
+            this.Goto();
+        }
+
+        private void Goto()
+        {
+            int gotoId;
+            if (!int.TryParse(this.toolStripComboBoxString.Text, out gotoId))
+            {
+                this.toolStripComboBoxString.Focus();
+
+                return;
+            }
+
+            this.GotoId(gotoId);
+        }
+
+        private void Copy()
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, this.GetSelectedItems().Select(di => di.ToString())));
+        }
+
+        private void copyToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.Copy();
+        }
+
+        private void toolStripMenuItemTag_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gotoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

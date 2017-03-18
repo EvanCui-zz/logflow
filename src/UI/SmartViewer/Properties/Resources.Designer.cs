@@ -61,6 +61,15 @@ namespace LogFlow.Viewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid goto Id..
+        /// </summary>
+        internal static string FailedToParseGotoId {
+            get {
+                return ResourceManager.GetString("FailedToParseGotoId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Didn&apos;t find the item Id {0} in the current view, try to switch to parent or root. .
         /// </summary>
         internal static string GotoFailed {

@@ -53,11 +53,15 @@
 34, Parsable filter string. (p:1,2,3 support)
 47, Add/hide columns
 25, regex (Done)
+102, Time display format
+105, hot key fix
 
 2, Context operations. Most done
 33, Highlight find content.
 35, Favorite filters
 44, Help, about
+103, Copy
+104, Send via Email
 
 17, Detail pane
 	1), detail
@@ -82,6 +86,8 @@
 21, List view logic refactor.
 19, Doc menues.
 36, Load from log parser
+100, load from win event.
+101, load from azure log source.
 49, hardcoded value.
 29, Other tools analysis:
 	1), LogParser, multiple source
