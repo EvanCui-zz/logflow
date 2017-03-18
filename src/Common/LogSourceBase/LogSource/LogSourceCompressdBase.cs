@@ -18,7 +18,7 @@
         }
 
         protected readonly IdentifierCache<FileCompressMetaData> FileMetaData = new IdentifierCache<FileCompressMetaData>();
-     //   private readonly FileCompressMetaData metaData = new FileCompressMetaData();
+        //   private readonly FileCompressMetaData metaData = new FileCompressMetaData();
 
         public override int Count => this.CompressedItems8.Count;
         public override int Tier1Count => this.CompressedItems16.Count;
@@ -28,6 +28,19 @@
         {
             //return this.metaData;
             return this.FileMetaData[fileIndex];
+        }
+
+        public override object GetColumnValue(DataItemBase item, int columnIndex)
+        {
+            ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
+            if (string.Equals(ci.Name, "ActId", StringComparison.OrdinalIgnoreCase))
+            {
+                return this.GetFileMetaData(item.FileIndex).ActivityIds[item.ActivityIdIndex];
+            }
+            else 
+            {
+                return base.GetColumnValue(item, columnIndex);
+            }
         }
 
         public override T this[int index]
