@@ -172,8 +172,6 @@ namespace LogFlow.DataModel
                         .Where(i => filter.Match(i.Item, i.Template))).ToArray());
             }
 
-            //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
-
             for (var i = 0; i < this.LogFiles.Count; i++)
             {
                 var fileIndex = this.files.Put(this.LogFiles[i].FileName);

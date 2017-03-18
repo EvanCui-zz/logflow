@@ -13,7 +13,7 @@ namespace LogFlow {
             BinaryLogReaderWrapper(String^ fileName);
             ~BinaryLogReaderWrapper();
 
-            FullCosmosDataItem ReadItem() override;
+            FullCosmosDataItem^ ReadItem() override;
             void Refresh() override;
             void Reset() override {}
             double GetPercent() override { return this->reader->getPersentage(); }

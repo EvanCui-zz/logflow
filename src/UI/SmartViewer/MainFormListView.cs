@@ -465,6 +465,7 @@ namespace LogFlow.Viewer
 
         private void RemoveView(IFilteredView<DataItemBase> view)
         {
+            if (view == null) return;
             view.ItemAdded -= this.UpdateMainGridRowCount;
             view.ProgressChanged -= this.ChildView_ProgressChanged;
 

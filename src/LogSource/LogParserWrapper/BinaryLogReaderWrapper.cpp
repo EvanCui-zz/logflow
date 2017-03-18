@@ -48,7 +48,7 @@ static LogFlow::DataModel::LogLevels Levels[] =
     LogFlow::DataModel::LogLevels::Verbose,  // 11 max
 };
 
-FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
+FullCosmosDataItem^ BinaryLogReaderWrapper::ReadItem()
 {
     bool cstyle = 0;
     DWORD err;
@@ -86,7 +86,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
                 guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
                 guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
             
-            return FullCosmosDataItem(node, gcnew String(formattedEntry), g, (int)this->reader->getPersentage());
+            return gcnew FullCosmosDataItem(node, gcnew String(formattedEntry), g, (int)this->reader->getPersentage());
         }
         else
         {
@@ -119,7 +119,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
                 guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
             
             // this implementation doesn't have templates, but just concated strings.
-            return FullCosmosDataItem(node, (String^)node->Parameters[0], g, (int)this->reader->getPersentage());
+            return gcnew FullCosmosDataItem(node, (String^)node->Parameters[0], g, (int)this->reader->getPersentage());
         }
 
         //node->SrcFile = LocalStringPool::Intern(gcnew String(this->reader->getEntryFileName()));
@@ -131,7 +131,7 @@ FullCosmosDataItem BinaryLogReaderWrapper::ReadItem()
     }
     else
     {
-        return FullCosmosDataItem(nullptr, nullptr, Guid::Empty, 100);
+        return gcnew FullCosmosDataItem(nullptr, nullptr, Guid::Empty, 100);
     }
 }
 
