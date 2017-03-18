@@ -44,6 +44,52 @@ namespace LogFlow.DataModel
         public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
         protected List<IFilter> InnerGroupFilters = null;
 
+        private object GetColumnHtml(DataItemBase item, int columnIndex)
+        {
+            ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
+
+            if (string.Equals(ci.Name, "Text", StringComparison.Ordinal))
+            {
+                return ((ParametricString)this.GetColumnValue(item, columnIndex)).ToHtml();
+            }
+            else
+            {
+                return this.GetColumnValue(item, columnIndex);
+            }
+        }
+
+        public string GetHtml(IEnumerable<DataItemBase> items, bool withTitle)
+        {
+            var result = string.Join(
+                Environment.NewLine,
+                items.Select(item =>
+                    $"<tr>{string.Concat(Enumerable.Range(0, this.ColumnInfos.Count).Select(i => $"<td>{this.GetColumnHtml(item, i)}</td>"))}</tr>"));
+
+            if (withTitle)
+            {
+                var title = $"<tr>{string.Concat(Enumerable.Range(0, this.ColumnInfos.Count).Select(i => $"<td>{this.ColumnInfos[i].Name}</td>"))}</tr>";
+                return title + Environment.NewLine + result;
+            }
+
+            return result;
+        }
+
+        public string GetText(IEnumerable<DataItemBase> items, bool withTitle)
+        {
+            var result = string.Join(
+                Environment.NewLine,
+                items.Select(item =>
+                    string.Join("\t", Enumerable.Range(0, this.ColumnInfos.Count).Select(i => this.GetColumnValue(item, i)))));
+
+            if (withTitle)
+            {
+                var title = string.Join("\t", Enumerable.Range(0, this.ColumnInfos.Count).Select(i => this.ColumnInfos[i].Name));
+                return title + Environment.NewLine + result;
+            }
+
+            return result;
+        }
+
         public virtual object GetColumnValue(DataItemBase item, int columnIndex)
         {
             ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];

@@ -18,6 +18,8 @@ namespace LogFlow.DataModel
         int Tier2Count { get; }
         IReadOnlyList<string> Templates { get; }
 
+        string GetHtml(IEnumerable<DataItemBase> items, bool withTitle);
+        string GetText(IEnumerable<DataItemBase> items, bool withTitle);
         object GetColumnValue(DataItemBase item, int columnIndex);
         IReadOnlyList<PropertyInfo> PropertyInfos { get; }
         IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }

@@ -1258,7 +1258,32 @@ namespace LogFlow.Viewer
 
         private void Copy()
         {
-            Clipboard.SetText(string.Join(Environment.NewLine, this.GetSelectedItems().Select(di => di.ToString())));
+            if (this.CurrentView == null) return;
+            const string start = "<HTML><BODY><!--StartFragment -->";
+            const string end = "<!--EndFragment --></BODY></HTML>";
+            string prefix = "Version:1.0" + Environment.NewLine
+                + "StartHTML:aaaaaaaaaa" + Environment.NewLine
+                + "EndHTML:bbbbbbbbbb" + Environment.NewLine
+                + "StartFragment:cccccccccc" + Environment.NewLine
+                + "EndFragment:dddddddddd" + Environment.NewLine;
+
+            string content = $"<table border=\"1\">{this.CurrentView.Source.GetHtml(this.GetSelectedItems(), true)}</table>";
+
+            string data = prefix + start + content + end;
+            data = data.Replace("aaaaaaaaaa", prefix.Length.ToString().PadLeft(10, '0'))
+                .Replace("bbbbbbbbbb", data.Length.ToString().PadLeft(10, '0'))
+                .Replace("cccccccccc", (prefix + start).Length.ToString().PadLeft(10, '0'))
+                .Replace("dddddddddd", (prefix + start + content).Length.ToString().PadLeft(10, '0'));
+
+            string text = this.CurrentView.Source.GetText(this.GetSelectedItems(), true);
+
+            var obj = new DataObject();
+
+            obj.SetData(DataFormats.Html, data);
+            obj.SetData(DataFormats.Text, text);
+            obj.SetData(DataFormats.UnicodeText, text);
+
+            Clipboard.SetDataObject(obj, true);
         }
 
         private void copyToolStripMenuItem1_Click(object sender, EventArgs e)

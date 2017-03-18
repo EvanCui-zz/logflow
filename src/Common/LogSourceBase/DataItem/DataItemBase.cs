@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using System.Linq;
+    using System.Text;
 
     // Consider change it to struct and compact the integers.
     public class DataItemBase
