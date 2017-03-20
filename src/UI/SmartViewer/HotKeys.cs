@@ -13,11 +13,12 @@
         public const string ActionGoto = "Goto";
         public const string ActionFilter = "Filter";
         public const string ActionSearch = "Search";
+        public const string ActionBackSearch = "Back Search";
         public const string ActionCount = "Count";
         public const string ActionTag = "Tag";
         public const string ActionCopy = "Copy";
         public const string ActionOpen = "Open";
-        public const string ActionSearchOpen = "Search Open";
+        public const string ActionFilteredOpen = "Filtered Open";
 
         public static Dictionary<string, Action> KeyActions;
 
@@ -32,10 +33,11 @@
                 { System.Windows.Forms.Keys.T | System.Windows.Forms.Keys.Control, ActionTag },
                 { System.Windows.Forms.Keys.F1, ActionFilter },
                 { System.Windows.Forms.Keys.F3, ActionSearch },
+                { System.Windows.Forms.Keys.F3 | System.Windows.Forms.Keys.Shift, ActionBackSearch },
                 { System.Windows.Forms.Keys.F4, ActionCount },
                 { System.Windows.Forms.Keys.F2, ActionGoto },
                 { System.Windows.Forms.Keys.O | System.Windows.Forms.Keys.Control, ActionOpen },
-                { System.Windows.Forms.Keys.L | System.Windows.Forms.Keys.Control, ActionSearchOpen },
+                { System.Windows.Forms.Keys.L | System.Windows.Forms.Keys.Control, ActionFilteredOpen },
                 { System.Windows.Forms.Keys.C | System.Windows.Forms.Keys.Control, ActionCopy },
             });
 

@@ -57,10 +57,11 @@ namespace LogFlow.Viewer
                 { HotKeys.ActionGoto, () => this.Goto() },
                 { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
                 { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionBackSearch, () => this.findPreviousToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
                 { HotKeys.ActionTag, () => this.toolStripButtonTag1.PerformClick() },
                 { HotKeys.ActionOpen, () => this.openToolStripMenuItem_Click(this, null) },
-                { HotKeys.ActionSearchOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionFilteredOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCopy, () => this.Copy() },
             };
         }
@@ -88,7 +89,7 @@ namespace LogFlow.Viewer
             this.toolStripComboBoxString.Items.AddRange(Settings.Default.Data_FilteringHistory.Cast<object>().ToArray());
             this.toolStripComboBoxString.SelectedIndex = this.toolStripComboBoxString.Items.Count > 0 ? 0 : -1;
 
-            this.toolStripComboBoxString_TextChanged(this, null);
+            this.UpdateDocDisplay();
         }
 
         private void ApplySettings()
@@ -171,8 +172,6 @@ namespace LogFlow.Viewer
 
             if (this.CurrentView == null)
             {
-                this.toolStripButtonTag1.Enabled =
-                    this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = false;
                 this.closeToolStripMenuItem.Enabled = false;
                 this.filterToolStripMenuItemDoc.Enabled = false;
                 this.Text = Product.GetTitle();
@@ -183,8 +182,6 @@ namespace LogFlow.Viewer
 
             this.Text = $"{Product.GetTitle()} - {this.CurrentView.Name}";
 
-            this.toolStripButtonTag1.Enabled =
-                this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = true;
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
             this.toolStripComboBoxString.Enabled = true;
@@ -357,6 +354,7 @@ namespace LogFlow.Viewer
 
         private void UpdateDocDisplay()
         {
+            this.toolStripComboBoxString_TextChanged(this, null);
             this.UpdateFastListViewColumns();
             this.UpdateDetailedPane();
             this.UpdateStatistics();
@@ -772,6 +770,8 @@ namespace LogFlow.Viewer
             this.toolStripButtonCount.Enabled = enabled;
             this.toolStripButtonGoto.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
+            this.toolStripButtonTag1.Enabled =
+                this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = enabled;
         }
 
         private void fastListViewMain_Resize(object sender, EventArgs e)
