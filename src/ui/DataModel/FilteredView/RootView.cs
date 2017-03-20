@@ -10,7 +10,8 @@ namespace LogFlow.DataModel
         private Timer internTimer;
         private bool isInInternProgress;
 
-        public RootView(ILogSource<T> logSource, IFilter filter, bool backgroundIntern) : base(filter != null ? $"{logSource.Name} ({filter.Name})" : logSource.Name)
+        public RootView(ILogSource<T> logSource, IFilter filter, bool backgroundIntern) : base(
+            $"{logSource.Name}{(filter != null ? $" ({filter.Name})" : null)}{(logSource.Properties.DynamicLoadingEnabled ? " (AutoLoad)" : null)}{(logSource.Properties.CompressEnabled ? " (Compressed)" : null)}")
         {
             this.Source = logSource;
             this.Filter = filter;

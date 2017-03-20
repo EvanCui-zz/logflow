@@ -60,6 +60,7 @@
     <Compile Include="LogSource\LogSourceBase.cs" />
     <Compile Include="CustomizedDataType\ParametricString.cs" />
     <Compile Include="LogSource\LogSourceCompressdBase.cs" />
+    <Compile Include="LogSource\LogSourceProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

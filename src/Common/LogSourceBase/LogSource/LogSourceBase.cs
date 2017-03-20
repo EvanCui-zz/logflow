@@ -10,8 +10,9 @@ namespace LogFlow.DataModel
 
     public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
     {
-        protected LogSourceBase()
+        protected LogSourceBase(LogSourceProperties properties)
         {
+            this.Properties = properties;
             this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
             this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
@@ -19,8 +20,7 @@ namespace LogFlow.DataModel
 
         public abstract string Name { get; }
 
-        public bool CompressionEnabled { get; set; }
-        public bool AutoLoadingEnabled { get; set; }
+        public LogSourceProperties Properties { get; }
         public virtual int Count => this.InternalItems.Count;
         public virtual int Tier1Count { get; } = 0;
         public virtual int Tier2Count { get; } = 0;

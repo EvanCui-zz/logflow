@@ -12,8 +12,7 @@ namespace LogFlow.DataModel
         T this[int index] { get; }
         int Count { get; }
 
-        bool CompressionEnabled { get; set; }
-        bool AutoLoadingEnabled { get; set; }
+        LogSourceProperties Properties { get; }
         int Tier1Count { get; }
         int Tier2Count { get; }
         IReadOnlyList<string> Templates { get; }
@@ -25,7 +24,7 @@ namespace LogFlow.DataModel
         IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }
         // for performance, only pass int value
         event EventHandler<int> ItemAdded;
-      //  object GetColumnValue(int rowIndex, int columnIndex);
+        //  object GetColumnValue(int rowIndex, int columnIndex);
 
         IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token);
 

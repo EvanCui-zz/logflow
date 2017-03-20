@@ -152,9 +152,8 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var logSource = LogSourceManager.Instance.GetLogSource(initializeString);
-            logSource.CompressionEnabled = Settings.Default.Behavior_EnabledCompression;
-            logSource.AutoLoadingEnabled = Settings.Default.Behavior_AutoLoad;
+            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(Settings.Default.Behavior_AutoLoad, Settings.Default.Behavior_EnabledCompression));
+
             var document = new RootView<DataItemBase>(logSource, filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);
         }

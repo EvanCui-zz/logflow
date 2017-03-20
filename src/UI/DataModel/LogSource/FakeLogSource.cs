@@ -9,6 +9,8 @@ namespace LogFlow.DataModel
     {
         public override string Name => "Faked Log";
 
+        internal FakeLogSource(LogSourceProperties properties) : base(properties) { }
+
         protected override IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token)
         {
             Random r = new Random();

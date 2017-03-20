@@ -116,7 +116,7 @@ namespace LogFlow.Viewer
                 {
                     DataItemBase dataItem;
 
-                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i]);
+                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(false, true));
 
                     try
                     {

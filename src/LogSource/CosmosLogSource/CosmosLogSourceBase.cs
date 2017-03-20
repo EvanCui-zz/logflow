@@ -8,8 +8,9 @@ namespace LogFlow.DataModel
     using System.Threading;
     using LogFlow.DataModel.Algorithm;
 
-    public abstract class CosmosLogSourceBase : LogSourceCompressdBase<CosmosDataItem>, IDisposable
+    public abstract class CosmosLogSourceBase : LogSourceCompressedBase<CosmosDataItem>, IDisposable
     {
+        protected CosmosLogSourceBase(LogSourceProperties properties) : base(properties) { }
         protected List<CosmosLogFileBase> LogFiles;
 
         public override string Name => this.LogFiles.Count == 1 ? this.LogFiles[0].FileName :
@@ -60,7 +61,7 @@ namespace LogFlow.DataModel
 
         private void SetAutoLoading()
         {
-            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.AutoLoadingEnabled);
+            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.Properties.DynamicLoadingEnabled);
         }
 
         public override IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token)
@@ -125,7 +126,7 @@ namespace LogFlow.DataModel
 
         protected override IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token)
         {
-            if (this.AutoLoadingEnabled)
+            if (this.Properties.DynamicLoadingEnabled)
             {
                 return this.Load(filter, token);
             }

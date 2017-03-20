@@ -5,8 +5,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public abstract class LogSourceCompressdBase<T> : LogSourceBase<T> where T : DataItemBase, new()
+    public abstract class LogSourceCompressedBase<T> : LogSourceBase<T> where T : DataItemBase, new()
     {
+        protected LogSourceCompressedBase(LogSourceProperties properties) : base(properties) { }
         protected class FileCompressMetaData
         {
             public DateTime? BaseTime { get; set; }
@@ -47,7 +48,7 @@
         {
             get
             {
-                if (!this.CompressionEnabled)
+                if (!this.Properties.CompressEnabled)
                 {
                     return base[index];
                 }
@@ -108,7 +109,7 @@
 
             CompressedDataItem8 compressed;
 
-            if (this.CompressionEnabled)
+            if (this.Properties.CompressEnabled)
             {
                 if (!item.Item.Compress(meta.BaseTime.Value, out compressed))
                 {

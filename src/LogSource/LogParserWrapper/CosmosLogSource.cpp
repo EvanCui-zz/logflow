@@ -7,7 +7,7 @@ using namespace LogFlow::DataModel;
 using namespace System::IO;
 using namespace System::Collections::Generic;
 
-CosmosLogSource::CosmosLogSource(String^ initializationData)
+CosmosLogSource::CosmosLogSource(String^ initializationData, LogSourceProperties^ properties) : CosmosLogSourceBase(properties)
 {
     auto filePaths = initializationData->Split(gcnew array<wchar_t>(1) { ',' }, StringSplitOptions::RemoveEmptyEntries);
     int fileCount = filePaths->Length;
@@ -20,12 +20,10 @@ CosmosLogSource::CosmosLogSource(String^ initializationData)
 
     if (fileCount > 1)
     {
-        //    this->InnerGroupData = gcnew List<KeyValuePair<String^, LogFlow::DataModel::InnerGroupData^>>(fileCount);
         this->InnerGroupFilters = gcnew List<IFilter^>(fileCount);
         for (int i = 0; i < fileCount; i++)
         {
             this->InnerGroupFilters->Add(gcnew FileFilter(this->LogFiles[i]->FileName, i));
-            //   this->InnerGroupData->Add(KeyValuePair<String^, LogFlow::DataModel::InnerGroupData^>(filePaths[i], gcnew LogFlow::DataModel::InnerGroupData()));
         }
     }
 }

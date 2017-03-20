@@ -12,7 +12,7 @@ namespace LogFlow {
         public ref class CosmosLogSource : CosmosLogSourceBase
         {
         public:
-            CosmosLogSource(String^ initializationData);
+            CosmosLogSource(String^ initializationData, LogSourceProperties^ properties);
         };
     }
 }
