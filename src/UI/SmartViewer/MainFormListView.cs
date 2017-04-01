@@ -712,7 +712,7 @@ namespace LogFlow.Viewer
 
                             // draw a >> sign to indicate multiline
                             e.Graphics.DrawString(
-                                "???",
+                                "↓↓↓",
                                 currentFont,
                                 Brushes.Moccasin,
                                 bound,

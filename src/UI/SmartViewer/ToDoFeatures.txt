@@ -62,6 +62,10 @@
 44, Help, about
 103, Copy
 104, Send via Email
+106, Less than 20 lines bug.
+107, empty search pattern bug.
+108, Button to do statistics
+109, Ctrl D and Alt D
 
 17, Detail pane
 	1), detail
