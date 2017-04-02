@@ -336,19 +336,26 @@ namespace LogFlow.Viewer
         {
             var pattern = this.toolStripComboBoxString.Text;
 
-            if (this.toolStripComboBoxString.Items.Contains(pattern))
+            if (!string.IsNullOrEmpty(pattern))
             {
-                this.toolStripComboBoxString.Items.Remove(pattern);
+                if (this.toolStripComboBoxString.Items.Contains(pattern))
+                {
+                    this.toolStripComboBoxString.Items.Remove(pattern);
+                }
+
+                this.toolStripComboBoxString.Items.Insert(0, pattern);
+                this.toolStripComboBoxString.SelectedIndex = 0;
+                if (this.toolStripComboBoxString.Items.Count > Settings.Default.Data_MaxHistoryCount) this.toolStripComboBoxString.Items.RemoveAt(Settings.Default.Data_MaxHistoryCount);
+                Settings.Default.Data_FilteringHistory.Clear();
+                Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
+                Settings.Default.Save();
+
+                return LogFilterInterpreter.Parse(pattern);
             }
-
-            this.toolStripComboBoxString.Items.Insert(0, pattern);
-            this.toolStripComboBoxString.SelectedIndex = 0;
-            if (this.toolStripComboBoxString.Items.Count > Settings.Default.Data_MaxHistoryCount) this.toolStripComboBoxString.Items.RemoveAt(Settings.Default.Data_MaxHistoryCount);
-            Settings.Default.Data_FilteringHistory.Clear();
-            Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
-            Settings.Default.Save();
-
-            return LogFilterInterpreter.Parse(pattern);
+            else
+            {
+                return Filter.MatchAll;
+            }
         }
 
         private void UpdateDocDisplay()
@@ -690,11 +697,14 @@ namespace LogFlow.Viewer
                         {
                             str = str.Substring(0, pos);
                             bound.Width -= multiLineSignWidth;
+                            if (bound.Width < 0) bound.Width = 0;
                         }
+
+                        str = str.Replace("\n", " ");
 
                         var currentFont = token.Value && Settings.Default.Display_BoldParameter ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
 
-                        if (str.Length > 0)
+                        if (str.Length > 0 && bound.Width > 0)
                         {
                             e.Graphics.DrawString(
                                 str,
@@ -714,14 +724,14 @@ namespace LogFlow.Viewer
                             e.Graphics.DrawString(
                                 "↓↓↓",
                                 currentFont,
-                                Brushes.Moccasin,
+                                isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
                                 bound,
                                 this.DefaultStringFormat);
 
                             break;
                         }
 
-                        var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
+                        var length = e.Graphics.MeasureString(str, currentFont).Width + 0.5f;
                         bound.Width -= (int)length;
                         if (bound.Width <= 0) break;
                         bound.X += (int)length;

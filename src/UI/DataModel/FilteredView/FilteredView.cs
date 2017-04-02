@@ -1,11 +1,10 @@
-﻿using System.Threading;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
 
     public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
     {
@@ -99,12 +98,13 @@ namespace LogFlow.DataModel
             this.OnReportStart("Searching");
             yield return 0;
 
-            int total = this.ItemIndices?.Count ?? this.Source.Count;
+            int total = this.TotalCount;
+            var reportIndex = Math.Max(total / ReportInterval, 2);
 
             bool loopedBack = false;
             for (int i = 1; i < total; i++)
             {
-                if (i % (total / 20) == 0)
+                if (i % reportIndex == 0)
                 {
                     int progress = 5 + ((i * 100) / total) * 90 / 100;
                     yield return progress;
@@ -141,9 +141,11 @@ namespace LogFlow.DataModel
             int total = this.TotalCount;
             int count = 0;
 
+            var reportIndex = Math.Max(total / ReportInterval, 2);
+
             for (int i = 0; i < total; i++)
             {
-                if (i % (total / 20) == 0)
+                if (i % reportIndex == 0)
                 {
                     int progress = 5 + ((i * 100) / total) * 90 / 100;
                     yield return progress;
@@ -172,8 +174,6 @@ namespace LogFlow.DataModel
 
             this.OnReportStart("Initializing");
             yield return 5;
-
-            const int reportInterval = 20;
 
             if (this.Parent == null)
             {
@@ -204,7 +204,7 @@ namespace LogFlow.DataModel
 
                 var total = this.Parent.TotalCount;
 
-                var reportIndex = Math.Max(total / reportInterval, 2);
+                var reportIndex = Math.Max(total / ReportInterval, 2);
 
                 for (var i = 0; i < total; i++)
                 {
@@ -231,7 +231,7 @@ namespace LogFlow.DataModel
                 int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
                 this.Statistics.SetFirstLast(this.Source[firstIndex], this.Source[lastIndex]);
 
-                var reportIndex = Math.Max(this.TotalCount / reportInterval, 2);
+                var reportIndex = Math.Max(this.TotalCount / ReportInterval, 2);
                 for (var i = 0; i < this.TotalCount; i++)
                 {
                     if (i % reportIndex == 0)
@@ -364,7 +364,7 @@ namespace LogFlow.DataModel
 
         #region Properties and fields
 
-        //   private InnerGroupData GroupData { get; set; }
+        const int ReportInterval = 20;
 
         private IDictionary<int, IFilter> Tags { get; } = new Dictionary<int, IFilter>();
 

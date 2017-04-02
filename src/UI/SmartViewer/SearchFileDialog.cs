@@ -86,7 +86,7 @@
 
                 if (string.IsNullOrEmpty(this.comboBoxSearchPattern.Text))
                 {
-                    this.Filter = LogFlow.DataModel.Filter.CreateFilter((i, t) => true);
+                    this.Filter = LogFlow.DataModel.Filter.MatchAll;
                 }
                 else
                 {

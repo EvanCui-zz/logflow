@@ -55,17 +55,19 @@
 25, regex (Done)
 102, Time display format
 105, hot key fix
+106, Less than 20 lines bug.
+107, empty search pattern bug.
+109, Ctrl D and Alt D
+35, Favorite filters
+
 
 2, Context operations. Most done
 33, Highlight find content.
-35, Favorite filters
 44, Help, about
 103, Copy
 104, Send via Email
-106, Less than 20 lines bug.
-107, empty search pattern bug.
 108, Button to do statistics
-109, Ctrl D and Alt D
+110, bug on multiline display
 
 17, Detail pane
 	1), detail
