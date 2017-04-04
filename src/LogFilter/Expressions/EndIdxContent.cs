@@ -10,13 +10,7 @@
 
         internal EndIdxExpression(ContentToken token)
         {
-            int i;
-            string content = token.Content;
-            if (!int.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out i))
-            {
-                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format", token.Index);
-            }
-            this.EndIdxContent = i;
+            this.EndIdxContent = ContentParsingModule.ParseInt(ExpressionHeader, token);
         }
 
         protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.EndIdxContent}";

@@ -10,13 +10,7 @@
 
         internal DatetimeBeginMatchExpression(ContentToken token)
         {
-            DateTime dt;
-            string content = token.Content;
-            if (!DateTime.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out dt))
-            {
-                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(DateTime)}' format", token.Index);
-            }
-            this.DatetimeBeginContent = dt;
+            this.DatetimeBeginContent = ContentParsingModule.ParseDateTime(ExpressionHeader, token);
         }
 
         protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.DatetimeBeginContent:s}";

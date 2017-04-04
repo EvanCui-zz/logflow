@@ -10,13 +10,7 @@
 
         internal ThreadIdMatchExpression(ContentToken token)
         {
-            int i;
-            string content = token.Content;
-            if (!int.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out i))
-            {
-                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format", token.Index);
-            }
-            this.ThreadIdContent = i;
+           this.ThreadIdContent = ContentParsingModule.ParseInt(ExpressionHeader, token);
         }
 
         protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.ThreadIdContent}";
