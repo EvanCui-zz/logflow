@@ -49,7 +49,7 @@
         }
 
         [TestMethod]
-        public void TestPid()
+        public void TestPid1()
         {
             var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("p:99"));
             Assert.IsInstanceOfType(res, typeof(ProcessIdMatchExpression));
@@ -57,11 +57,27 @@
         }
 
         [TestMethod]
-        public void TestTid()
+        public void TestPid2()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("p:99,98"));
+            Assert.IsInstanceOfType(res, typeof(ProcessIdMatchExpression));
+            Assert.AreEqual("p:99,98", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestTid1()
         {
             var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("t:99"));
             Assert.IsInstanceOfType(res, typeof(ThreadIdMatchExpression));
             Assert.AreEqual("t:99", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestTid2()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("t:99,98"));
+            Assert.IsInstanceOfType(res, typeof(ThreadIdMatchExpression));
+            Assert.AreEqual("t:99,98", res.EvalToString(false));
         }
 
         [TestMethod]

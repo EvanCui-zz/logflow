@@ -163,11 +163,11 @@
             throw new ParsingException($"{op.ToString()} is not {nameof(BinaryOperaterToken)}", op.Index);
         }
 
-        private static Expression MkNode(Token op, Expression oprand)
+        private static Expression MkNode(Token op, Expression operand)
         {
             if (op is LogicalNotToken)
             {
-                return new LogicalNotExpression { Oprand = oprand };
+                return new LogicalNotExpression { Oprand = operand };
             }
 
             throw new ParsingException($"{op.ToString()} is not {nameof(UnaryOperatorToken)}", op.Index);

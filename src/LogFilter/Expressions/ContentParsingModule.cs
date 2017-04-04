@@ -1,8 +1,9 @@
-﻿using System;
-using LogFlow.Viewer.LogFilter.Tokens;
-
-namespace LogFlow.Viewer.LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
+    using System;
+    using System.Linq;
+    using LogFlow.Viewer.LogFilter.Tokens;
+
     internal static class ContentParsingModule
     {
         internal static int ParseInt(string header, ContentToken token)
@@ -31,6 +32,27 @@ namespace LogFlow.Viewer.LogFilter.Expressions
             {
                 return dt;
             }
+        }
+
+        internal static int[] ParseIntArray(string header, ContentToken token)
+        {
+            string[] arrayContent = token.Content.Substring(header.Length).Split(',');
+            int[] res = arrayContent.Select(c =>
+                {
+                    int i;
+                    if (!int.TryParse(c, out i))
+                    {
+                        throw new ParsingException($"{token.Content} is not of '{header}int1,int2,...' format",
+                            token.Index);
+                    }
+                    else
+                    {
+                        return i;
+                    }
+                })
+                .ToArray();
+
+            return res;
         }
     }
 }
