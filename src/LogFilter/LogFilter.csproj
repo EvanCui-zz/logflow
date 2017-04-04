@@ -46,14 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\EndIdxContent.cs" />
     <Compile Include="Expressions\ProcessIdMatchExpression.cs" />
     <Compile Include="Expressions\LogLevelMatchExpression.cs" />
     <Compile Include="Expressions\RegexMatchExpression.cs" />
+    <Compile Include="Expressions\BeginIdxExpression.cs" />
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
     <Compile Include="FilterParseResult.cs" />
-    <Compile Include="Parsers\BackTrackingParser.cs" />
+    <None Include="Parsers\BackTrackingParser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />
     <Compile Include="Expressions\Expression.cs" />

@@ -87,5 +87,21 @@
             Assert.IsInstanceOfType(res, typeof(RegexMatchExpression));
             Assert.AreEqual(@"r:""\w+ """"""""""", res.EvalToString(false));
         }
+
+        [TestMethod]
+        public void TestBeginIdx()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"bi:15"));
+            Assert.IsInstanceOfType(res, typeof(BeginIdxExpression));
+            Assert.AreEqual(@"bi:15", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestEndIdx()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"ei:18"));
+            Assert.IsInstanceOfType(res, typeof(EndIdxExpression));
+            Assert.AreEqual(@"ei:18", res.EvalToString(false));
+        }
     }
 }

@@ -52,6 +52,8 @@
                         { ThreadIdMatchExpression.ExpressionHeader, c => new ThreadIdMatchExpression(c) },
                         { LogLevelMatchExpression.ExpressionHeader, c => new LogLevelMatchExpression(c) },
                         { RegexMatchExpression.ExpressionHeader, c => new RegexMatchExpression(c) },
+                        { BeginIdxExpression.ExpressionHeader, c => new BeginIdxExpression(c) },
+                        { EndIdxExpression.ExpressionHeader, c => new EndIdxExpression(c) },
                 };
 
         protected string RestoreEscaped(string str)
