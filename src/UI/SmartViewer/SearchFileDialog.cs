@@ -8,7 +8,6 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using System.Diagnostics;
-    using LogFilter;
     using LogFlow.DataModel;
     using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;

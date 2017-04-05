@@ -59,6 +59,7 @@
 107, empty search pattern bug.
 109, Ctrl D and Alt D
 35, Favorite filters
+110, bug on multiline display
 
 
 2, Context operations. Most done
@@ -67,7 +68,6 @@
 103, Copy
 104, Send via Email
 108, Button to do statistics
-110, bug on multiline display
 
 17, Detail pane
 	1), detail
