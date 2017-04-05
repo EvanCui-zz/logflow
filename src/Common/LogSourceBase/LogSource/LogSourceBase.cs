@@ -10,8 +10,9 @@ namespace LogFlow.DataModel
 
     public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
     {
-        protected LogSourceBase()
+        protected LogSourceBase(LogSourceProperties properties)
         {
+            this.Properties = properties;
             this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
             this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
@@ -19,8 +20,7 @@ namespace LogFlow.DataModel
 
         public abstract string Name { get; }
 
-        public bool CompressionEnabled { get; set; }
-        public bool AutoLoadingEnabled { get; set; }
+        public LogSourceProperties Properties { get; }
         public virtual int Count => this.InternalItems.Count;
         public virtual int Tier1Count { get; } = 0;
         public virtual int Tier2Count { get; } = 0;
@@ -44,6 +44,52 @@ namespace LogFlow.DataModel
         public IReadOnlyList<IFilter> GroupFilters => InnerGroupFilters;
         protected List<IFilter> InnerGroupFilters = null;
 
+        private object GetColumnHtml(DataItemBase item, int columnIndex)
+        {
+            ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
+
+            if (string.Equals(ci.Name, "Text", StringComparison.Ordinal))
+            {
+                return ((ParametricString)this.GetColumnValue(item, columnIndex)).ToHtml();
+            }
+            else
+            {
+                return this.GetColumnValue(item, columnIndex);
+            }
+        }
+
+        public string GetHtml(IEnumerable<DataItemBase> items, bool withTitle)
+        {
+            var result = string.Join(
+                Environment.NewLine,
+                items.Select(item =>
+                    $"<tr>{string.Concat(Enumerable.Range(0, this.ColumnInfos.Count).Select(i => $"<td>{this.GetColumnHtml(item, i)}</td>"))}</tr>"));
+
+            if (withTitle)
+            {
+                var title = $"<tr>{string.Concat(Enumerable.Range(0, this.ColumnInfos.Count).Select(i => $"<td>{this.ColumnInfos[i].Name}</td>"))}</tr>";
+                return title + Environment.NewLine + result;
+            }
+
+            return result;
+        }
+
+        public string GetText(IEnumerable<DataItemBase> items, bool withTitle)
+        {
+            var result = string.Join(
+                Environment.NewLine,
+                items.Select(item =>
+                    string.Join("\t", Enumerable.Range(0, this.ColumnInfos.Count).Select(i => this.GetColumnValue(item, i)))));
+
+            if (withTitle)
+            {
+                var title = string.Join("\t", Enumerable.Range(0, this.ColumnInfos.Count).Select(i => this.ColumnInfos[i].Name));
+                return title + Environment.NewLine + result;
+            }
+
+            return result;
+        }
+
         public virtual object GetColumnValue(DataItemBase item, int columnIndex)
         {
             ColumnInfoAttribute ci = this.ColumnInfos[columnIndex];
@@ -53,6 +99,10 @@ namespace LogFlow.DataModel
                 return new ParametricString(
                     this.Templates[item.TemplateId],
                     item.Parameters);
+            }
+            else if (string.Equals(ci.Name, "Time", StringComparison.Ordinal))
+            {
+                return item.Time.ToString("s");
             }
             else if (string.Equals(ci.Name, "File", StringComparison.Ordinal))
             {
@@ -72,11 +122,11 @@ namespace LogFlow.DataModel
             this.ItemAdded?.Invoke(this, index);
         }
 
-        protected virtual void AddItem(T item)
+        protected virtual void AddItem(FullDataItem<T> item)
         {
-            this.InternalItems.Add(item);
-            item.Id = this.InternalItems.Count - 1;
-            this.OnItemAdded(item.Id);
+            this.InternalItems.Add(item.Item);
+            item.Item.Id = this.InternalItems.Count - 1;
+            this.OnItemAdded(item.Item.Id);
         }
 
         protected int AddTemplate(string template)

@@ -53,13 +53,15 @@ namespace LogFlow.Viewer
             HotKeys.KeyActions = new Dictionary<string, Action>()
             {
                 { HotKeys.ActionFocusPatternBox, () => this.toolStripComboBoxString.Focus() },
-                { HotKeys.ActionGoto, () => this.toolStripComboBoxString.Focus() },
+                { HotKeys.ActionGoto, () => this.Goto() },
                 { HotKeys.ActionFilter, () => this.toolStripButtonFilter_Click(this, null) },
                 { HotKeys.ActionSearch, () => this.findNextToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionBackSearch, () => this.findPreviousToolStripMenuItem_Click(this, null) },
                 { HotKeys.ActionCount, () => this.toolStripButtonCount_Click(this, null) },
                 { HotKeys.ActionTag, () => this.toolStripButtonTag1.PerformClick() },
                 { HotKeys.ActionOpen, () => this.openToolStripMenuItem_Click(this, null) },
-                { HotKeys.ActionSearchOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionFilteredOpen, () => this.filteredOpenToolStripMenuItem_Click(this, null) },
+                { HotKeys.ActionCopy, () => this.Copy() },
             };
         }
 
@@ -86,7 +88,7 @@ namespace LogFlow.Viewer
             this.toolStripComboBoxString.Items.AddRange(Settings.Default.Data_FilteringHistory.Cast<object>().ToArray());
             this.toolStripComboBoxString.SelectedIndex = this.toolStripComboBoxString.Items.Count > 0 ? 0 : -1;
 
-            this.toolStripComboBoxString_TextChanged(this, null);
+            this.UpdateDocDisplay();
         }
 
         private void ApplySettings()
@@ -149,9 +151,8 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var logSource = LogSourceManager.Instance.GetLogSource(initializeString);
-            logSource.CompressionEnabled = Settings.Default.Behavior_EnabledCompression;
-            logSource.AutoLoadingEnabled = Settings.Default.Behavior_AutoLoad;
+            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(Settings.Default.Behavior_AutoLoad, Settings.Default.Behavior_EnabledCompression));
+
             var document = new RootView<DataItemBase>(logSource, filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);
         }
@@ -169,8 +170,6 @@ namespace LogFlow.Viewer
 
             if (this.CurrentView == null)
             {
-                this.toolStripButtonTag1.Enabled =
-                    this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = false;
                 this.closeToolStripMenuItem.Enabled = false;
                 this.filterToolStripMenuItemDoc.Enabled = false;
                 this.Text = Product.GetTitle();
@@ -181,8 +180,6 @@ namespace LogFlow.Viewer
 
             this.Text = $"{Product.GetTitle()} - {this.CurrentView.Name}";
 
-            this.toolStripButtonTag1.Enabled =
-                this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = true;
             this.closeToolStripMenuItem.Enabled = true;
             this.filterToolStripMenuItemDoc.Enabled = true;
             this.toolStripComboBoxString.Enabled = true;
@@ -227,6 +224,10 @@ namespace LogFlow.Viewer
                     catch (OperationCanceledException)
                     {
                         Debug.WriteLine("Initializing operating is cancelled");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Exception happened with Initialize {ex}");
                     }
                 };
 
@@ -303,7 +304,8 @@ namespace LogFlow.Viewer
 
         private void filterToolStripMenuItemDoc_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(Resources.NotImplementedText, Resources.NotImplementedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.filteredOpenToolStripMenuItem_Click(sender, e);
+            //MessageBox.Show(Resources.NotImplementedText, Resources.NotImplementedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void TagCurrentView(int index, IFilter filter)
@@ -326,31 +328,38 @@ namespace LogFlow.Viewer
         {
             if (this.CurrentView == null) return;
 
-            var childView = this.CurrentView.CreateChild(this.GetCurrentFilter());
-            this.AddView(childView);
+            this.CreateChild(this.GetCurrentFilter());
         }
 
         private IFilter GetCurrentFilter()
         {
             var pattern = this.toolStripComboBoxString.Text;
 
-            if (this.toolStripComboBoxString.Items.Contains(pattern))
+            if (!string.IsNullOrEmpty(pattern))
             {
-                this.toolStripComboBoxString.Items.Remove(pattern);
+                if (this.toolStripComboBoxString.Items.Contains(pattern))
+                {
+                    this.toolStripComboBoxString.Items.Remove(pattern);
+                }
+
+                this.toolStripComboBoxString.Items.Insert(0, pattern);
+                this.toolStripComboBoxString.SelectedIndex = 0;
+                if (this.toolStripComboBoxString.Items.Count > Settings.Default.Data_MaxHistoryCount) this.toolStripComboBoxString.Items.RemoveAt(Settings.Default.Data_MaxHistoryCount);
+                Settings.Default.Data_FilteringHistory.Clear();
+                Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
+                Settings.Default.Save();
+
+                return LogFilterInterpreter.Parse(pattern);
             }
-
-            this.toolStripComboBoxString.Items.Insert(0, pattern);
-            this.toolStripComboBoxString.SelectedIndex = 0;
-            if (this.toolStripComboBoxString.Items.Count > Settings.Default.Data_MaxHistoryCount) this.toolStripComboBoxString.Items.RemoveAt(Settings.Default.Data_MaxHistoryCount);
-            Settings.Default.Data_FilteringHistory.Clear();
-            Settings.Default.Data_FilteringHistory.AddRange(this.toolStripComboBoxString.Items.Cast<string>().ToArray());
-            Settings.Default.Save();
-
-            return LogFilterInterpreter.Parse(pattern);
+            else
+            {
+                return Filter.MatchAll;
+            }
         }
 
         private void UpdateDocDisplay()
         {
+            this.toolStripComboBoxString_TextChanged(this, null);
             this.UpdateFastListViewColumns();
             this.UpdateDetailedPane();
             this.UpdateStatistics();
@@ -460,6 +469,7 @@ namespace LogFlow.Viewer
 
         private void RemoveView(IFilteredView<DataItemBase> view)
         {
+            if (view == null) return;
             view.ItemAdded -= this.UpdateMainGridRowCount;
             view.ProgressChanged -= this.ChildView_ProgressChanged;
 
@@ -668,6 +678,7 @@ namespace LogFlow.Viewer
             {
                 case 5:
                     bool isIndented = this.CurrentView?.IsThreadIndented(item.ThreadId) ?? false;
+                    if (!isIndented) isIndented = this.CurrentView?.IsActivityIndented(item.ActivityIdIndex) ?? false;
                     if (isIndented)
                     {
                         bound.Width -= 100;
@@ -685,11 +696,14 @@ namespace LogFlow.Viewer
                         {
                             str = str.Substring(0, pos);
                             bound.Width -= multiLineSignWidth;
+                            if (bound.Width < 0) bound.Width = 0;
                         }
+
+                        str = str.Replace("\n", " ");
 
                         var currentFont = token.Value && Settings.Default.Display_BoldParameter ? this.fastListViewMain.BoldFont : this.fastListViewMain.NormalFont;
 
-                        if (str.Length > 0)
+                        if (str.Length > 0 && bound.Width > 0)
                         {
                             e.Graphics.DrawString(
                                 str,
@@ -707,16 +721,16 @@ namespace LogFlow.Viewer
 
                             // draw a >> sign to indicate multiline
                             e.Graphics.DrawString(
-                                "???",
+                                "↓↓↓",
                                 currentFont,
-                                Brushes.Moccasin,
+                                isSelected ? this.fastListViewMain.SelectionForeColorBrush : this.fastListViewMain.ForeColorBrush,
                                 bound,
                                 this.DefaultStringFormat);
 
                             break;
                         }
 
-                        var length = e.Graphics.MeasureString(token.Key, currentFont).Width + 0.5f;
+                        var length = e.Graphics.MeasureString(str, currentFont).Width + 0.5f;
                         bound.Width -= (int)length;
                         if (bound.Width <= 0) break;
                         bound.X += (int)length;
@@ -762,7 +776,10 @@ namespace LogFlow.Viewer
             bool enabled = !string.IsNullOrEmpty(this.toolStripComboBoxString.Text) && this.CurrentView != null;
             this.toolStripButtonFilter.Enabled = enabled;
             this.toolStripButtonCount.Enabled = enabled;
+            this.toolStripButtonGoto.Enabled = enabled;
             this.toolStripSplitButtonFind.Enabled = enabled;
+            this.toolStripButtonTag1.Enabled =
+                this.toolStripButtonTag2.Enabled = this.toolStripButtonTag3.Enabled = enabled;
         }
 
         private void fastListViewMain_Resize(object sender, EventArgs e)
@@ -858,29 +875,19 @@ namespace LogFlow.Viewer
 
         private void filterWithTheSameThreadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
 
-            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
-
-            var f = LogFilterInterpreter.Parse($"t:{threadId}");
-            var childView = this.CurrentView.CreateChild(f);
-
-            this.AddView(childView);
+            var threadId = selectedItem.ThreadId;
+            this.CreateChild(LogFilterInterpreter.Parse($"t:{threadId}"));
         }
 
         private void indentTheThreadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
 
-            var threadId = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).ThreadId;
-
-            this.CurrentView.IndentThread(threadId);
+            this.CurrentView.IndentThread(selectedItem.ThreadId);
             this.fastListViewMain.Refresh();
         }
 
@@ -903,12 +910,12 @@ namespace LogFlow.Viewer
             this.fastListViewMain.Refresh();
         }
 
-        private void findTheLineFromParentToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemFindParent_Click(object sender, EventArgs e)
         {
             this.FindInNode(this.treeViewDoc.SelectedNode?.Parent);
         }
 
-        private void goToToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemFindRoot_Click(object sender, EventArgs e)
         {
             this.FindInNode(this.treeViewDoc.Nodes[0]);
         }
@@ -928,15 +935,19 @@ namespace LogFlow.Viewer
             this.GotoId(itemId);
         }
 
-        private bool GotoId(int physicalId)
+        private void GotoId(int physicalId)
         {
             var logicalId = this.CurrentView.GetLogicalIndexOfItem(physicalId);
 
-            if (logicalId < 0) return false;
+            if (logicalId < 0)
+            {
+                MessageBox.Show(string.Format(Resources.GotoFailed, physicalId), Resources.SomethingWrong,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             this.fastListViewMain.Items[logicalId].Selected = this.fastListViewMain.Items[logicalId].Focused = true;
             this.fastListViewMain.Items[logicalId].EnsureVisible();
-
-            return true;
         }
 
         private DateTime lastCollect = DateTime.UtcNow;
@@ -971,15 +982,11 @@ namespace LogFlow.Viewer
 
         private void FilterById(bool isBegin)
         {
-            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
-            {
-                return;
-            }
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+            var id = selectedItem.Id;
 
-            var id = ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[0]].Tag).Id;
-
-            var childView = this.CurrentView.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
-            this.AddView(childView);
+            this.CreateChild(Filter.CreateFilter((item, template) => isBegin == (item.Id >= id)));
         }
 
         private void filterAsStartToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1154,17 +1161,7 @@ namespace LogFlow.Viewer
         {
             if (e.KeyCode != Keys.Enter || this.CurrentView == null) return;
 
-            int gotoId;
-            if (!int.TryParse(this.toolStripComboBoxString.Text, out gotoId))
-            {
-                return;
-            }
-
-            if (!this.GotoId(gotoId))
-            {
-                MessageBox.Show(string.Format(Resources.GotoFailed, gotoId), Resources.SomethingWrong,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            this.Goto();
         }
 
         private void UpdateTagButtonStatus()
@@ -1174,25 +1171,142 @@ namespace LogFlow.Viewer
             this.toolStripButtonTag3.Checked = this.CurrentView?.IsTagged(2) ?? false;
         }
 
-        private void toolStripButtonTag1_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag1_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(0, button.Checked ? this.GetCurrentFilter() : null);
         }
 
-        private void toolStripButtonTag2_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag2_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(1, button.Checked ? this.GetCurrentFilter() : null);
         }
 
-        private void toolStripButtonTag3_CheckedChanged(object sender, EventArgs e)
+        private void toolStripButtonTag3_Click(object sender, EventArgs e)
         {
             var button = (ToolStripButton)sender;
 
             this.TagCurrentView(2, button.Checked ? this.GetCurrentFilter() : null);
+        }
+
+        private IEnumerable<DataItemBase> GetSelectedItems()
+        {
+            if (this.fastListViewMain.SelectedIndices.Count == 0 || this.CurrentView == null)
+            {
+                yield break;
+            }
+
+            for (var i = 0; i < this.fastListViewMain.SelectedIndices.Count; i++)
+            {
+                yield return ((DataItemBase)this.fastListViewMain.Items[this.fastListViewMain.SelectedIndices[i]].Tag);
+            }
+        }
+
+
+        private DataItemBase GetSelectedItem()
+        {
+            return this.GetSelectedItems().FirstOrDefault();
+        }
+
+        private void CreateChild(IFilter filter)
+        {
+            if (this.CurrentView == null) return;
+            this.AddView(this.CurrentView.CreateChild(filter));
+        }
+
+        private void filterWithTheSameActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            var actIdIndex = selectedItem.ActivityIdIndex;
+            var f = Filter.CreateFilter((di, t) => di.ActivityIdIndex == actIdIndex);
+
+            this.CreateChild(f);
+        }
+
+        private void indentTheActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            this.CurrentView.IndentActivity(selectedItem.ActivityIdIndex);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void unindentTheActivityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedItem = this.GetSelectedItem();
+            if (selectedItem == null) return;
+
+            this.CurrentView.UnIndentActivity(selectedItem.ActivityIdIndex);
+            this.fastListViewMain.Refresh();
+        }
+
+        private void toolStripButtonGoto_Click(object sender, EventArgs e)
+        {
+            this.Goto();
+        }
+
+        private void Goto()
+        {
+            int gotoId;
+            if (!int.TryParse(this.toolStripComboBoxString.Text, out gotoId))
+            {
+                this.toolStripComboBoxString.Focus();
+
+                return;
+            }
+
+            this.GotoId(gotoId);
+        }
+
+        private void Copy()
+        {
+            if (this.CurrentView == null) return;
+            const string start = "<HTML><BODY><!--StartFragment -->";
+            const string end = "<!--EndFragment --></BODY></HTML>";
+            string prefix = "Version:1.0" + Environment.NewLine
+                + "StartHTML:aaaaaaaaaa" + Environment.NewLine
+                + "EndHTML:bbbbbbbbbb" + Environment.NewLine
+                + "StartFragment:cccccccccc" + Environment.NewLine
+                + "EndFragment:dddddddddd" + Environment.NewLine;
+
+            string content = $"<table border=\"1\">{this.CurrentView.Source.GetHtml(this.GetSelectedItems(), true)}</table>";
+
+            string data = prefix + start + content + end;
+            data = data.Replace("aaaaaaaaaa", prefix.Length.ToString().PadLeft(10, '0'))
+                .Replace("bbbbbbbbbb", data.Length.ToString().PadLeft(10, '0'))
+                .Replace("cccccccccc", (prefix + start).Length.ToString().PadLeft(10, '0'))
+                .Replace("dddddddddd", (prefix + start + content).Length.ToString().PadLeft(10, '0'));
+
+            string text = this.CurrentView.Source.GetText(this.GetSelectedItems(), true);
+
+            var obj = new DataObject();
+
+            obj.SetData(DataFormats.Html, data);
+            obj.SetData(DataFormats.Text, text);
+            obj.SetData(DataFormats.UnicodeText, text);
+
+            Clipboard.SetDataObject(obj, true);
+        }
+
+        private void copyToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.Copy();
+        }
+
+        private void toolStripMenuItemTag_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gotoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

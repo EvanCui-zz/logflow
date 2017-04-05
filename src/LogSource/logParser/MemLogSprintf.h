@@ -17,6 +17,9 @@
 #define SE_TIMEINTERVAL 0x0D
 #define SE_PSTR_STATIC  0x0E
 #define SE_PERCENT      0x0F
+#define SE_COUNTED_STR      0x10
+#define SE_COUNTED_WSTR     0x11
+#define SE_PSTR_INTERNAL    0x12
 
 __inline int __CRTDECL get_int_arg(va_list *pargptr);
 
@@ -87,6 +90,13 @@ __inline __int64 __CRTDECL get_int64_arg(va_list *pargptr);
 #define FORMAT_PREPROCESS_BLOCK_VER                 1
 #define FORMAT_PREPROCESS_BLOCK_MARKER              0xAA
 
+__declspec(selectany) char *__truncatedstring = "(truncated)";  /* string to print when a parameter cannot be output */
+__declspec(selectany) wchar_t *__wtruncatedstring = L"(truncated)";  /* string to print when a parameter cannot be output */
+__declspec(selectany) char *__nullstring = "(null)";  /* string to print on null ptr */
+__declspec(selectany) wchar_t *__wnullstring = L"(null)";  /* string to print on null ptr */
+__declspec(selectany) GUID __nullguid = {0};
+__declspec(selectany) SOCKADDR __nullsockaddr = {0};
+
 //
 // Describes a format descriptor.
 // Serialized to disk and hence versioned. The version is in the containing
@@ -94,7 +104,7 @@ __inline __int64 __CRTDECL get_int64_arg(va_list *pargptr);
 //
 struct format_param_desc
 {
-    UInt16  m_flags;            // flags se FE_...
+    UInt16  m_flags;            // flags see FL_... in MemLogSprintf.cpp
     UInt16  m_offset;           // offset in format string of this parameter descriptor
     UInt8   m_len;              // length of this parameter descriptor including %
     UInt8   m_stackType;        // type of stack parameter (SE_PSTR, SE_INT32, ...)
@@ -114,22 +124,23 @@ struct format_param_desc
 //
 struct format_preprocess_block
 {
-    const UINT8  m_fpbMarker;      // This must be the first field. When parsing the log it indicates the start of a new FPB.
-    UINT16       m_serializedLen;  // The size of the structure when serialized to disk. Variable.
+    const UINT8 m_fpbMarker;        // This must be the first field. When parsing the log it indicates the start of a new FPB.
+    UINT16      m_serializedLen;    // The size of the structure when serialized to disk. Variable.
 
-    FpbUidType   m_blockUid;        // A unique identifier assigned to each new block.
+    FpbUidType  m_blockUid;         // A unique identifier assigned to each new block.
 
-    int          m_line;
-    UINT16       m_logID;
-    UINT16       m_level;
+    int         m_line;
+    UINT16      m_logID;
+    UINT16      m_level;            // This is a 'LogLevel' enum type defined in logging.h, and NOT the XLOG_LEVEL passed
+                                    // into the Xlog() APIs and defined in XLog.h (see XLogpStreamMap[]).
 
-    UInt16       m_nDescInUse;      // number of parameter descriptors in use
-    bool         m_fSerializedTitle;// Whether the cached title was serialized to disk. A Race condition makes it possible that the cached
+    UInt16      m_nDescInUse;       // number of parameter descriptors in use
+    bool        m_fSerializedTitle; // Whether the cached title was serialized to disk. A Race condition makes it possible that the cached
                                     // title is updated after the block has been serialized.
-
     //
     // Add any fields that must be serialized to disk before this point.
     //
+
 
     // Any fields defined after m_param_descs will not be serialized to disk directly.
 
@@ -147,6 +158,8 @@ struct format_preprocess_block
     //
     // Add any fields that must not be serialized to disk after this point.
     //
+    UInt16      m_uNumVarSizedArgs; // number of variable sized arguments (strings)
+    UInt16      m_uFixedArgsSize;   // total size of fixed size arguments (that can be determined before hand)
 
     //
     // This must be the last data field.
@@ -187,6 +200,52 @@ public:
         m_blockUid   = blockUid;
     }
 
+    ////
+    //// One time to decide the total size of fixed arguments and the number of
+    //// variable sized arguments
+    ////
+    //void PrecomputeArgsSize (void)
+    //{
+    //    int fixedArgsSize = 0;
+    //    int numVarSizedArgs = 0;
+    //
+    //    // By default each argument gets 64 bits but some types will need more.
+    //    fixedArgsSize = m_nDescInUse * sizeof(param);
+    //
+    //    for (int i = 0; i < m_nDescInUse; i++)
+    //    {
+    //        format_param_desc *pCurDesc = &(m_param_descs[i]);
+    //
+    //        switch (pCurDesc->m_stackType)
+    //        {
+    //            case SE_PSTR://         0x01
+    //            case SE_PSTR_STATIC://  0x0E
+    //            case SE_PWSTR://        0x02
+    //            case SE_COUNTED_STR://  0x10
+    //            case SE_COUNTED_WSTR:// 0x11
+    //            case SE_PSTR_INTERNAL:// 0x12
+    //
+    //                numVarSizedArgs++;
+    //                break;
+    //         
+    //            case SE_GUID_BRACE://  0x09
+    //            case SE_GUID://        0x0A
+
+    //                fixedArgsSize += sizeof(GUID);
+    //                break;
+
+    //            case SE_SOCKADDR://    0x0B
+
+    //                fixedArgsSize += sizeof(SOCKADDR);
+    //                break;
+    //        }
+    //    }
+
+    //    m_uFixedArgsSize = (UInt16) fixedArgsSize;
+    //    m_uNumVarSizedArgs = (UInt16) numVarSizedArgs;
+    //}
+
+    //
     // Cache the log entry title in the format block. This is an optimization
     // for the common case when the log entry title is a static string and can
     // be emitted once with the format block instead of repeatedly with each
@@ -274,10 +333,10 @@ LogEntry * __CRTDECL WriteLogEntry(
     int bufferSize,
     format_preprocess_block *pPreprocessBlock,
     const char *title,
-    int tid,
+    const GUID * activityId,
     FILETIME ft,
-    GUID activityId,
-    GUID entryPointId,
+    int *varArgSizes,
+    UInt16 varArgSizeArrayCount,
     va_list argptr);
 
 // fill in the log entry without copying the strings, can only be used if log_entry_sprintf is called immediately after while

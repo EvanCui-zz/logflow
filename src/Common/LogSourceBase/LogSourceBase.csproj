@@ -49,6 +49,7 @@
     <Compile Include="DataItem\CompressedDataItem16.cs" />
     <Compile Include="DataItem\CompressedDataItem8.cs" />
     <Compile Include="DataItem\CompressState.cs" />
+    <Compile Include="DataItem\FullDataItem.cs" />
     <Compile Include="DataItem\LogLevels.cs" />
     <Compile Include="LogSource\ColumnInfoAttribute.cs" />
     <Compile Include="DataItem\DataItemBase.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="LogSource\LogSourceBase.cs" />
     <Compile Include="CustomizedDataType\ParametricString.cs" />
     <Compile Include="LogSource\LogSourceCompressdBase.cs" />
+    <Compile Include="LogSource\LogSourceProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -6,6 +6,7 @@ namespace LogFlow.DataModel
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
 
     [ReadOnly(true)]
     public class FilteredViewStatistics
@@ -59,25 +60,32 @@ namespace LogFlow.DataModel
             if (item.Level.HasFlag(LogLevels.Error)) { this.Errors++; }
             if (item.Level.HasFlag(LogLevels.Warning)) { this.Warnings++; }
             if (item.Level.HasFlag(LogLevels.Critical)) { this.Criticals++; }
-            var text = string.Format(template, item.Parameters.Cast<object>().ToArray());
 
-            // Perf critical
-            if (text.Contains("Exception"))
+            try
             {
-                var m = this.exceptionRegex.Match(text);
-                if (m.Success)
+                var text = string.Format(template, item.Parameters.Cast<object>().ToArray());
+                // Perf critical
+                if (text.Contains("Exception"))
                 {
-                    var ex = m.Groups["name"].Value;
-                    int count;
-                    if (this.Exceptions.TryGetValue(ex, out count))
+                    var m = this.exceptionRegex.Match(text);
+                    if (m.Success)
                     {
-                        this.Exceptions[ex] = count + 1;
-                    }
-                    else
-                    {
-                        this.Exceptions[ex] = 1;
+                        var ex = m.Groups["name"].Value;
+                        int count;
+                        if (this.Exceptions.TryGetValue(ex, out count))
+                        {
+                            this.Exceptions[ex] = count + 1;
+                        }
+                        else
+                        {
+                            this.Exceptions[ex] = 1;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Format string error {ex}");
             }
 
             if (this.ThreadIds.Add(item.ThreadId)) { this.Threads++; }

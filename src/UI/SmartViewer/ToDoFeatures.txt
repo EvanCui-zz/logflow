@@ -50,13 +50,24 @@
 58, memory analysis (by compression)
 22, consider structs (tuned by two tier compression)
 23, consider size compact.
-34, Parsable filter string
+34, Parsable filter string. (p:1,2,3 support)
 47, Add/hide columns
+25, regex (Done)
+102, Time display format
+105, hot key fix
+106, Less than 20 lines bug.
+107, empty search pattern bug.
+109, Ctrl D and Alt D
+35, Favorite filters
+
 
 2, Context operations. Most done
 33, Highlight find content.
-35, Favorite filters
 44, Help, about
+103, Copy
+104, Send via Email
+108, Button to do statistics
+110, bug on multiline display
 
 17, Detail pane
 	1), detail
@@ -79,9 +90,10 @@
 37, Rich scroll bar / 100000000 line limit / error, warning scroll bar
 41, Plugin system
 21, List view logic refactor.
-25, regex
 19, Doc menues.
 36, Load from log parser
+100, load from win event.
+101, load from azure log source.
 49, hardcoded value.
 29, Other tools analysis:
 	1), LogParser, multiple source

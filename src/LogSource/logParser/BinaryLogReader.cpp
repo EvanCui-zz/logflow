@@ -364,7 +364,7 @@ int BinaryLogReader::GetLoggingLevelI()
     return m_currentLogEntry->m_pPreprocessBlock->m_level;
 }
 
-int BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, Size_t formatSize, PCHAR parameters, Size_t parametersSize, Size_t indexWidthLength[], Size_t count)
+Size_t BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, Size_t formatSize, PCHAR parameters, Size_t parametersSize, Size_t indexWidthLength[], Size_t count)
 {
     count = log_entry_sprintf_csformat(format, formatSize, parameters, parametersSize, indexWidthLength, count, m_currentLogEntry);
     parameters[parametersSize - 1] = '\0';
@@ -373,7 +373,7 @@ int BinaryLogReader::GetFormatDataCSharpStyle(PCHAR format, Size_t formatSize, P
     return count;
 }
 
-int BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, Size_t bufferSize, StringToken tokens[], Size_t maxTokens)
+Size_t BinaryLogReader::GetFormatDataCStyle(PCHAR buffer, Size_t bufferSize, StringToken tokens[], Size_t maxTokens)
 {
     return log_entry_sprintf_cformat(buffer, bufferSize, tokens, maxTokens, m_currentLogEntry);
 }
@@ -384,7 +384,8 @@ void BinaryLogReader::getFormatedText(PCHAR formattedEntry)
     formattedEntry[MAX_LOG_ENTRY_SIZE - 1] = '\0';
 }
 
-PCSTR BinaryLogReader::getEntryFileName()
+LPCSTR 
+BinaryLogReader::GetEntrySourceFile()
 {
     return m_currentLogEntry->m_pPreprocessBlock->m_filename;
 }
@@ -399,7 +400,8 @@ PCSTR BinaryLogReader::getEntryTitle()
     return m_currentLogEntry->m_title;
 }
 
-int BinaryLogReader::getEntryLine()
+DWORD 
+BinaryLogReader::GetEntrySourceLine()
 {
     return m_currentLogEntry->m_pPreprocessBlock->m_line;
 }
@@ -647,6 +649,7 @@ BinaryLogReader::DecodeLogEntry(
 
     LogEntry *pEntry =
         LogEntry::UnserializeEntryBase(
+            m_session->m_logEntryVersion,
             pBuffer,
             bufferLen,
             &m_session->m_lastActivityId,
@@ -684,7 +687,7 @@ BinaryLogReader::DecodeLogEntry(
     // the LogEntry parameters that were deep-copied off the call
     // stack.
     //
-    //JWesker imossible to use baseFileOffset
+    //JWesker impossible to use baseFileOffset
     error =
         pEntry->UnserializeParameters(
             pBuffer + bytesConsumed1,

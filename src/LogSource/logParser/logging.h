@@ -14,11 +14,14 @@
 
 // For ConfigChangeNotify Cookie
 #include "config.h"
+//#include "roleisolation.h"
+//#include "nodehealth.h"
 
 // Forward declaration.
 class CounterEnumerator;
 class AppAlertClient;
 struct format_preprocess_block;
+class ActivityFactory;
 
 namespace Microsoft {
 namespace Cis {
@@ -91,15 +94,26 @@ MaxFileSize=100000
 BufferSize=60000
 */
 
+//
+// Defines the log levels supported by the Logger
+//
+// Some error levels must be logged synchronously to make sure they are not dropped due to too much
+// log activity. Currrently we have Error, AppAlert, Assert, and Event in that category but there may be
+// more in the future. The enum below reserves the log levels 8 and 9 for future defined levels
+// that require sychronous logging. The reason we want to keep the synchronous log levels in a range
+// is to reduce branching in the logging path.
+//
 typedef enum
 {
-    LogLevel_Debug,
-    LogLevel_Info,
-    LogLevel_Status,
-    LogLevel_Warning,
-    LogLevel_Error,
-    LogLevel_AppAlert,
-    LogLevel_Assert,
+    LogLevel_Debug = 0,
+    LogLevel_Info = 1,
+    LogLevel_Status = 2,
+    LogLevel_Warning = 3,
+    LogLevel_Error = 4,
+    LogLevel_AppAlert = 5,
+    LogLevel_Assert = 6,
+    LogLevel_Event = 7,
+    LogLevel_Perf = 10,
     LogLevel_Max
 } LogLevel;
 
@@ -157,6 +171,9 @@ const int c_logMaxEntrySize = 8192;
 // Max number of rules
 const int c_logMaxRules = 128;
 
+// Max name size for tenant/role
+const int c_logMaxRoleNameLength = MAX_PATH;
+
 // Max number of application callbacks
 const int c_logMaxCallbackHandlers = 128;
 
@@ -177,6 +194,8 @@ const int c_logMaxBinaryLogDestinations = 4;
 #endif
 
 #define MAX(a,b) (((a) >= (b)) ? (a) : (b))
+
+#define LOGGER_FORCE_CRASH_DUMP_EVENT_NAME      "XStoreLoggerCrash-"
 
 // The function template for a callback an application can register as
 // a handler. logString is a NULL-terminated string.
@@ -200,6 +219,44 @@ typedef struct _XS_ACTIVITY_STATE
     size_t ActivityStateLength;
 } XS_ACTIVITY_STATE;
 
+// Get/set the activity state of the current thread.
+XS_ACTIVITY_STATE GetCurrentActivityState();
+void SetCurrentActivityState(
+    __in_bcount_opt(activityStateLength) BYTE* activityState,
+    __in size_t activityStateLength
+    );
+
+// Set the activity id of the current thread.
+void SetCurrentActivityId(const GUID * pActivityId);
+
+// Get the activity id of the current thread.
+GUID GetCurrentActivityId();
+void GetCurrentActivityId (GUID *pActivityId);
+
+void LogParseActivityId(
+    __in GUID* activityId,
+    __out INT16* sourceId,
+    __out INT16* instanceId,
+    __out FILETIME* startTime,
+    __out FILETIME* endTime,
+    __out INT16* tenantId
+    );
+
+void LogConvertSourceId(
+    __in  INT16 sourceId,
+    __out char* source,
+    __in  int   size,
+    __in_opt const char * configIniPath
+    );
+void LogConvertTenantId(
+    __in  INT16 tenantId,
+    __in  INT16 instanceId,
+    __out char* tenant,
+    __in  int   size,
+    __in_opt const char * configIniPath
+    );
+
+INT16 LogGetTenantCrc(const char* tenantName, INT16 instanceId);
 
 //
 // Defines the interface to the logging system. This is the only way to invoke the
@@ -210,36 +267,42 @@ class IBaseLogger
 public:
 
     virtual BOOL Init(
-        __in WCHAR * customSectionName) = 0;
+        __in WCHAR * customSectionName,
+        __in const char * logsDir = NULL,
+        __in BOOL slimMode = FALSE,
+        __in INT16 activitySourceId = -1,
+        __in INT16 activityInstanceId = -1) = 0;
 
     virtual void InitCounters() = 0;
 
     virtual void LogMVar(
-        __in_opt void ** ppPreprocessBlock, 
-        __in const char * file, 
-        __in const char * function, 
-        __in const int line, 
-        __in LogID logID, 
-        __in LogLevel level, 
-        __in const char * title, 
-        __in const char * fmt, 
+        __in_opt void ** ppPreprocessBlock,
+        __in const char * file,
+        __in const char * function,
+        __in const int line,
+        __in LogID logID,
+        __in LogLevel level,
+        __in const char * title,
+        __in const GUID * activityId,
+        __in const char * fmt,
         __in va_list args) = 0;
 
     virtual void LogMVar(
-        __in const char * file, 
-        __in const char * function, 
-        __in const int line, 
-        __in LogID logID, 
-        __in LogLevel level, 
-        __in const char * title, 
-        __in LogTag tag, 
+        __in const char * file,
+        __in const char * function,
+        __in const int line,
+        __in LogID logID,
+        __in LogLevel level,
+        __in const char * title,
+        __in const GUID * activityId,
+        __in LogTag tag,
         __in va_list args) = 0;
 
     virtual void Flush(
         __in bool flushBuffers) = 0;
 
     virtual BOOL AddApplicationLogCallback(
-        __in LoggerApplicationCallback * handler, 
+        __in LoggerApplicationCallback * handler,
         __in void * cookie) = 0;
 
     virtual BOOL EnableApplicationLogCallback() = 0;
@@ -258,12 +321,6 @@ public:
         __in const char * title,
         __in const char * fmt) = 0;
 
-    virtual XS_ACTIVITY_STATE GetCurrentActivityState() = 0;
-
-    virtual void SetCurrentActivityState(
-        __in_bcount_opt(activityStateLength) BYTE* activityState,
-        __in size_t activityStateLength) = 0;
-
     virtual void SetCrashing() = 0;
 
     virtual bool IsCrashing() = 0;
@@ -276,50 +333,91 @@ public:
 
     virtual bool IsNetlibDebugLogging() = 0;
 
+    virtual void DisableAllLogging (bool disableLogging) = 0;
+    virtual bool IsLoggingDisabled () = 0;
+    virtual void DisableAllArchiving(bool disableArchiving) = 0;
+
+    virtual void CreateActivityId(
+        __in bool logDiscriminator,
+        __out GUID * pActivityId) = 0;
+
+    virtual void CreateActivityId(
+        __in GUID * previousActivityId,
+        __out GUID * pActivityId) = 0;
+
+    virtual int GetLogThrottleLevel() = 0;
+
     // LogM() overloads are invoked from the Log() macro
-    void LogM(void **ppPreprocessBlock, const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title)
+    void LogM(
+        void **ppPreprocessBlock,
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId)
     {
-        LogM(ppPreprocessBlock, file, function, line, logID, level, title, "");
+        LogM(ppPreprocessBlock, file, function, line, logID, level, title, activityId, "");
     }
 
-    void LogM(void **ppPreprocessBlock, const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, const char *fmt, ...)
+    void LogM(
+        void **ppPreprocessBlock,
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId,
+        const char *fmt,
+        ...)
     {
         va_list args;
         va_start(args, fmt);
 
-        LogMVar(ppPreprocessBlock, file, function, line, logID, level, title, fmt, args);
+        LogMVar(ppPreprocessBlock, file, function, line, logID, level, title, activityId, fmt, args);
 
         va_end(args);
     }
 
-    void LogM(void **ppPreprocessBlock, const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, LogTag tag, ...)
+    void LogM(
+        void **ppPreprocessBlock,
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId,
+        LogTag tag,
+        ...)
     {
         UNREFERENCED_PARAMETER(ppPreprocessBlock);
 
         va_list args;
         va_start(args, tag);
 
-        LogMVar(file, function, line, logID, level, title, tag, args);
+        LogMVar(file, function, line, logID, level, title, activityId, tag, args);
 
         va_end(args);
     }
 };
 
-// Returns a default logger object. Whoever needs logging must call this method
-// to get the logger.
-extern IBaseLogger * g_baseLogger;
+//
+// Description:
+//     Returns a default logger object.
+//     Whoever needs logging must call this method
+//     to get the logger.
+//
+IBaseLogger * GetBaseLogger();
 
-static __forceinline IBaseLogger * GetBaseLogger()
-{
-    return g_baseLogger;
-}
+#define Log(logID, level, title, ...) LogA(logID, level, title, NULL, __VA_ARGS__)
 
-// This is the macro used to log things
-// Usage: Log(logarea, level, title, fmtstring, ...)
-#define Log(...) \
+#define LogA(logID, level, title, activityId, ...) \
 {\
     static void *_pPreprocessBlock = NULL; \
-    GetBaseLogger()->LogM(&_pPreprocessBlock, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__); \
+    GetBaseLogger()->LogM(&_pPreprocessBlock, __FILE__, __FUNCTION__, __LINE__, logID, level, title, activityId, __VA_ARGS__); \
 }
 
 inline
@@ -423,6 +521,8 @@ public:
 
     virtual bool FullDumpEnabled() const { return false; }
 
+    virtual void SetFullDump(bool fullDump) { UNREFERENCED_PARAMETER(fullDump); }
+
     virtual BOOL AcceptStructuredData() const
     {
         return FALSE;
@@ -459,23 +559,49 @@ protected:
 // Implements a log destination that is stdout
 class LogDestinationStdout : public LogDestination
 {
+private:
+	bool			m_IsEnabled;
 public:
+	LogDestinationStdout();
+	virtual ~LogDestinationStdout() {}
+
     // Implements base class function
     void AppendData(char *prefix, int prefixCount,
                     char* srcInfo, int srcInfoCount,
                     char* desc, int descCount);
-    virtual void Flush(bool) { fflush(stdout); }
+    virtual void Flush(bool)
+	{
+		if (m_IsEnabled)
+		{
+			fflush(stdout);
+		}
+	}
+
+	void     ReadChangeableConfig(ConfigParser *config);
 };
 
 // Implements a log destination that is stderr
 class LogDestinationStderr : public LogDestination
 {
+private:
+	bool			m_IsEnabled;
 public:
+	LogDestinationStderr();
+	virtual ~LogDestinationStderr() {}
+
     // Implements base class function
     void AppendData(char *prefix, int prefixCount,
                     char* srcInfo, int srcInfoCount,
                     char* desc, int descCount);
-    virtual void Flush(bool) { fflush(stderr); }
+	virtual void Flush(bool)
+	{
+		if (m_IsEnabled)
+		{
+			fflush(stderr);
+		}
+	}
+
+	void     ReadChangeableConfig(ConfigParser *config);
 };
 
 // Implements a log destination that simply saves up records until
@@ -550,16 +676,41 @@ public:
 // Implements a lot destination that writes a full dump
 class LogDestinationFullDump : public LogDestination
 {
+private:
+    bool m_fullDump;
 public:
+
+    LogDestinationFullDump():
+        m_fullDump(true)
+    {
+    }
+
     // Implements base class function
     void AppendData(char* prefix, int prefixCount,
                     char* srcInfo, int srcInfoCount,
                     char* desc, int descCount);
 
-    virtual bool FullDumpEnabled() const { return true; }
+    virtual bool FullDumpEnabled() const { return m_fullDump; }
+
+    virtual void SetFullDump(bool fullDump) { m_fullDump = fullDump; }
 };
 
-typedef std::map<int, int> LogFilesMapType;
+enum LogFilePartitionType
+{
+    LogFilePartitionMin,
+    LogFilePrimaryPartition = LogFilePartitionMin,
+    LogFileExtendedPartition,
+    LogFilePartitionMax
+};
+
+typedef struct _LOG_FILE_PROPERTY
+{
+    LogFilePartitionType m_logFilePartition;
+    bool m_usesOldModuleName;
+    int m_size;
+} LOG_FILE_PROPERTY;
+
+typedef std::map<int, LOG_FILE_PROPERTY*> LogFilesMapType;
 
 enum LogFileType
 {
@@ -609,6 +760,8 @@ class LogDestinationFile : public LogDestination
 {
     // The time interval at which the worker thread retires failed log file operations.
     static const int c_WorkerRetryIntervalMs = 1000;
+    static const int c_ErrorCountAlertThreshold = 60;
+    static const int c_ErrorCountRepaveThreshold = 10;
 
 public:
     LogDestinationFile();
@@ -645,8 +798,16 @@ private:
     static UINT _stdcall WorkerThreadStarter(__in void * context);
     VOID    WorkerRun();
 
-    VOID CheckSystemError(__in DWORD error);
-    LogLevel CheckIfAlertOrError();
+    void ProcessError(
+        __in DWORD error,
+        __in const char * filename,
+        __in const char * faultMessage);
+
+    BOOL CreateSymbolicLinkOnExtPartition(
+        ConfigParser *config, const char * symbolicLink);
+
+    BOOL CreateSymbolicLinkOnExtVolume(
+        const char * volumeName, const char * label, const char * symbolicLink);
 
     HANDLE  WorkerCreateLogFile(
         __out int * pUsedSize,
@@ -669,6 +830,10 @@ private:
 
     VOID    SpinWaitUntilFlushCompleted(DWORD timeoutMs);
 
+    HRESULT QueryFileSystemDirty(
+        __in const char * path,
+        __out bool * pIsDirty);
+
     //
     // Configuration routines
     //
@@ -680,14 +845,24 @@ private:
     // File and map management routines.
     //
     void              BuildFileMapFromDisk();
-    void              MakeFilenamePrefix(__in_ecount(MAX_PATH) char *pFilename) const;
-    void              MakeFilename(__in int fileNumber, __inout_ecount(MAX_PATH) char *pFilename, __in LogFileType fileType) const;
+    void              MakeFilenamePrefix(__in_ecount(MAX_PATH) char *pFilename, __in bool isOnExt, __in bool useOldModuleName) const;
+
+    void              MakeFilename(__in int fileNumber,
+                                   __inout_ecount(fileNameSize) char *pFilename,
+                                   __in size_t fileNameSize,
+                                   __in LogFileType fileType,
+                                   __in bool isOnExt,
+                                   __in bool useOldModuleName) const;
+
+    bool              HasExtendedPartition() const;
+    bool              HasOldModuleName() const;
     bool              DeleteLogFileAndUpdateStats(__in int fileNumber, __in LogFileType fileType);
     void              DeleteOldLogFiles();
-    void              AdjustLoggingQuota();
+    bool              AdjustLoggingQuota();
 
     void              RemoveFileFromMap(__in int fileNumber, __in LogFileType fileType);
-    void              AddFileToMap(__in int fileNumber, __in int size, __in LogFileType fileType);
+    void              AddFileToMap(__in int fileNumber, __in int size, __in LogFileType fileType, __in LogFilePartitionType logFilePartitionType, __in bool usesOldModuleName);
+    int               ScanAndAddFilesToMapHelper(__in LogFileType fileType, __in LogFilePartitionType logFilePartitionType, __in bool useOldModuleName);
     int               ScanAndAddFilesToMap(__in LogFileType fileType);
     bool              CheckEmptyFile(__in int fileNumber, __in LogFileType fileType);
     int               QueryFileSize(PCSTR pszFileName) const;
@@ -722,13 +897,16 @@ public:
     // Whether to emit log entries in binary format.
     bool              m_fBinaryMode;
 
-    // A zero-based index that uniquely identifies this binary destination within the binary 
+    // Whether to archive files after we are done writing to them
+    bool              m_fArchiveFiles;
+
+    // A zero-based index that uniquely identifies this binary destination within the binary
     // destinations set. The value is undefined for non binary destinations.
     int               m_binaryIndex;
 
     // Indicates the current binary serialization epoch. Incremented when the current binary file is
-    // full and the destination must switch to a new binary file. As a result, the 
-    // format_preprocess_block is written again in the new epoch (file) to make sure that every 
+    // full and the destination must switch to a new binary file. As a result, the
+    // format_preprocess_block is written again in the new epoch (file) to make sure that every
     // binary file has all the blocks needed to render itself.
     INT64             m_binaryEpoch;
 
@@ -749,8 +927,11 @@ public:
     int               m_writeBufferSize;
 
     // The maximum disk space that can be used by all log files created
-    // by this destination.
+    // by this destination on primary partition.
     UINT64            m_maxAllowedDiskUsage;
+    // The maximum disk space that can be used by all log files created
+    // by this destination on second partition.
+    UINT64            m_maxAllowedDiskUsageExt;
 
 
     // The amount of disk space that is currently allowed to be used by this destination. This
@@ -760,7 +941,14 @@ public:
     // File name prefix for log files (ex: localCosmosLog_en.exe). It does not
     // have the sequence number part (_xxxxxx.log)
     char              m_filenameBase[MAX_PATH];
+    char              m_filenameBaseExt[MAX_PATH];
+    char              m_filenameBaseOldModule[MAX_PATH];
+    LogFilePartitionType        m_activePartition;
+    BOOL              m_hasValidExtSymbolicLink;
 
+    // Indicates if the host file system has the dirty bit set. This flag is not populated unless
+    // the logger encounters file system errors.
+    bool              m_fileSystemDirty;
 
     //
     // Log file delete/compression.
@@ -795,7 +983,7 @@ public:
     // The current log file size. Does NOT apply to memory mapped logging.
     int                       m_fileSize;
 
-    // The number of buffers that have been posted to the flush queue but did not complete the 
+    // The number of buffers that have been posted to the flush queue but did not complete the
     // flush yet.
     volatile LONG             m_pendingFlushCount;
 
@@ -816,7 +1004,7 @@ public:
     // Misc
     //
 
-    // We alert if something is wrong with the file destination (ex: can't create, can't write to 
+    // We alert if something is wrong with the file destination (ex: can't create, can't write to
     // it, etc.). This field stores the timestamp of the last alert. We use this field to make sure
     // we don't fire more that one alert per hour.
     UINT64            m_lastAlertTickCount;
@@ -832,6 +1020,10 @@ public:
     // Sticky error code that is set if the logging module hits
     // an unrecoverable error.
     DWORD             m_status;
+
+    // Sometimes the symbolic link is broken due to Windows upgrade. We need check everytime the process is up.
+    // We need make sure we only check once.
+    static BOOL volatile  hasCheckedExtSymbolicLink;
 };
 
 #pragma warning(pop)
@@ -919,11 +1111,17 @@ class Logger
     friend class LogDestinationFullDump;
     friend class BinaryLogReader;
     friend class LoggerProxy;
+	friend class LogDestinationStdout;
+	friend class LogDestinationStderr;
 
 public:
 
-    static BOOL Init(WCHAR *customSectionName = 0, const char * logsDir = NULL, BOOL slimMode = FALSE);
-    static void  LogMVar(void **ppPreprocessBlock, const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, const char *fmt, va_list args);
+    static BOOL Init(WCHAR *customSectionName = 0,
+                     const char * logsDir = NULL,
+                     BOOL slimMode = FALSE,
+                     INT16 activitySourceId = -1,
+                     INT16 activityInstanceId = -1,
+                     BOOL compactRendering = FALSE);
 
     // Flush the contents to disk
     // You shouldn't really be calling this, but it's there because there is
@@ -934,23 +1132,89 @@ public:
 
     static bool SetDumpOrTerminateProcess();
 
+    static void DisableAllLogging (bool disableLogging);
+
+    static void DisableAllArchiving(bool disableArchiving);
+
+    //
+    // allow an external caller to set MiniDump
+    //
+    static void SetFullDump(bool fullDump);
+
+    // Specify the named pipe of the storagelogagent for writing dumps,
+    // since some processes like bvts don't have their own log agents
+    static void SetLogAgentNamedPipe(
+        __in PCSTR szPipeName
+        );
+
 private:
 
     // Initializes logging
     static void InitCounters();
     static void InitAppAlertClient();
 
+    static void  LogMVar(
+        void **ppPreprocessBlock,
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId,
+        const char *fmt,
+        va_list args);
+
     // Helper function called by Log() macro
-    static void  LogV(const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, LogTag tag, ...);
+    static void LogV(
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId,
+        LogTag tag,
+        ...);
 
-    static void LogVEx(const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title,
-                      FILETIME *ft, DWORD tid, DWORD pid, GUID *pActivityId, GUID *pEntryPointId, LogTag tag, ... );
+    static void LogVEx(
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        FILETIME *ft,
+        DWORD tid,
+        DWORD pid,
+        const GUID *pActivityId,
+        LogTag tag,
+        ... );
 
-    static void  LogV(const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, const char *fmt, va_list args);
+    static void  LogV(
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        const GUID * activityId,
+        const char *fmt,
+        va_list args);
 
-
-    static void  LogV(const char *file, const char *function, const int line, LogID logID, LogLevel level, const char *title, LogTag tag, va_list args,
-                        FILETIME *ft=NULL, DWORD tid=0, DWORD pid=0, GUID *pActivityId=NULL, GUID *pEntryPointId=NULL);
+    static void  LogV(
+        const char *file,
+        const char *function,
+        const int line,
+        LogID logID,
+        LogLevel level,
+        const char *title,
+        LogTag tag,
+        va_list args,
+        FILETIME *ft,
+        DWORD tid,
+        DWORD pid,
+        const GUID *pActivityId);
 
     static char *MakeLogEntry(
         __in_ecount(bufferLen) char *buffer,
@@ -987,9 +1251,9 @@ private:
     // Binary logging support.
 
     static bool LogBinaryInEpoch(
-        __in_bcount(formatBufferLen) const PVOID pFormatBlockBuffer,
+        __in_bcount(formatBlockLen) const PVOID pFormatBlockBuffer,
         __in INT formatBlockLen,
-        __in_bcount(entryLength) const PVOID pEntryBuffer,
+        __in_bcount(entryLen) const PVOID pEntryBuffer,
         __in INT entryLen,
         __in INT binaryLogDestinationIndex,
         __in INT64 epoch,
@@ -1032,37 +1296,59 @@ private:
 
     static bool CanLostLogEntries();
 
+    static bool IsLoggingDisabled ();
+
     // This function handles all unhandled exceptions. It is hooked up
     // to the global exception handler in CommonInit.
     static LONG LogAndExitProcess(
         __in EXCEPTION_POINTERS*);
 
-    __declspec(noreturn) 
+    __declspec(noreturn)
     static void LogAndExitProcess(
-        __in EXCEPTION_POINTERS* exceptionPointers, 
-        __in unsigned int timeoutMilliSeconds, 
-        __in bool fullDump);
+        __in EXCEPTION_POINTERS* exceptionPointers,
+        __in unsigned int timeoutMilliSeconds,
+        __in bool fullDump,
+        __in DWORD exitCode);
+
+    //
+    // function to be called when the CRT detects an invalid argument.
+    //
+    static void invalid_parameter_handler(
+        __in_z const wchar_t* expression,
+        __in_z const wchar_t* function,
+        __in_z const wchar_t* file,
+        __in unsigned int line,
+        __in uintptr_t reserved
+        );
 
     // Crash the current process by generating an unhandled exception.
     __declspec(noreturn) static void Crash();
 
     // Write out a mini dump of the running thread.
     // Timeout == 0 means never timeout.
-    static bool WriteMiniDump (unsigned int timeoutMilliSeconds, bool fullDump);
+    static bool WriteMiniDump (unsigned int timeoutMilliSeconds, bool fullDump, DWORD exitCode, PXSTORE_ASSERTION_INFO pAssertionInfo);
 
     // Exception filter for the exception generated in WriteMiniDump.
     static LONG WriteMiniDumpExceptionFilter(
-        __in EXCEPTION_POINTERS* exceptionPointers, 
-        __in unsigned int timeoutMilliSeconds, 
-        __in bool fullDump);
+        __in EXCEPTION_POINTERS* exceptionPointers,
+        __in unsigned int timeoutMilliSeconds,
+        __in bool fullDump,
+        __in DWORD exitCode
+        );
 
     // Write out a crash dump when exception pointers are know. This function should be called from
     // an exception handling code block.
     __declspec(noreturn)
-    static void WriteExceptionMiniDump (EXCEPTION_POINTERS* exceptionPointers, unsigned int timeoutMilliSeconds, bool fullDump);
+    static void WriteExceptionMiniDump (EXCEPTION_POINTERS* exceptionPointers, unsigned int timeoutMilliSeconds, bool fullDump, DWORD exitCode);
 
     // Notify the external process to take a dump and then terminate the current process.
-    static VOID NotifyCrashDumpProcess(__in EXCEPTION_POINTERS *exceptionPointers, __in PCSTR szFilePath, __in bool fullDump, bool* pRet);
+    static VOID NotifyCrashDumpProcess(
+        __in EXCEPTION_POINTERS *exceptionPointers,
+        __in PCSTR szFilePath,
+        __in bool fullDump,
+        __in DWORD exitCode,
+        __out bool* pRet
+        );
 
     // Return the full path of the directory where minidumps and crash logs will be written to.
     // This function is exposed to allow other programs to find out where the minidumps will be stored.
@@ -1117,13 +1403,6 @@ private:
     // Turn on the application log callback when you don't have an .ini file
     static BOOL EnableApplicationLogCallback();
 
-    // Get/set the activity state of the current thread.
-    static XS_ACTIVITY_STATE GetCurrentActivityState();
-
-    static void SetCurrentActivityState(
-        __in_bcount_opt(activityStateLength) BYTE* activityState,
-        __in size_t activityStateLength);
-
     static bool ReadBoolFromEnvironmentOrConfig(
         __in const ConfigParser *config,
         __in PCSTR sectionName,
@@ -1154,6 +1433,7 @@ private:
     static void  ReadAndApplyFineGrainedTimerSetting(__in ConfigParser *config, __in PCSTR sectionName);
     static void  ReadMemoryLogSettings(__in ConfigParser *config, __in PCSTR sectionName);
     static void  CreateMemoryLogger(__in ConfigParser *config, __in PCSTR sectionName);
+    static void  CreateRoleIsolationClient();
 
     static void  ClearRules();
     static void  CreateDefaultRules(ConfigParser *config);
@@ -1188,12 +1468,17 @@ private:
     static CRITSEC m_AppAlertInitCritSec;
     static bool SendAppAlert (const char *buffer);
 
+    // Force crash dump
+    static void SetForceCrashDumpEventHandler();
+    static void CALLBACK OnForceCrashDumpEventHandler(void * lpParameter, BOOLEAN TimerOrWaitFired);
+
     static volatile bool     m_preInitDone;
     static CRITSEC* m_pPreInitCritSec; // on heap so never destructed and we control construct time
 
     // chain exception handler
     static LPTOP_LEVEL_EXCEPTION_FILTER m_nextExceptionFilterChain;
     static bool m_bUnhandledExceptionFilterSet;
+    static _invalid_parameter_handler s_oldHandler;
 
     friend class LogDestinationApplicationCallback;
 
@@ -1205,7 +1490,9 @@ private:
 
 public:
     static void ChainUnhandledExceptionFilter();
+    static void ChainInvalidParameterHandler();
     static const char* GetBuildString();
+	static const char* GetBuildNumber();
 
     // Forces logging initialization
     const static BOOL s_DefaultInitOk;
@@ -1253,18 +1540,45 @@ public:
     // Indicates whether the TerminateProcess or GeneratingDump is already in progress.
     static LONG             m_DumpOrTerminateInProgress;
 
-    // Indicates whether the Netlib debug logging is enabled. Higher layers will query this flag 
+    // Indicates whether the Netlib debug logging is enabled. Higher layers will query this flag
     // and adjust the Netlib logging settings accordingly.
     static bool             m_bNetlibDebugLogging;
+
+    // If true, all loggings are disabled
+    static bool             m_disableLogging;
+
+    // Activity Factory
+    static ActivityFactory * m_ActivityFactory;
 
     // Indicates that the logger operates in slim mode. Slim mode disables some features like change
     // notifications, crash dumps.
     static bool             m_slimMode;
+
+    // Indicates that the logger must use compact line rendering, which excludes some information
+    // such as entry title.
+    static bool             m_compactRendering;
+
+    // if true, all log archiving is disabled
+    static bool             m_disableArchiving;
+
+    // The throttle level at which we throttle verbose logs. A value of 0 throttles all verbose
+    // logs. A value of 128 or higher doesn't throttle anything.
+    static int              m_LogThrottleLevel;
+
+    // Role instance identification and cluster membership
+    static char             m_TenantName[c_logMaxRoleNameLength];
+    static char             m_RoleName[c_logMaxRoleNameLength];
+    static char             m_RoleInstanceName[c_logMaxRoleNameLength];
+
+    // Named pipe of the storagelogagent to use, used by test processes
+    static char             m_PipeName[c_logMaxRoleNameLength];
 };
 
 size_t VsprintfEx(char *buffer, size_t length, const char *fmt, va_list args);
 
 size_t VsprintfEx(format_preprocess_block *pPreprocessBlock , char *buffer, size_t length, va_list args);
+
+format_preprocess_block* GetPreprocessBlock(const char *fmt);
 
 BOOL LogRarelyCheckTime(__int64 volatile *pNextReportTime, size_t uReportingPeriodSec);
 
@@ -1274,16 +1588,6 @@ void WaitForThreadOrExit(HANDLE handle, DWORD threadID);
 
 // Terminates the process using ::TerminateProcess API
 __declspec(noreturn) void Terminate(UINT ec);
-
-// Get/set the activity state of the current thread.
-XS_ACTIVITY_STATE GetCurrentActivityState();
-void SetCurrentActivityState(
-    __in_bcount_opt(activityStateLength) BYTE* activityState,
-    __in size_t activityStateLength
-    );
-
-// Get the activity id of the current thread.
-GUID GetCurrentActivityId();
 
 // Named pipe message used to notify the crash dump process to take a dump of the current process.
 typedef struct _XS_DUMP_MESSAGE
@@ -1296,6 +1600,7 @@ typedef struct _XS_DUMP_MESSAGE
     char DumpFilePath[MAX_PATH];
     PVOID ExcludedMemoryRegionBaseAddress;
     size_t ExcludedMemoryRegionSizeInBytes;
+    ULONG ExitCode;
 } XS_DUMP_MESSAGE, *PXS_DUMP_MESSAGE;
 
 // Helper function that builds a named pipe name based on the role's data directory.
@@ -1305,14 +1610,29 @@ bool BuildPipeNameFromRoleDataDir(
     __out_ecount(charCount) char* pipeName);
 
 bool WriteCrashLogFile(
-    __in HANDLE hProcess, 
-    __in DWORD dwProcessId, 
-    __in const char * cszCrashLogFileFullPath, 
+    __in HANDLE hProcess,
+    __in DWORD dwProcessId,
+    __in const char * cszCrashLogFileFullPath,
     __in unsigned int timeoutMilliSeconds);
 
 // This function excludes a memory region from the dump file. This is used to reduce the dump file size.
 void ExcludeMemoryRegionFromDump(
     __in PVOID baseAddress,
     __in size_t regionSizeInBytes);
+
+
+//
+// Allow to globally override full -vs- mini dumps
+//
+void LogSetFullDump(bool fullDump);
+
+//
+// Allow to define an error code that is line-number dependent
+//
+UINT32
+MakeExitCode(
+    const int line
+    );
+
 
 #include "logassert.h"

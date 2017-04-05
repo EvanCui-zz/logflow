@@ -1,3 +1,2 @@
-#include "Stdafx.h"
-
+#include "types.h"
 #include "CosmosLogFile.h"

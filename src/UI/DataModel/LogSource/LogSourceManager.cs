@@ -11,10 +11,10 @@
 
         }
 
-        public ILogSource<DataItemBase> GetLogSource(string sourceInitializationData)
+        public ILogSource<DataItemBase> GetLogSource(string sourceInitializationData, LogSourceProperties properties)
         {
             // TODO: make the sources dynamic load.
-            return new CosmosLogSource(sourceInitializationData);
+            return new CosmosLogSource(sourceInitializationData, properties);
             //return new FakeLogSource();
         }
 

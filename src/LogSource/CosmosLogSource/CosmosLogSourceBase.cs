@@ -8,8 +8,9 @@ namespace LogFlow.DataModel
     using System.Threading;
     using LogFlow.DataModel.Algorithm;
 
-    public abstract class CosmosLogSourceBase : LogSourceCompressdBase<CosmosDataItem>, IDisposable
+    public abstract class CosmosLogSourceBase : LogSourceCompressedBase<CosmosDataItem>, IDisposable
     {
+        protected CosmosLogSourceBase(LogSourceProperties properties) : base(properties) { }
         protected List<CosmosLogFileBase> LogFiles;
 
         public override string Name => this.LogFiles.Count == 1 ? this.LogFiles[0].FileName :
@@ -60,7 +61,7 @@ namespace LogFlow.DataModel
 
         private void SetAutoLoading()
         {
-            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.AutoLoadingEnabled);
+            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.Properties.DynamicLoadingEnabled);
         }
 
         public override IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token)
@@ -83,6 +84,13 @@ namespace LogFlow.DataModel
                 Comparer<FullCosmosDataItem>.Create((d1, d2) => d1.Item.Time.CompareTo(d2.Item.Time)),
                 this.LogFiles.Cast<IEnumerable<FullCosmosDataItem>>().ToArray());
 
+            for (var i = 0; i < this.LogFiles.Count; i++)
+            {
+                var fileIndex = this.files.Put(this.LogFiles[i].FileName);
+                this.FileMetaData.Put(new FileCompressMetaData());
+                Debug.Assert(fileIndex == i, $"The file index {fileIndex} doesn't equal to i {i}");
+            }
+
             var count = 0;
 
             foreach (var item in merged)
@@ -95,9 +103,8 @@ namespace LogFlow.DataModel
 
                 if (filter.Match(item.Item.Item, item.Item.Template))
                 {
-                    item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                    item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
-                    this.AddItem(item.Item.Item);
+                    item.Item.Item.FileIndex = item.SourceIndex;
+                    this.AddItem(item.Item);
 
                     yield break;
                 }
@@ -119,7 +126,7 @@ namespace LogFlow.DataModel
 
         protected override IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token)
         {
-            if (this.AutoLoadingEnabled)
+            if (this.Properties.DynamicLoadingEnabled)
             {
                 return this.Load(filter, token);
             }
@@ -166,7 +173,12 @@ namespace LogFlow.DataModel
                         .Where(i => filter.Match(i.Item, i.Template))).ToArray());
             }
 
-            //   var merged = this.LogFiles[0].Select(i => new MergedItem<FullCosmosDataItem>(i, 0));
+            for (var i = 0; i < this.LogFiles.Count; i++)
+            {
+                var fileIndex = this.files.Put(this.LogFiles[i].FileName);
+                this.FileMetaData.Put(new FileCompressMetaData());
+                Debug.Assert(fileIndex == i, $"The file index {fileIndex} doesn't equal to i {i}");
+            }
 
             // each time we iterate through the merged, it will refresh all files underneath and load in new InternalItems;
             foreach (var item in merged)
@@ -174,14 +186,9 @@ namespace LogFlow.DataModel
                 if (token.IsCancellationRequested) yield break;
 
                 count++;
-                item.Item.Item.TemplateId = this.AddTemplate(item.Item.Template);
-                item.Item.Item.FileIndex = this.files.Put(this.LogFiles[item.SourceIndex].FileName);
-                this.AddItem(item.Item.Item);
 
-                //    var groupData = this.InnerGroupData[item.SourceIndex];
-                //   groupData.Value.Percentage = (int)this.LogFiles[item.SourceIndex].GetPercent();
-
-                //   groupData.Value.InnerGroupIndexes.Add(item.Item.Item.Id);
+                item.Item.Item.FileIndex = item.SourceIndex;
+                this.AddItem(item.Item);
 
                 lastPercents[item.SourceIndex] = item.Item.Percent;
                 var totalPercent = (int)lastPercents.Average();

@@ -35,6 +35,8 @@
 
         private Func<DataItemBase, string, bool> Predicate { get; set; }
 
+        public static IFilter MatchAll = new Filter() { Predicate = (d, s) => true };
+
         private Filter() { }
 
         public Filter(string pattern)

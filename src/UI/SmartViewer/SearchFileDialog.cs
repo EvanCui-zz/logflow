@@ -1,7 +1,4 @@
-﻿
-using System.Diagnostics;
-
-namespace LogFlow.Viewer
+﻿namespace LogFlow.Viewer
 {
     using System;
     using System.Collections.Generic;
@@ -10,6 +7,8 @@ namespace LogFlow.Viewer
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
+    using System.Diagnostics;
+    using LogFilter;
     using LogFlow.DataModel;
     using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;
@@ -85,7 +84,15 @@ namespace LogFlow.Viewer
 
 
                 this.cts = new CancellationTokenSource();
-                this.Filter = LogFilterInterpreter.Parse(this.comboBoxSearchPattern.Text);
+
+                if (string.IsNullOrEmpty(this.comboBoxSearchPattern.Text))
+                {
+                    this.Filter = LogFlow.DataModel.Filter.MatchAll;
+                }
+                else
+                {
+                    this.Filter = LogFilterInterpreter.Parse(this.comboBoxSearchPattern.Text);
+                }
 
                 var filePaths = Directory.EnumerateFiles(
                     this.comboBoxSearchFolder.Text,
@@ -116,7 +123,7 @@ namespace LogFlow.Viewer
                 {
                     DataItemBase dataItem;
 
-                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i]);
+                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(false, true));
 
                     try
                     {

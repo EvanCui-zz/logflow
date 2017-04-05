@@ -17,6 +17,16 @@ namespace LogFlow.DataModel
             this.storedString = LocalStringPool.Intern(string.Format(template, parameters.Select(p => (object)$"{LeftSign}{p}{RightSign}").ToArray()));
         }
 
+        public override string ToString()
+        {
+            return string.Concat(this.GetTokens().Select(t => t.Key));
+        }
+
+        public string ToHtml()
+        {
+            return string.Concat(this.GetTokens().Select(t => t.Value ? $"<b>{t.Key}</b>" : t.Key));
+        }
+
         public IEnumerable<KeyValuePair<string, bool>> GetTokens()
         {
             //todo : improve the perf for drawing.
