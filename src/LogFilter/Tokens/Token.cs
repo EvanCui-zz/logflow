@@ -1,4 +1,4 @@
-﻿namespace LogFilter.Tokens
+﻿namespace LogFlow.Viewer.LogFilter.Tokens
 {
     using System.Text.RegularExpressions;
 

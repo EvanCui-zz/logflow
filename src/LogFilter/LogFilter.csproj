@@ -7,7 +7,7 @@
     <ProjectGuid>{63A0163A-7B24-4F53-8BFF-8804438C4FAA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LogFilter</RootNamespace>
+    <RootNamespace>LogFlow.Viewer.LogFilter</RootNamespace>
     <AssemblyName>LogFilter</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -35,6 +35,24 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,14 +64,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\ContentParsingModule.cs" />
+    <Compile Include="Expressions\EndIdxContent.cs" />
     <Compile Include="Expressions\ProcessIdMatchExpression.cs" />
     <Compile Include="Expressions\LogLevelMatchExpression.cs" />
     <Compile Include="Expressions\RegexMatchExpression.cs" />
+    <Compile Include="Expressions\BeginIdxExpression.cs" />
     <Compile Include="Expressions\ThreadIdMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeEndMatchExpression.cs" />
     <Compile Include="Expressions\DatetimeBeginMatchExpression.cs" />
     <Compile Include="FilterParseResult.cs" />
-    <Compile Include="Parsers\BackTrackingParser.cs" />
+    <None Include="Parsers\BackTrackingParser.cs" />
     <Compile Include="Expressions\BinaryExpression.cs" />
     <Compile Include="Expressions\ContentMatchExpression.cs" />
     <Compile Include="Expressions\Expression.cs" />

@@ -1,6 +1,6 @@
-﻿namespace LogFilter
+﻿namespace LogFlow.Viewer.LogFilter
 {
-    using LogFilter.Expressions;
+    using Expressions;
 
     public class FilterParseResult
     {

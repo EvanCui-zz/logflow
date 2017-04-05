@@ -1,12 +1,10 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
 
-    using LogFilter.Tokens;
-
     using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal class LogLevelMatchExpression : ContentMatchExpression
     {

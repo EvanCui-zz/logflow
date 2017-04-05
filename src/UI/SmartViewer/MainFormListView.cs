@@ -1,7 +1,5 @@
 namespace LogFlow.Viewer
 {
-    using LogFilter;
-
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -16,6 +14,7 @@ namespace LogFlow.Viewer
     using System.Drawing.Text;
     using System.Windows.Forms;
     using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;
 
     public partial class MainFormListView : Form

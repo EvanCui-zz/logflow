@@ -15,7 +15,7 @@ using LogFlow.Viewer.Properties;
 
 namespace LogFlow.Viewer
 {
-    using LogFilter;
+    using LogFlow.Viewer.LogFilter;
 
     public partial class MainForm : Form
     {
@@ -54,8 +54,8 @@ namespace LogFlow.Viewer
 
         private void dataGridViewMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-        //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
-         //   e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
+            //    Debug.WriteLine("cell value needed row {0}, col {1}", e.RowIndex, e.ColumnIndex);
+            //   e.Value = this.CurrentView.GetColumnValue(e.RowIndex, e.ColumnIndex);
         }
 
         private void MainForm_Load(object sender, EventArgs e)

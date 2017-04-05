@@ -1,10 +1,10 @@
-﻿namespace LogFilter
+﻿namespace LogFlow.Viewer.LogFilter.Parsers
 {
     using System;
     using System.Collections.Generic;
 
-    using LogFilter.Expressions;
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Expressions;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal class Parser
     {

@@ -1,27 +1,22 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
     using System;
+    using System.Linq;
 
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal class ProcessIdMatchExpression : ContentMatchExpression
     {
-        internal int ProcessIdContent { get; set; }
+        internal int[] ProcessIdsContent { get; set; }
 
         internal ProcessIdMatchExpression(ContentToken token)
         {
-            int i;
-            string content = token.Content;
-            if (!int.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out i))
-            {
-                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(Int32)}' format", token.Index);
-            }
-            this.ProcessIdContent = i;
+            this.ProcessIdsContent = ContentParsingModule.ParseIntArray(ExpressionHeader, token);
         }
 
-        protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.ProcessIdContent}";
+        protected override string EvalToStringAcc() => $"{ExpressionHeader}{string.Join(",", this.ProcessIdsContent)}";
 
-        public override bool Match<T>(T item, string template) => item.ProcessId == this.ProcessIdContent;
+        public override bool Match<T>(T item, string template) => this.ProcessIdsContent.Contains(item.ProcessId);
 
         internal static string ExpressionHeader => "p:";
     }

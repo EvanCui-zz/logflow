@@ -1,5 +1,7 @@
-﻿namespace LogFilter.UnitTest
+﻿namespace LogFlow.Viewer.LogFilter.UnitTest
 {
+    using LogFlow.Viewer.LogFilter;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

@@ -10,6 +10,7 @@
     using System.Diagnostics;
     using LogFilter;
     using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter;
     using LogFlow.Viewer.Properties;
 
     public partial class SearchFileDialog : Form

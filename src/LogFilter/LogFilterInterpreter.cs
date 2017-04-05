@@ -2,14 +2,13 @@
 
 [assembly: InternalsVisibleTo("LogFilter.UnitTest")]
 
-namespace LogFilter
+namespace LogFlow.Viewer.LogFilter
 {
     using System.Collections.Generic;
 
-    using LogFilter.Expressions;
-    using LogFilter.Tokens;
-
-    using LogFlow.DataModel;
+    using LogFlow.Viewer.LogFilter.Expressions;
+    using LogFlow.Viewer.LogFilter.Parsers;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     public class LogFilterInterpreter
     {

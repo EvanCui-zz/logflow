@@ -1,8 +1,8 @@
-﻿namespace LogFilter.Expressions
+﻿namespace LogFlow.Viewer.LogFilter.Expressions
 {
     using System;
 
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     internal class DatetimeEndMatchExpression : ContentMatchExpression
     {
@@ -10,13 +10,7 @@
 
         internal DatetimeEndMatchExpression(ContentToken token)
         {
-            DateTime dt;
-            string content = token.Content;
-            if (!DateTime.TryParse(content.Substring(ExpressionHeader.Length).Trim('"'), out dt))
-            {
-                throw new ParsingException($"{content} is not of '{ExpressionHeader}{nameof(DateTime)}' format", token.Index);
-            }
-            this.DatetimeEndContent = dt;
+            this.DatetimeEndContent = ContentParsingModule.ParseDateTime(ExpressionHeader, token);
         }
 
         protected override string EvalToStringAcc() => $"{ExpressionHeader}{this.DatetimeEndContent:s}";

@@ -1,7 +1,7 @@
-﻿namespace LogFilter.UnitTest
+﻿namespace LogFlow.Viewer.LogFilter.UnitTest
 {
-    using LogFilter.Expressions;
-    using LogFilter.Tokens;
+    using LogFlow.Viewer.LogFilter.Expressions;
+    using LogFlow.Viewer.LogFilter.Tokens;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -49,7 +49,7 @@
         }
 
         [TestMethod]
-        public void TestPid()
+        public void TestPid1()
         {
             var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("p:99"));
             Assert.IsInstanceOfType(res, typeof(ProcessIdMatchExpression));
@@ -57,11 +57,27 @@
         }
 
         [TestMethod]
-        public void TestTid()
+        public void TestPid2()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("p:99,98"));
+            Assert.IsInstanceOfType(res, typeof(ProcessIdMatchExpression));
+            Assert.AreEqual("p:99,98", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestTid1()
         {
             var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("t:99"));
             Assert.IsInstanceOfType(res, typeof(ThreadIdMatchExpression));
             Assert.AreEqual("t:99", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestTid2()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken("t:99,98"));
+            Assert.IsInstanceOfType(res, typeof(ThreadIdMatchExpression));
+            Assert.AreEqual("t:99,98", res.EvalToString(false));
         }
 
         [TestMethod]
@@ -86,6 +102,22 @@
             var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"r:""\w+ """""""""""));
             Assert.IsInstanceOfType(res, typeof(RegexMatchExpression));
             Assert.AreEqual(@"r:""\w+ """"""""""", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestBeginIdx()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"bi:15"));
+            Assert.IsInstanceOfType(res, typeof(BeginIdxExpression));
+            Assert.AreEqual(@"bi:15", res.EvalToString(false));
+        }
+
+        [TestMethod]
+        public void TestEndIdx()
+        {
+            var res = ContentMatchExpression.CreateContentMatchExpression(new ContentToken(@"ei:18"));
+            Assert.IsInstanceOfType(res, typeof(EndIdxExpression));
+            Assert.AreEqual(@"ei:18", res.EvalToString(false));
         }
     }
 }
