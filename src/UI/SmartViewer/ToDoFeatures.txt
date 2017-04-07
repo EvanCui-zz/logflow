@@ -63,6 +63,9 @@
 
 111, double click openning
 112, auto loading
+113, Debug shift + F3
+114, Figure out goto and id search.
+115, Debug compression for AXA logs.
 2, Context operations. Most done
 33, Highlight find content.
 44, Help, about
