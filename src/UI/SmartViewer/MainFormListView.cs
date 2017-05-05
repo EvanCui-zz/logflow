@@ -135,6 +135,8 @@ namespace LogFlow.Viewer
 
         private void OpenFiles(IEnumerable<string> filePaths, IFilter filter = null)
         {
+            string extension = FileExtensionModule.GetFileExtension(filePaths);
+
             // The paths is not guaranteed to be files, considering other log sources.
             // so we only save general info here.
             var initializeString = string.Join(",", filePaths);
@@ -151,7 +153,7 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(Settings.Default.Behavior_AutoLoad, Settings.Default.Behavior_EnabledCompression));
+            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(Settings.Default.Behavior_AutoLoad, Settings.Default.Behavior_EnabledCompression), extension);
 
             var document = new RootView<DataItemBase>(logSource, filter, Settings.Default.Behavior_BackgroundInternStrings);
             this.AddView(document, true, true);

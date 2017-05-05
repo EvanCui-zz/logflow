@@ -56,6 +56,8 @@
     <Compile Include="DataItem\DataItemBaseExtension.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="LogSource\ILogSource.cs" />
+    <Compile Include="LogSource\ILogSourceFactoryData.cs" />
+    <Compile Include="LogSource\ILogSourceFactory.cs" />
     <Compile Include="LogSource\InnerGroupData.cs" />
     <Compile Include="LogSource\LogSourceBase.cs" />
     <Compile Include="CustomizedDataType\ParametricString.cs" />

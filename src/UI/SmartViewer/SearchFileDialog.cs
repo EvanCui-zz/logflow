@@ -99,6 +99,8 @@
                     this.checkBoxRecursive.Checked ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                     .ToList();
 
+                string extension = FileExtensionModule.GetFileExtension(filePaths);
+
                 this.totalCount = filePaths.Count;
 
                 this.dataGridViewResult.Rows.Clear();
@@ -122,7 +124,7 @@
                 {
                     DataItemBase dataItem;
 
-                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(false, true));
+                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(false, true), extension);
 
                     try
                     {

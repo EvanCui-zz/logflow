@@ -1,11 +1,10 @@
-﻿using System.Threading;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-
+    using System.Threading;
+    
     public interface ILogSource<out T> where T : DataItemBase
     {
         string Name { get; }
