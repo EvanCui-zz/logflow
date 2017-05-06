@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogFlow.DataModel.LogSource
+﻿namespace LogFlow.DataModel.LogSource
 {
+    using System.ComponentModel.Composition;
+
     [Export(typeof(ILogSourceFactory<DataItemBase>))]
-    [ExportMetadata("LogFormat", "bin")]
+    [ExportMetadata("LogFormat", ".bin")]
     public class CosmosLogSourceFactory : ILogSourceFactory<CosmosDataItem>
     {
         public ILogSource<CosmosDataItem> CreateInstance(string sourceInitializationData, LogSourceProperties properties)

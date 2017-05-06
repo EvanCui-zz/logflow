@@ -9,7 +9,7 @@
     {
         public static string GetFileExtension(IEnumerable<string> filePaths)
         {
-            var extensions = filePaths.Select(p => Path.GetExtension(p));
+            var extensions = filePaths.Select(p => Path.GetExtension(p)).Distinct();
             if (extensions.Count() != 1)
             {
                 throw new InvalidOperationException("Not support opening files with mixed types for now.");
