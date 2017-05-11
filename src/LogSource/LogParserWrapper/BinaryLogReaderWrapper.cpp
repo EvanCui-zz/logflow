@@ -135,8 +135,8 @@ FullCosmosDataItem^ BinaryLogReaderWrapper::ReadItem()
     }
 }
 
-void BinaryLogReaderWrapper::Refresh()
+bool BinaryLogReaderWrapper::Refresh()
 {
-    this->reader->ReFresh();
+    return 0 == this->reader->ReFresh();
 }
 

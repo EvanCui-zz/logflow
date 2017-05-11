@@ -6,7 +6,7 @@
     using System.Reflection;
     using System.Threading;
 
-    public class FilteredView<T> : IFilteredView<T> where T : DataItemBase
+    public class FilteredView<T> : IFilteredView<T>, IDisposable where T : DataItemBase
     {
         #region Find, Count, Filter, Tag, Indent features.
 
@@ -249,6 +249,8 @@
 
             this.IsInitialized = true;
 
+            this.StartLoading();
+
             yield return 100;
             this.OnReportFinish();
         }
@@ -332,14 +334,6 @@
             if (this.Parent != null)
             {
                 this.ItemIndices = new List<int>();
-
-                this.Parent.ItemAdded += (s, e) =>
-                {
-                    if (this.IsInitialized && filter.Match(this.Source[e], this.Source.Templates[this.Source[e].TemplateId]))
-                    {
-                        this.AddItem(e);
-                    }
-                };
             }
         }
 
@@ -362,9 +356,36 @@
 
         #endregion
 
+        #region Disposable
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                this.loadingCts?.Cancel();
+                this.loadingCts?.Dispose();
+                this.loadingCts = null;
+
+                while (this.loadingInProgress) Thread.SpinWait(100);
+
+                this.loadingTimer?.Dispose();
+                this.loadingTimer = null;
+            }
+        }
+
+        #endregion
+
         #region Properties and fields
 
         const int ReportInterval = 20;
+
+        private int parentIndex = 0;
 
         private IDictionary<int, IFilter> Tags { get; } = new Dictionary<int, IFilter>();
 
@@ -380,6 +401,55 @@
         #endregion
 
         #region Private methods
+
+        private int loadingPeriodMilliseconds = 2000;
+        private Timer loadingTimer;
+        private CancellationTokenSource loadingCts;
+        private bool loadingInProgress;
+
+        private void StartLoading()
+        {
+            this.loadingCts = new CancellationTokenSource();
+            this.loadingTimer = new Timer(s => this.LoadingThread(), null, this.loadingPeriodMilliseconds, -1);
+        }
+
+        private void LoadingThread()
+        {
+            // TODO: abstract the timer disposable
+            // TODO: put Initialize to loading thread
+            // TODO: make UI pulling mode.
+            // TODO: make a separate statistics action.
+            this.loadingInProgress = true;
+            if (!this.IsInitialized) return;
+
+            var token = this.loadingCts.Token;
+
+            if (this.Parent == null)
+            {
+                // root view
+                foreach (var p in this.Source.Load(this.Filter, token)) { }
+            }
+            else
+            {
+                // filtered view
+                while (this.parentIndex < this.Parent.TotalCount && !token.IsCancellationRequested)
+                {
+                    var physicalIndex = this.Parent.GetPhysicalIndex(this.parentIndex);
+                    var item = this.Source[physicalIndex];
+                    var template = this.Source.Templates[item.TemplateId];
+
+                    if (this.Filter.Match(item, template))
+                    {
+                        this.AddItem(physicalIndex);
+                    }
+                }
+            }
+
+            this.IsInProgress = false;
+            this.loadingTimer.Change(this.loadingPeriodMilliseconds, -1);
+
+            this.loadingInProgress = false;
+        }
 
         protected void OnItemAdded(int index)
         {

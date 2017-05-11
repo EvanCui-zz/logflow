@@ -151,9 +151,13 @@ namespace LogFlow.Viewer
 
             Settings.Default.Save();
 
-            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(Settings.Default.Behavior_AutoLoad, Settings.Default.Behavior_EnabledCompression));
+            var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(
+                Settings.Default.Behavior_AutoLoad, 
+                Settings.Default.Behavior_EnabledCompression,
+                Settings.Default.Behavior_BackgroundInternStrings,
+                Settings.Default.Behavior_InternIntervalMilliseconds));
 
-            var document = new RootView<DataItemBase>(logSource, filter, Settings.Default.Behavior_BackgroundInternStrings);
+            var document = new RootView<DataItemBase>(logSource, filter);
             this.AddView(document, true, true);
         }
 
@@ -838,11 +842,11 @@ namespace LogFlow.Viewer
 
         private void UpdateSelectedStatus()
         {
-            var firstSelectedIndex = this.fastListViewMain.SelectedIndices.Count > 0
+            var firstSelectedIndex = (this.fastListViewMain?.SelectedIndices?.Count ?? 0) > 0
                 ? this.fastListViewMain.SelectedIndices[0]
                 : -1;
 
-            this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView.TotalCount}";
+            this.toolStripStatusLabelSelected.Text = $"{firstSelectedIndex}, {this.CurrentView?.TotalCount ?? 0}";
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -966,6 +970,9 @@ namespace LogFlow.Viewer
             var lifeString = $"{this.lifetime.ElapsedMilliseconds / 1000}s";
             this.toolStripStatusLabelMemory.Text =
                 $"Since Start: {lifeString} | {memoryMb:####.##}MB{gcText}";
+
+            // TODO: tick for all data loading.
+            this.UpdateSelectedStatus();
         }
 
         private bool resizeGuide;

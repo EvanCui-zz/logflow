@@ -27,7 +27,6 @@
 
         private FileCompressMetaData GetFileMetaData(int fileIndex)
         {
-            //return this.metaData;
             return this.FileMetaData[fileIndex];
         }
 
