@@ -8,7 +8,7 @@ namespace LogFlow.DataModel
     using System.Threading;
     using LogFlow.DataModel.Algorithm;
 
-    public abstract class CosmosLogSourceBase : LogSourceCompressedBase<CosmosDataItem>, IDisposable
+    public abstract class CosmosLogSourceBase : LogSourceCompressedBase<CosmosDataItem>
     {
         protected CosmosLogSourceBase(LogSourceProperties properties) : base(properties) { }
         protected List<CosmosLogFileBase> LogFiles;
@@ -19,13 +19,7 @@ namespace LogFlow.DataModel
         private bool isInProgress;
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool isDisposing)
+        protected override void Dispose(bool isDisposing)
         {
             if (isDisposing)
             {
@@ -36,6 +30,8 @@ namespace LogFlow.DataModel
                 this.LogFiles?.ForEach(f => f?.Dispose());
                 this.LogFiles = null;
             }
+
+            base.Dispose(isDisposing);
         }
 
         private IEnumerable<int> CancellableProgress(Func<CancellationToken, IEnumerable<int>> action,
@@ -59,11 +55,6 @@ namespace LogFlow.DataModel
             }
         }
 
-        private void SetAutoLoading()
-        {
-            this.LogFiles.ForEach(f => f.AutoLoadEnabled = this.Properties.DynamicLoadingEnabled);
-        }
-
         public override IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token)
         {
             return this.CancellableProgress(t => this.PeekInternal(filter, peekCount, t), token);
@@ -71,7 +62,6 @@ namespace LogFlow.DataModel
 
         public IEnumerable<int> PeekInternal(IFilter filter, int peekCount, CancellationToken token)
         {
-            this.SetAutoLoading();
             this.isInProgress = true;
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
@@ -126,12 +116,7 @@ namespace LogFlow.DataModel
 
         protected override IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token)
         {
-            if (this.Properties.DynamicLoadingEnabled)
-            {
-                return this.Load(filter, token);
-            }
-
-            return base.LoadIncremental(filter, token);
+            return this.Load(filter, token);
         }
 
         public new IEnumerable<int> Load(IFilter filter, CancellationToken token)
@@ -141,7 +126,6 @@ namespace LogFlow.DataModel
 
         private IEnumerable<int> LoadInternal(IFilter filter, CancellationToken token)
         {
-            this.SetAutoLoading();
             var lastReportedProgress = 0;
             yield return lastReportedProgress;
 

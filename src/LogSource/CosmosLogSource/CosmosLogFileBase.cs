@@ -60,10 +60,18 @@
 
             public CosmosFileEnumerator(CosmosLogFileBase file)
             {
-                this.cts = new CancellationTokenSource();
                 this.file = file;
-                this.readingThread = new Thread(() => this.ReadThread(this.cts.Token));
-                this.readingThread.Start();
+
+                if (this.file?.isDisposed ?? true)
+                {
+                    this.itemQueue.CompleteAdding();
+                }
+                else
+                {
+                    this.cts = new CancellationTokenSource();
+                    this.readingThread = new Thread(() => this.ReadThread(this.cts.Token));
+                    this.readingThread.Start();
+                }
             }
 
             public void Dispose()
@@ -80,7 +88,7 @@
                     this.cts?.Dispose();
                     this.cts = null;
 
-                    this.readingThread.Join();
+                    this.readingThread?.Join();
 
                     this.itemQueue?.Dispose();
                     this.itemQueue = null;
@@ -91,7 +99,11 @@
             {
                 try
                 {
-                    this.file.Reader.Refresh();
+                    if (!this.file.Reader.Refresh())
+                    {
+                        this.file.Dispose();
+                        return;
+                    }
 
                     if (token.IsCancellationRequested) return;
 
@@ -113,11 +125,6 @@
                 }
                 finally
                 {
-                    if (!this.file.AutoLoadEnabled)
-                    {
-                        this.file.Dispose();
-                    }
-
                     this.itemQueue.CompleteAdding();
                 }
             }

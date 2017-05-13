@@ -145,7 +145,8 @@ DWORD BinaryLogReader::ReFresh()
     {
         std::cout << "ttttttttttttttttttttttttttt\n";
     }
-    m_session->Refresh();
+    
+    error = m_session->Refresh();
 
     return error;
 }

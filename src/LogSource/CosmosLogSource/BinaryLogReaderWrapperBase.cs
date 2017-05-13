@@ -6,7 +6,7 @@
     {
         public abstract FullCosmosDataItem ReadItem();
 
-        public abstract void Refresh();
+        public abstract bool Refresh();
 
         public abstract void Reset();
 

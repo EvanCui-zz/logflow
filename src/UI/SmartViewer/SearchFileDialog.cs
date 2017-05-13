@@ -124,7 +124,12 @@
                 {
                     DataItemBase dataItem;
 
-                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(false, true), extension);
+                    var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(
+                        false,
+                        true,
+                        Settings.Default.Behavior_BackgroundInternStrings,
+                        Settings.Default.Behavior_InternIntervalMilliseconds),
+                        extension);
 
                     try
                     {

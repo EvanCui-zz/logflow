@@ -1,14 +1,14 @@
-﻿using System.Threading;
-using LogFlow.DataModel.Algorithm;
-
-namespace LogFlow.DataModel
+﻿namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
+    using LogFlow.DataModel.Algorithm;
 
-    public abstract class LogSourceBase<T> : ILogSource<T> where T : DataItemBase
+    public abstract class LogSourceBase<T> : ILogSource<T>, IDisposable where T : DataItemBase
     {
         protected LogSourceBase(LogSourceProperties properties)
         {
@@ -16,6 +16,45 @@ namespace LogFlow.DataModel
             this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
             this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
+            this.StartIntern();
+        }
+
+        private void StartIntern()
+        {
+            if (this.Properties.InternStrings)
+            {
+                this.internTimer = new Timer(this.BackGroundIntern, null, this.Properties.InternIntervalMilliseconds, -1);
+            }
+        }
+
+        private void BackGroundIntern(object state)
+        {
+            this.isInInternProgress = true;
+            this.InternStrings();
+            this.internTimer?.Change(this.Properties.InternIntervalMilliseconds, -1);
+            this.isInInternProgress = false;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                this.cancelIntern = true;
+                while (this.isInInternProgress)
+                {
+                    Debug.WriteLine("SpinWait for string intern");
+                    Thread.SpinWait(100);
+                }
+
+                this.internTimer?.Dispose();
+                this.internTimer = null;
+            }
         }
 
         public abstract string Name { get; }
@@ -150,24 +189,28 @@ namespace LogFlow.DataModel
         protected virtual IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token) { yield break; }
         protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
 
+        private Timer internTimer;
+        private bool isInInternProgress;
+        private bool cancelIntern;
+
         private int lastInternIndex;
         private int lastTemplateInternIndex;
         private int lastParameterInternIndex;
         public virtual void InternStrings()
         {
-            while (this.lastInternIndex < this.InternalItems.Count)
+            while (this.lastInternIndex < this.InternalItems.Count && !this.cancelIntern)
             {
                 this.InternalItems[this.lastInternIndex].Parameters = this.InternalItems[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
                 this.lastInternIndex++;
             }
 
-            while (this.lastParameterInternIndex < this.Parameters.Count)
+            while (this.lastParameterInternIndex < this.Parameters.Count && !this.cancelIntern)
             {
                 this.Parameters[this.lastParameterInternIndex] = this.Parameters[this.lastParameterInternIndex].Select(LocalStringPool.Intern).ToArray();
                 this.lastParameterInternIndex++;
             }
 
-            while (this.lastTemplateInternIndex < this.templates.Count)
+            while (this.lastTemplateInternIndex < this.templates.Count && !this.cancelIntern)
             {
                 this.templates[this.lastTemplateInternIndex] =
                     LocalStringPool.Intern(this.templates[this.lastTemplateInternIndex]);

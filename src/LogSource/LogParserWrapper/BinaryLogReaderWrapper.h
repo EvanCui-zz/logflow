@@ -14,7 +14,7 @@ namespace LogFlow {
             ~BinaryLogReaderWrapper();
 
             FullCosmosDataItem^ ReadItem() override;
-            void Refresh() override;
+            bool Refresh() override;
             void Reset() override {}
             double GetPercent() override { return this->reader->getPersentage(); }
 

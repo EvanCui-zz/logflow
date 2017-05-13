@@ -30,8 +30,5 @@
         IEnumerable<int> Load(IFilter filter, CancellationToken token);
 
         IReadOnlyList<IFilter> GroupFilters { get; }
-
-        void InternStrings();
-        //        IReadOnlyList<KeyValuePair<string, InnerGroupData>> GroupData { get; }
     }
 }
