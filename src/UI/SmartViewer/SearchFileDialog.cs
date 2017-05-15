@@ -99,6 +99,8 @@
                     this.checkBoxRecursive.Checked ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                     .ToList();
 
+                string extension = FileExtensionModule.GetFileExtension(filePaths);
+
                 this.totalCount = filePaths.Count;
 
                 this.dataGridViewResult.Rows.Clear();
@@ -126,7 +128,8 @@
                         false,
                         true,
                         Settings.Default.Behavior_BackgroundInternStrings,
-                        Settings.Default.Behavior_InternIntervalMilliseconds));
+                        Settings.Default.Behavior_InternIntervalMilliseconds),
+                        extension);
 
                     try
                     {

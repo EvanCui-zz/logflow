@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +49,7 @@
     <Compile Include="Filter\Filter.cs" />
     <Compile Include="FilteredView\IFilteredView.cs" />
     <Compile Include="FilteredView\RootView.cs" />
+    <Compile Include="LogSource\CosmosLogSourceFactory.cs" />
     <Compile Include="LogSource\FakeLogSource.cs" />
     <Compile Include="LogSource\LogSourceManager.cs" />
     <Compile Include="ProgressState.cs" />

@@ -16,6 +16,7 @@
             }
 
             this.TextContent = this.RestoreEscaped(str);
+            this.UpperCaseTextContent = this.TextContent.ToUpperInvariant();
         }
 
         internal TextMatchExpression(ContentToken token) : this(token.Content)
@@ -24,14 +25,14 @@
 
         private readonly HashSet<int> matchedTemplateIds = new HashSet<int>();
 
-        internal string TextContent { get; set; }
+        internal string TextContent { get; }
+
+        internal string UpperCaseTextContent { get; }
 
         protected override string EvalToStringAcc() => $"\"{this.TextContent.Replace("\"", "\"\"")}\"";
 
         public override bool Match<T>(T item, string template)
         {
-            string content = this.TextContent.ToUpperInvariant();
-
             if (this.matchedTemplateIds.Contains(item.TemplateId))
             {
                 return true;
@@ -40,7 +41,7 @@
             var text = template.ToUpperInvariant();
 
             //todo : improve the perf.
-            if (text.Contains(content))
+            if (text.Contains(this.UpperCaseTextContent))
             {
                 if (item.TemplateId != -1)
                 {
@@ -52,7 +53,7 @@
             else
             {
                 text = string.Format(CultureInfo.InvariantCulture, template, item.Parameters).ToUpperInvariant();
-                return text.Contains(content);
+                return text.Contains(this.UpperCaseTextContent);
             }
         }
 
