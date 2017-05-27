@@ -21,6 +21,7 @@
 
         private void StartIntern()
         {
+            // TODO: inline intern
             if (this.Properties.InternStrings)
             {
                 this.internTimer = new Timer(this.BackGroundIntern, null, this.Properties.InternIntervalMilliseconds, -1);

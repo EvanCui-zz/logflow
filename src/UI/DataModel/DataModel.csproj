@@ -52,6 +52,7 @@
     <Compile Include="LogSource\CosmosLogSourceFactory.cs" />
     <Compile Include="LogSource\FakeLogSource.cs" />
     <Compile Include="LogSource\LogSourceManager.cs" />
+    <Compile Include="NonReentrantTimer.cs" />
     <Compile Include="ProgressState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultWrapper.cs" />

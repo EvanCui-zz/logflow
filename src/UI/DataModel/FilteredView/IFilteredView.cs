@@ -4,6 +4,7 @@ namespace LogFlow.DataModel
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public interface IFilteredView<out T> where T : DataItemBase
     {
@@ -42,13 +43,11 @@ namespace LogFlow.DataModel
         /// <param name="currentIndex"></param>
         /// <param name="direction"></param>
         /// <returns></returns>
-        IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction);
+        Task FindAsync(IFilter filter, int currentIndex, bool direction, CancellationToken token);
 
-        IEnumerable<int> Count(IFilter filter);
+        Task CountAsync(IFilter filter, CancellationToken token);
 
-        IEnumerable<int> Initialize(bool statistics, CancellationToken token);
-
-        bool IsInitialized { get; }
+        Task DoStatisticsAsync(CancellationToken token);
 
         #endregion
 
@@ -70,7 +69,6 @@ namespace LogFlow.DataModel
 
         ILogSource<T> Source { get; }
 
-        event EventHandler<ProgressItem> ProgressChanged;
         int? FirstDisplayedScrollingRowIndex { get; set; }
         int? SelectedRowIndex { get; set; }
         int? LastCountResult { get; }
@@ -94,6 +92,8 @@ namespace LogFlow.DataModel
         IReadOnlyList<string> Templates { get; }
 
         FilteredViewStatistics Statistics { get; }
+
+        TimeSpan LastProgressUsedTime { get; }
 
         #endregion
     }

@@ -22,6 +22,7 @@ namespace LogFlow.Viewer
         private StringFormat DefaultStringFormat { get; set; }
 
         private CancellationTokenSource cts;
+        private CancellationToken token;
 
         private IList<SolidBrush> TagBrushes =>
             this.tagBrushes ?? (this.tagBrushes = new List<SolidBrush>()
@@ -69,7 +70,9 @@ namespace LogFlow.Viewer
         {
             this.Text = Product.GetTitle();
             this.cts = new CancellationTokenSource();
+            this.token = this.cts.Token;
             this.timerMemory.Start();
+            this.timerDocUpdate.Start();
             this.fastListViewMain.SelectionForeColorBrush = new SolidBrush(this.fastListViewMain.SelectionForeColor);
             this.fastListViewMain.SelectionBackColorBrush = new SolidBrush(this.fastListViewMain.SelectionBackColor);
             this.fastListViewMain.AlternateBackColorBrush = new SolidBrush(this.fastListViewMain.AlternateBackColor);
@@ -154,7 +157,7 @@ namespace LogFlow.Viewer
             Settings.Default.Save();
 
             var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(
-                Settings.Default.Behavior_AutoLoad, 
+                Settings.Default.Behavior_AutoLoad,
                 Settings.Default.Behavior_EnabledCompression,
                 Settings.Default.Behavior_BackgroundInternStrings,
                 Settings.Default.Behavior_InternIntervalMilliseconds),
@@ -191,60 +194,8 @@ namespace LogFlow.Viewer
             this.filterToolStripMenuItemDoc.Enabled = true;
             this.toolStripComboBoxString.Enabled = true;
 
-            this.ChildView_ProgressChanged(this.CurrentView, this.CurrentView.CurrentProgress);
-
-            if (!this.CurrentView.IsInitialized && !this.CurrentView.IsInProgress)
-            {
-                var bw = new BackgroundWorker { WorkerReportsProgress = true };
-                var watch = Stopwatch.StartNew();
-
-                bw.RunWorkerCompleted += (s, e1) =>
-                {
-                    if (this.IsDisposed) return;
-                    this.UpdateStatistics();
-
-                    watch.Stop();
-                    this.toolStripStatusLabel1.Text = $"Last Progress Used: {watch.Elapsed}";
-
-                    bw.Dispose();
-                };
-
-                bw.ProgressChanged += (s, e1) =>
-                {
-                    // uninitialized view doesn't fire event by design, for better UI performance, so we need update this.
-                    var currentView = this.CurrentView;
-                    if (currentView != null) this.UpdateMainGridRowCount(e1.UserState, currentView.TotalCount);
-                };
-
-                bw.DoWork += (o, args) =>
-                {
-                    var view = this.CurrentView;
-                    if (view == null) return;
-
-                    try
-                    {
-                        foreach (var progress in view.Initialize(Settings.Default.Display_Statistics, this.cts.Token))
-                        {
-                            bw.ReportProgress(progress, view);
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Debug.WriteLine("Initializing operating is cancelled");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Exception happened with Initialize {ex}");
-                    }
-                };
-
-                bw.RunWorkerAsync();
-            }
-            else
-            {
-                if (this.CurrentView.LastCountResult.HasValue)
-                    this.toolStripLabelCount.Text = this.CurrentView.LastCountResult.Value.ToString();
-            }
+            if (this.CurrentView.LastCountResult.HasValue)
+                this.toolStripLabelCount.Text = this.CurrentView.LastCountResult.Value.ToString();
         }
 
         private void treeViewDoc_BeforeSelect(object sender, TreeViewCancelEventArgs e)
@@ -268,11 +219,13 @@ namespace LogFlow.Viewer
             }
         }
 
-        private void UpdateMainGridRowCount(object sender, int index)
+        private void UpdateMainGridRowCount()
         {
-            if (object.ReferenceEquals(sender, this.CurrentView) && this.CurrentView.TotalCount > this.fastListViewMain.VirtualListSize && this.fastListViewMain.VirtualListSize < 100000000)
+            var v = this.CurrentView;
+            if (v == null) return;
+            if (v.TotalCount > this.fastListViewMain.VirtualListSize && this.fastListViewMain.VirtualListSize < 100000000)
             {
-                if (this.CurrentView.TotalCount >= 100000000)
+                if (v.TotalCount >= 100000000)
                 {
                     MessageBox.Show(
                         Resources.TooManyRowsText,
@@ -283,28 +236,9 @@ namespace LogFlow.Viewer
                 }
                 else
                 {
-                    this.fastListViewMain.VirtualListSize = this.CurrentView.TotalCount;
+                    this.fastListViewMain.VirtualListSize = v.TotalCount;
                 }
             }
-        }
-
-        private void ChildView_ProgressChanged(object sender, ProgressItem e)
-        {
-            if (this.IsDisposed) return;
-            this.Invoke(new Action(() =>
-            {
-                try
-                {
-                    if (!object.ReferenceEquals(sender, this.CurrentView)) return;
-                    this.progressBarMain.Value = e.Progress;
-                    this.toolStripStatusLabel.Text = e.ProgressDescription;
-                    this.progressBarMain.Visible = this.CurrentView.IsInProgress;
-                    this.UpdateSelectedStatus();
-                    this.UpdateTierStatus();
-                    Application.DoEvents();
-                }
-                catch (ObjectDisposedException) { }
-            }));
         }
 
         #region Filter, Tag, Find, Count
@@ -368,8 +302,16 @@ namespace LogFlow.Viewer
         {
             this.toolStripComboBoxString_TextChanged(this, null);
             this.UpdateFastListViewColumns();
+            this.UpdateProgress();
             this.UpdateDetailedPane();
             this.UpdateStatistics();
+        }
+
+        private void UpdateLastProgressUsed()
+        {
+            var v = this.CurrentView;
+            if (v == null) return;
+            this.toolStripStatusLabelProgressUsed.Text = $"Last progress used: {(v.LastProgressUsedTime.TotalSeconds == 0.0 ? "0" : v.LastProgressUsedTime.TotalSeconds.ToString(".##"))} s";
         }
 
         private void UpdateStatistics()
@@ -389,12 +331,9 @@ namespace LogFlow.Viewer
 
                 this.chartTimeLine.Series.Clear();
                 var series = this.chartTimeLine.Series.Add("timeline");
-                if (this.CurrentView.IsInitialized)
+                foreach (var y in stat.Timeline)
                 {
-                    foreach (var y in stat.Timeline)
-                    {
-                        series.Points.AddY(y);
-                    }
+                    series.Points.AddY(y);
                 }
             }
         }
@@ -443,9 +382,6 @@ namespace LogFlow.Viewer
 
         private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true, bool toRoot = false)
         {
-            childView.ItemAdded += this.UpdateMainGridRowCount;
-            childView.ProgressChanged += ChildView_ProgressChanged;
-
             TreeNode node;
             if (this.treeViewDoc.Nodes.Count == 0 || toRoot)
             {
@@ -477,8 +413,6 @@ namespace LogFlow.Viewer
         private void RemoveView(IFilteredView<DataItemBase> view)
         {
             if (view == null) return;
-            view.ItemAdded -= this.UpdateMainGridRowCount;
-            view.ProgressChanged -= this.ChildView_ProgressChanged;
 
             var disposable = view as IDisposable;
 
@@ -507,72 +441,37 @@ namespace LogFlow.Viewer
             this.Find(currentIndex, true);
         }
 
-        private void Find(int startIndex, bool direction)
+        private async void Find(int startIndex, bool direction)
         {
             if (this.CurrentView == null) return;
 
             var f = this.GetCurrentFilter();
+            var v = this.CurrentView;
 
-            var bw = new BackgroundWorker();
+            await v.FindAsync(f, startIndex, direction, token);
 
-            bw.RunWorkerCompleted += (s, e1) =>
+            if (object.ReferenceEquals(this.CurrentView, v) && !this.IsDisposed && v.SelectedRowIndex.HasValue)
             {
-                if (this.IsDisposed) return;
-                var result = (Tuple<IFilteredView<DataItemBase>, int?>)e1.Result;
-                if (object.ReferenceEquals(result.Item1, this.CurrentView))
-                {
-                    if (result.Item2.HasValue)
-                    {
-                        this.fastListViewMain.SelectedIndices.Clear();
-                        this.fastListViewMain.Items[result.Item2.Value].Selected = true;
-                        this.fastListViewMain.Items[result.Item2.Value].EnsureVisible();
-                        this.toolStripLabelCount.Text = result.Item2.ToString();
-                    }
-                }
-
-                bw.Dispose();
+                this.fastListViewMain.SelectedIndices.Clear();
+                this.fastListViewMain.Items[v.SelectedRowIndex.Value].Selected = true;
+                this.fastListViewMain.Items[v.SelectedRowIndex.Value].EnsureVisible();
+                this.toolStripLabelCount.Text = v.SelectedRowIndex.Value.ToString();
             };
-
-            bw.DoWork += (s, e1) =>
-            {
-                var currentView = this.CurrentView;
-                foreach (var _ in currentView.Find(f, startIndex, direction))
-                {
-                }
-
-                e1.Result = Tuple.Create(currentView, currentView.SelectedRowIndex);
-            };
-
-            bw.RunWorkerAsync();
         }
 
-        private void toolStripButtonCount_Click(object sender, EventArgs e)
+        private async void toolStripButtonCount_Click(object sender, EventArgs e)
         {
             if (this.CurrentView == null) return;
 
             var f = this.GetCurrentFilter();
+            var v = this.CurrentView;
 
-            var bw = new BackgroundWorker();
+            await v.CountAsync(f, this.token);
 
-            bw.RunWorkerCompleted += (s, e1) =>
+            if(object.ReferenceEquals(this.CurrentView, v) && ! this.IsDisposed)
             {
-                if (this.IsDisposed) return;
-                this.toolStripLabelCount.Text = e1.Result.ToString();
-
-                bw.Dispose();
+                this.toolStripLabelCount.Text = (v.LastCountResult ?? 0).ToString();
             };
-
-            bw.DoWork += (s, e1) =>
-            {
-                var currentView = this.CurrentView;
-                foreach (var _ in currentView.Count(f))
-                {
-                }
-
-                e1.Result = currentView.LastCountResult ?? 0;
-            };
-
-            bw.RunWorkerAsync();
         }
 
         #endregion
@@ -1317,6 +1216,27 @@ namespace LogFlow.Viewer
         private void gotoToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void UpdateProgress()
+        {
+            if (this.IsDisposed) return;
+
+            var v = this.CurrentView;
+            if (v == null) return;
+
+            this.progressBarMain.Value = v.CurrentProgress.Progress;
+            this.toolStripStatusLabel.Text = v.CurrentProgress.ProgressDescription;
+            this.progressBarMain.Visible = v.IsInProgress;
+            this.UpdateLastProgressUsed();
+            this.UpdateSelectedStatus();
+            this.UpdateTierStatus();
+        }
+
+        private void timerDocUpdate_Tick(object sender, EventArgs e)
+        {
+            this.UpdateMainGridRowCount();
+            this.UpdateProgress();
         }
     }
 }

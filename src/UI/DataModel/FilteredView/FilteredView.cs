@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public class FilteredView<T> : IFilteredView<T>, IDisposable where T : DataItemBase
     {
@@ -83,6 +85,10 @@
         public bool IsInProgress { get; private set; }
         public ProgressItem CurrentProgress { get; private set; } = new ProgressItem("Ready");
 
+        public Task FindAsync(IFilter filter, int currentIndex, bool direction, CancellationToken token)
+        {
+            return this.DoProgressAsync(t => this.Find(filter, currentIndex, direction, t), "Searching ...", token);
+        }
         /// <summary>
         /// Find the next occurrence. Yielding progress from 0 to 100, if -1 is yielded, it means no result till the end of the current direction.
         /// Continue iterating the progress will search from the other end. If -2 is yielded, it means no result for all InternalItems.
@@ -91,24 +97,18 @@
         /// <param name="currentIndex"></param>
         /// <param name="direction"></param>
         /// <returns>progress</returns>
-        public IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction)
+        private IEnumerable<int> Find(IFilter filter, int currentIndex, bool direction, CancellationToken token)
         {
-            if (!this.IsInitialized || this.IsInProgress) yield break;
-
-            this.OnReportStart("Searching");
-            yield return 0;
-
             int total = this.TotalCount;
-            var reportIndex = Math.Max(total / ReportInterval, 2);
 
             bool loopedBack = false;
             for (int i = 1; i < total; i++)
             {
-                if (i % reportIndex == 0)
+                if (token.IsCancellationRequested) yield break;
+
+                if ((i + 1) % 100 == 0)
                 {
-                    int progress = 5 + ((i * 100) / total) * 90 / 100;
-                    yield return progress;
-                    this.OnReportProgress(progress);
+                    yield return (i + 1) * 100 / total;
                 }
 
                 int logicalIndex = (currentIndex + (direction ? i : -i) + total) % (total);
@@ -118,9 +118,12 @@
                     yield return -1;
                 }
 
-                int index = this.GetPhysicalIndex(logicalIndex);
+                int physicalIndex = this.GetPhysicalIndex(logicalIndex);
+                var item = this.Source[physicalIndex];
+                var template = this.Source.Templates[item.TemplateId];
 
-                if (filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
+
+                if (filter.Match(item, template))
                 {
                     this.SelectedRowIndex = logicalIndex;
                     break;
@@ -128,33 +131,34 @@
             }
 
             yield return 100;
-            this.OnReportFinish();
         }
 
-        public IEnumerable<int> Count(IFilter filter)
-        {
-            if (!this.IsInitialized || this.IsInProgress) yield break;
 
-            this.OnReportStart("Counting");
+        public Task CountAsync(IFilter filter, CancellationToken token)
+        {
+            return this.DoProgressAsync(t => this.Count(filter, t), "Counting ...", token);
+        }
+
+        private IEnumerable<int> Count(IFilter filter, CancellationToken token)
+        {
             yield return 0;
 
             int total = this.TotalCount;
             int count = 0;
 
-            var reportIndex = Math.Max(total / ReportInterval, 2);
 
             for (int i = 0; i < total; i++)
             {
-                if (i % reportIndex == 0)
+                if ((i + 1) % 100 == 0)
                 {
-                    int progress = 5 + ((i * 100) / total) * 90 / 100;
-                    yield return progress;
-                    this.OnReportProgress(progress);
+                    yield return (i + 1) * 100 / total;
                 }
 
-                int index = this.GetPhysicalIndex(i);
+                int physicalIndex = this.GetPhysicalIndex(i);
+                var item = this.Source[physicalIndex];
+                var template = this.Source.Templates[item.TemplateId];
 
-                if (filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
+                if (filter.Match(item, template))
                 {
                     count++;
                 }
@@ -163,99 +167,40 @@
             this.LastCountResult = count;
 
             yield return 100;
-            this.OnReportFinish();
         }
 
         public int? LastCountResult { get; private set; }
 
-        public IEnumerable<int> Initialize(bool statistics, CancellationToken token)
+        public Task DoStatisticsAsync(CancellationToken token)
         {
-            if (this.IsInitialized || this.IsInProgress) yield break;
+            return this.DoProgressAsync(this.DoStatistics, "Doing Statistics ...", token);
+        }
 
-            this.OnReportStart("Initializing");
-            yield return 5;
-
-            if (this.Parent == null)
+        private IEnumerable<int> DoStatistics(CancellationToken token)
+        {
+            int totalCount = this.TotalCount;
+            if (totalCount > 0)
             {
-                foreach (var progress in this.Source.Load(this.Filter, token))
+                int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(totalCount - 1);
+                var stat = new FilteredViewStatistics();
+                stat.SetFirstLast(this.Source[firstIndex], this.Source[lastIndex]);
+
+                for (var i = 0; i < totalCount; i++)
                 {
-                    var p = 5 + progress * 65 / 100;
-                    this.OnReportProgress(p);
-                    yield return p;
-                }
-
-                this.Source.ItemAdded += (s, e) =>
-                {
-                    this.OnItemAdded(e);
-                };
-            }
-            else
-            {
-                if (!this.Parent.IsInitialized)
-                {
-                    // don't initialize the local view when its parent is still not initialized.
-                    this.IsInitialized = false;
-
-                    yield return 100;
-                    this.OnReportFinish();
-
-                    yield break;
-                }
-
-                var total = this.Parent.TotalCount;
-
-                var reportIndex = Math.Max(total / ReportInterval, 2);
-
-                for (var i = 0; i < total; i++)
-                {
-                    if (i % reportIndex == 0)
+                    if ((i + 1) % 100 == 0)
                     {
-                        var progress = 5 + ((i * 100) / total) * 65 / 100;
-                        yield return progress;
-                        this.OnReportProgress(progress);
-                    }
-
-                    var index = this.Parent.GetPhysicalIndex(i);
-
-                    if (this.Filter.Match(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]))
-                    {
-                        // we don't use this.AddItem here, to avoid flushing many events when initialize.
-                        // only initialized is true, we fire events.
-                        this.ItemIndices.Add(index);
-                    }
-                }
-            }
-
-            if (statistics && this.TotalCount > 0)
-            {
-                int firstIndex = this.GetPhysicalIndex(0), lastIndex = this.GetPhysicalIndex(this.TotalCount - 1);
-                this.Statistics.SetFirstLast(this.Source[firstIndex], this.Source[lastIndex]);
-
-                var reportIndex = Math.Max(this.TotalCount / ReportInterval, 2);
-                for (var i = 0; i < this.TotalCount; i++)
-                {
-                    if (i % reportIndex == 0)
-                    {
-                        var progress = ((i * 100) / this.TotalCount) * 30 / 100 + 70;
-                        yield return progress;
-
-                        this.OnReportProgress(progress);
+                        yield return ((i + 1) * 100) / totalCount;
                     }
 
                     var index = this.GetPhysicalIndex(i);
-                    this.Statistics.Sample(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]);
+                    stat.Sample(this.Source[index], this.Source.Templates[this.Source[index].TemplateId]);
                 }
+
+                this.Statistics = stat;
             }
 
-            this.IsInitialized = true;
-
-            this.StartLoading();
-
             yield return 100;
-            this.OnReportFinish();
         }
-
-        public bool IsInitialized { get; private set; }
 
         #endregion
 
@@ -280,7 +225,6 @@
 
         public ILogSource<T> Source { get; set; }
 
-        public event EventHandler<ProgressItem> ProgressChanged;
         public int? FirstDisplayedScrollingRowIndex { get; set; }
         public int? SelectedRowIndex { get; set; }
 
@@ -319,8 +263,9 @@
         public IReadOnlyList<PropertyInfo> PropertyInfos => this.Source.PropertyInfos;
 
         public IReadOnlyList<string> Templates => this.Source.Templates;
-        public FilteredViewStatistics Statistics { get; } = new FilteredViewStatistics();
+        public FilteredViewStatistics Statistics { get; private set; }
 
+        public TimeSpan LastProgressUsedTime { get; private set; } = TimeSpan.Zero;
         #endregion
 
         #region Constructors
@@ -340,6 +285,12 @@
         protected FilteredView(string name)
         {
             this.Name = name;
+            //this.Source.ItemAdded += (s, e) =>
+            //{
+            //    this.OnItemAdded(e);
+            //};
+
+            this.StartLoading();
         }
 
         /*
@@ -368,14 +319,11 @@
         {
             if (isDisposing)
             {
-                this.loadingCts?.Cancel();
-                this.loadingCts?.Dispose();
-                this.loadingCts = null;
-
-                while (this.loadingInProgress) Thread.SpinWait(100);
-
                 this.loadingTimer?.Dispose();
                 this.loadingTimer = null;
+
+                this.progressSemaphore?.Dispose();
+                this.progressSemaphore = null;
             }
         }
 
@@ -403,54 +351,78 @@
         #region Private methods
 
         private int loadingPeriodMilliseconds = 2000;
-        private Timer loadingTimer;
-        private CancellationTokenSource loadingCts;
-        private bool loadingInProgress;
+        private NonReentrantTimer loadingTimer;
 
         private void StartLoading()
         {
-            this.loadingCts = new CancellationTokenSource();
-            this.loadingTimer = new Timer(s => this.LoadingThread(), null, this.loadingPeriodMilliseconds, -1);
+            this.loadingTimer = new NonReentrantTimer(
+                (token) => this.DoProgressAsync(this.LoadingThread, "Loading ...", token),
+                this.loadingPeriodMilliseconds,
+                this.loadingPeriodMilliseconds);
         }
 
-        private void LoadingThread()
+        private SemaphoreSlim progressSemaphore = new SemaphoreSlim(1, 1);
+
+        private async Task DoProgressAsync(Func<CancellationToken, IEnumerable<int>> progressive, string progressName, CancellationToken token)
         {
-            // TODO: abstract the timer disposable
-            // TODO: put Initialize to loading thread
-            // TODO: make UI pulling mode.
-            // TODO: make a separate statistics action.
-            this.loadingInProgress = true;
-            if (!this.IsInitialized) return;
+            await this.progressSemaphore.WaitAsync(token);
+            Stopwatch watch = Stopwatch.StartNew();
 
-            var token = this.loadingCts.Token;
-
-            if (this.Parent == null)
+            try
             {
-                // root view
-                foreach (var p in this.Source.Load(this.Filter, token)) { }
-            }
-            else
-            {
-                // filtered view
-                while (this.parentIndex < this.Parent.TotalCount && !token.IsCancellationRequested)
+                foreach (var p in progressive(token))
                 {
-                    var physicalIndex = this.Parent.GetPhysicalIndex(this.parentIndex);
-                    var item = this.Source[physicalIndex];
-                    var template = this.Source.Templates[item.TemplateId];
-
-                    if (this.Filter.Match(item, template))
+                    // if progress step from 0 to 100 directly, don't show the progress
+                    if (p < 100 && p > 0)
                     {
-                        this.AddItem(physicalIndex);
+                        this.IsInProgress = true;
+                        this.CurrentProgress.Progress = 5 + p * 95 / 100;
+                        this.CurrentProgress.ActionName = progressName;
                     }
+                }
+            }
+            finally
+            {
+                if (this.IsInProgress)
+                {
+                    // only when real progress, set the used time.
+                    this.IsInProgress = false;
+                    this.LastProgressUsedTime = watch.Elapsed;
+                }
 
-                    this.parentIndex++;
+                this.CurrentProgress.ActionName = "Ready";
+                this.progressSemaphore.Release();
+            }
+        }
+
+        protected virtual IEnumerable<int> LoadingThread(CancellationToken token)
+        {
+            int parentTotal = this.Parent.TotalCount;
+            int lastParentIndex = this.parentIndex;
+            int total = parentTotal - lastParentIndex;
+
+            // filtered view
+            while (this.parentIndex < parentTotal && !token.IsCancellationRequested)
+            {
+                var physicalIndex = this.Parent.GetPhysicalIndex(this.parentIndex);
+                var item = this.Source[physicalIndex];
+                var template = this.Source.Templates[item.TemplateId];
+
+                if (this.Filter.Match(item, template))
+                {
+                    this.AddItem(physicalIndex);
+                }
+
+                this.parentIndex++;
+
+                var step = this.parentIndex - lastParentIndex;
+                if ((step % 100) == 0)
+                {
+                    yield return step * 100 / total;
                 }
             }
 
-            this.IsInProgress = false;
-            this.loadingTimer.Change(this.loadingPeriodMilliseconds, -1);
-
-            this.loadingInProgress = false;
+            yield return 100;
         }
 
         protected void OnItemAdded(int index)
@@ -464,31 +436,6 @@
 
             // passing the raw index directly to the child for performance.
             this.OnItemAdded(index);
-        }
-
-        private void OnReportStart(string actionName)
-        {
-            this.IsInProgress = true;
-            this.CurrentProgress = new ProgressItem(actionName);
-            this.OnReport(this.CurrentProgress);
-        }
-
-        private void OnReportFinish()
-        {
-            this.IsInProgress = false;
-            this.CurrentProgress = new ProgressItem("Ready") { Progress = 100 };
-            this.OnReport(this.CurrentProgress);
-        }
-
-        private void OnReportProgress(int progress)
-        {
-            this.CurrentProgress.Progress = progress;
-            this.OnReport(this.CurrentProgress);
-        }
-
-        private void OnReport(ProgressItem item)
-        {
-            this.ProgressChanged?.Invoke(this, item);
         }
 
         #endregion

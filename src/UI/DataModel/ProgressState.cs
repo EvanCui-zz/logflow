@@ -7,7 +7,7 @@
             this.ActionName = actionName;
         }
 
-        private string ActionName { get; }
+        internal string ActionName { get; set; }
 
         public int Progress { get; set; }
         public string ProgressDescription => this.ActionName;
