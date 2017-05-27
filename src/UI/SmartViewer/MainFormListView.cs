@@ -148,7 +148,7 @@ namespace LogFlow.Viewer
             Settings.Default.Data_RecentFiles.Insert(0, initializeString);
             if (Settings.Default.Data_RecentFiles.Count > Settings.Default.Data_MaxHistoryCount)
             {
-                Settings.Default.Data_RecentFiles.RemoveAt(Settings.Default.Data_RecentFiles.Count);
+                Settings.Default.Data_RecentFiles.RemoveAt(Settings.Default.Data_RecentFiles.Count - 1);
             }
 
             Settings.Default.Save();
