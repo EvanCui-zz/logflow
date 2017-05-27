@@ -442,6 +442,8 @@
                     {
                         this.AddItem(physicalIndex);
                     }
+
+                    this.parentIndex++;
                 }
             }
 
