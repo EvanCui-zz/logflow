@@ -22,7 +22,10 @@ namespace LogFlow {
             !BinaryLogReaderWrapper();
 
         private:
+            String^ Intern(String^ str) { return this->stringPool->Intern(str); }
+
             BinaryLogReader *reader;
+            Algorithm::HashTablePool^ stringPool;
             bool needsRefresh = true;
         };
     }

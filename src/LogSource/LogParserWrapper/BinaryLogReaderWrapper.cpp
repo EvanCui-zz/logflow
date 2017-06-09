@@ -12,6 +12,7 @@ BinaryLogReaderWrapper::BinaryLogReaderWrapper(String^ filename)
     pin_ptr<const WCHAR> wch = PtrToStringChars(filename);
     WCHAR wcstring[MAX_PATH];
     wcscpy_s(wcstring, wch);
+    this->stringPool = gcnew HashTablePool();
     this->reader = new BinaryLogReader();
     DWORD err = this->reader->OpenReader(wcstring);
     if (err != NO_ERROR)
@@ -22,6 +23,7 @@ BinaryLogReaderWrapper::BinaryLogReaderWrapper(String^ filename)
 
 BinaryLogReaderWrapper::!BinaryLogReaderWrapper()
 {
+    this->stringPool = nullptr;
     this->reader->CloseReader();
     delete this->reader;
 }
@@ -77,7 +79,7 @@ FullCosmosDataItem^ BinaryLogReaderWrapper::ReadItem()
                 // plus string.Intern it takes 8.1s, 142M
                 // plus the LocalStringPool, it takes 9.7s, 155M mem
 //                node->Parameters[i] = LocalStringPool::Intern(gcnew String(parameters, currentPosition, indexWidthLength[i * 3 + 2]));
-                node->Parameters[i] = gcnew String(parameters, (int)currentPosition, (int)indexWidthLength[i * 3 + 2]);
+                node->Parameters[i] = this->Intern(gcnew String(parameters, (int)currentPosition, (int)indexWidthLength[i * 3 + 2]));
                 currentPosition += indexWidthLength[i * 3 + 2];
             }
 
@@ -85,8 +87,8 @@ FullCosmosDataItem^ BinaryLogReaderWrapper::ReadItem()
             Guid g = Guid(guid.Data1, guid.Data2, guid.Data3,
                 guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
                 guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-            
-            return gcnew FullCosmosDataItem(node, gcnew String(formattedEntry), g, (int)this->reader->getPersentage());
+
+            return gcnew FullCosmosDataItem(node, this->Intern(gcnew String(formattedEntry)), g, (int)this->reader->getPersentage());
         }
         else
         {
@@ -110,14 +112,14 @@ FullCosmosDataItem^ BinaryLogReaderWrapper::ReadItem()
                     gcnew String(tokens[i].Pointer.Wide, 0, tokens[i].Length) :
                     gcnew String(tokens[i].Pointer.Single, 0, tokens[i].Length);
 
-                node->Parameters[i] = str;
+                node->Parameters[i] = this->Intern(str);
             }
 
             auto guid = this->reader->GetEntryActivityId();
             Guid g = Guid(guid.Data1, guid.Data2, guid.Data3,
                 guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
                 guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-            
+
             // this implementation doesn't have templates, but just concated strings.
             return gcnew FullCosmosDataItem(node, (String^)node->Parameters[0], g, (int)this->reader->getPersentage());
         }

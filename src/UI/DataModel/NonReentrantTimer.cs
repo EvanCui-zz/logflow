@@ -16,13 +16,17 @@
 
             this.mainTask = Task.Run(async () =>
             {
-                while (!token.IsCancellationRequested)
+                try
                 {
-                    await Task.Delay(dueTime, token);
-                    dueTime = period;
+                    while (!token.IsCancellationRequested)
+                    {
+                        await Task.Delay(dueTime, token);
+                        dueTime = period;
 
-                    await task(token);
+                        await task(token);
+                    }
                 }
+                catch (OperationCanceledException) { }
             }, token);
         }
 

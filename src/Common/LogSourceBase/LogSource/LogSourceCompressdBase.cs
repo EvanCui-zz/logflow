@@ -62,6 +62,7 @@
                             item.DeCompress(compressed, meta.BaseTime.Value);
                             item.ProcessId = meta.ProcessIds[item.ProcessId];
                             item.ThreadId = meta.ThreadIds[item.ThreadId];
+
                             // todo: Aid
                             item.Id = index;
                             item.Parameters = this.Parameters[index];
