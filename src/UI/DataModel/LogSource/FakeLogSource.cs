@@ -11,6 +11,8 @@ namespace LogFlow.DataModel
 
         internal FakeLogSource(LogSourceProperties properties) : base(properties) { }
 
+        protected override void Dispose(bool isDisposing) { }
+
         protected override IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token)
         {
             Random r = new Random();

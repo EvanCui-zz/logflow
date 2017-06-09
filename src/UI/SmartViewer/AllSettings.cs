@@ -48,8 +48,6 @@
             this.checkBoxAutoLoad.Checked = Settings.Default.Behavior_AutoLoad;
             this.checkBoxAutoScroll.Checked = Settings.Default.Behavior_AutoScroll;
             this.checkBoxDataVirtual.Checked = Settings.Default.Behavior_DataVirtualization;
-            this.checkBoxInternStrings.Checked = Settings.Default.Behavior_BackgroundInternStrings;
-            this.textBoxInternInterval.Text = Settings.Default.Behavior_InternIntervalMilliseconds.ToString();
             this.checkBoxCompression.Checked = Settings.Default.Behavior_EnabledCompression;
 
             // third page:
@@ -100,8 +98,6 @@
             Settings.Default.Behavior_AutoLoad = this.checkBoxAutoLoad.Checked;
             Settings.Default.Behavior_AutoScroll = this.checkBoxAutoScroll.Checked;
             Settings.Default.Behavior_DataVirtualization = this.checkBoxDataVirtual.Checked;
-            Settings.Default.Behavior_BackgroundInternStrings = this.checkBoxInternStrings.Checked;
-            Settings.Default.Behavior_InternIntervalMilliseconds = int.Parse(this.textBoxInternInterval.Text);
             Settings.Default.Behavior_EnabledCompression = this.checkBoxCompression.Checked;
 
             // page 3
@@ -127,26 +123,6 @@
             if (e.Cancel)
             {
                 this.errorProvider1.SetError(this.textBoxIndentSize, "The value should be an integer.");
-            }
-            else
-            {
-                this.errorProvider1.Clear();
-            }
-        }
-
-        private void checkBoxInternStrings_CheckedChanged(object sender, EventArgs e)
-        {
-            this.labelInternInterval.Enabled = this.textBoxInternInterval.Enabled = this.checkBoxInternStrings.Checked;
-        }
-
-        private void textBoxInternInterval_Validating(object sender, CancelEventArgs e)
-        {
-            int v;
-            e.Cancel = !(int.TryParse(this.textBoxInternInterval.Text, out v) && v > 0);
-
-            if (e.Cancel)
-            {
-                this.errorProvider1.SetError(this.textBoxInternInterval, "The value should be an positive integer.");
             }
             else
             {

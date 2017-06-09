@@ -8,16 +8,12 @@
 
     public class LogSourceProperties
     {
-        public LogSourceProperties(bool dynamicLoading, bool compress, bool internStrings, int internIntervalMilliseconds)
+        public LogSourceProperties(bool dynamicLoading, bool compress)
         {
-            this.InternStrings = internStrings;
             this.DynamicLoadingEnabled = dynamicLoading;
             this.CompressEnabled = compress;
-            this.InternIntervalMilliseconds = internIntervalMilliseconds;
         }
 
-        public bool InternStrings { get; }
-        public int InternIntervalMilliseconds { get; }
         public bool DynamicLoadingEnabled { get; }
         public bool CompressEnabled { get; }
     }

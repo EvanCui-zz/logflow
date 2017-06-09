@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\HashTablePool.cs" />
     <Compile Include="Algorithm\HeapMerger.cs" />
     <Compile Include="Algorithm\IdentifierCache.cs" />
     <Compile Include="Algorithm\LocalStringPool.cs" />

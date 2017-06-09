@@ -37,7 +37,7 @@
             {
                 return this.GetFileMetaData(item.FileIndex).ActivityIds[item.ActivityIdIndex];
             }
-            else 
+            else
             {
                 return base.GetColumnValue(item, columnIndex);
             }
@@ -106,14 +106,11 @@
             item.Item.ThreadId = meta.ThreadIds.Put(item.Item.ThreadId);
             item.Item.ActivityIdIndex = meta.ActivityIds.Put(item.ActivityId);
 
-            CompressedDataItem8 compressed;
-
             if (this.Properties.CompressEnabled)
             {
-                if (!item.Item.Compress(meta.BaseTime.Value, out compressed))
+                if (!item.Item.Compress(meta.BaseTime.Value, out CompressedDataItem8 compressed))
                 {
-                    CompressedDataItem16 compressed16;
-                    if (item.Item.Compress(meta.BaseTime.Value, out compressed16))
+                    if (item.Item.Compress(meta.BaseTime.Value, out CompressedDataItem16 compressed16))
                     {
                         compressed16.State = CompressState.Compressed16;
                         this.CompressedItems16.Add(compressed16);
@@ -123,7 +120,8 @@
                     }
                     else
                     {
-                        this.InternalItems.Add(item.Item);
+                        // item.Item.Id is changed in this call.
+                        this.AddItem(item);
                         compressed.State = CompressState.NotCompressed;
                         compressed.Index = this.InternalItems.Count - 1;
                     }
@@ -131,18 +129,15 @@
 
                 this.CompressedItems8.Add(compressed);
                 var index = this.CompressedItems8.Count - 1;
-                this.Parameters.Add(item.Item.Parameters);
+                this.AddParameters(item.Item.Parameters);
                 item.Item.Id = index;
 
                 Debug.Assert(index == this.Parameters.Count - 1, "compressed item list doesn't match parameters list");
             }
             else
             {
-                this.InternalItems.Add(item.Item);
-                item.Item.Id = this.InternalItems.Count - 1;
+                base.AddItem(item);
             }
-
-            this.OnItemAdded(item.Item.Id);
         }
     }
 }

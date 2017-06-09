@@ -21,8 +21,6 @@
         object GetColumnValue(DataItemBase item, int columnIndex);
         IReadOnlyList<PropertyInfo> PropertyInfos { get; }
         IReadOnlyList<ColumnInfoAttribute> ColumnInfos { get; }
-        // for performance, only pass int value
-        event EventHandler<int> ItemAdded;
         //  object GetColumnValue(int rowIndex, int columnIndex);
 
         IEnumerable<int> Peek(IFilter filter, int peekCount, CancellationToken token);

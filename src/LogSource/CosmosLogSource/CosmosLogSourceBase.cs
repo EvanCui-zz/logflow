@@ -30,8 +30,6 @@ namespace LogFlow.DataModel
                 this.LogFiles?.ForEach(f => f?.Dispose());
                 this.LogFiles = null;
             }
-
-            base.Dispose(isDisposing);
         }
 
         private IEnumerable<int> CancellableProgress(Func<CancellationToken, IEnumerable<int>> action,

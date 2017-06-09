@@ -126,32 +126,27 @@
 
                     var logSource = LogSourceManager.Instance.GetLogSource(filePaths[i], new LogSourceProperties(
                         false,
-                        true,
-                        Settings.Default.Behavior_BackgroundInternStrings,
-                        Settings.Default.Behavior_InternIntervalMilliseconds),
+                        true),
                         extension);
 
                     try
                     {
-                        logSource.ItemAdded += (o, i1) =>
-                        {
-                            if (token.IsCancellationRequested) return;
-                            dataItem = logSource[i1];
-                            this.dataGridViewResult.Rows[i].Cells[1].Value =
-                                string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters.Cast<object>().ToArray());
-                        };
-
-
                         foreach (var progress in logSource.Peek(this.Filter, lineCount, token))
                         {
                             if (token.IsCancellationRequested) return;
                             this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
+                            if (string.IsNullOrEmpty(this.dataGridViewResult.Rows[i].Cells[1].Value as string) && logSource.Count > 0)
+                            {
+                                dataItem = logSource[0];
+                                this.dataGridViewResult.Rows[i].Cells[1].Value =
+                                    string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters.Cast<object>().ToArray());
+                            }
+
+                            if (token.IsCancellationRequested) return;
+                            this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
+
+                            this.currentFinished++;
                         }
-
-                        if (token.IsCancellationRequested) return;
-                        this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
-
-                        this.currentFinished++;
                     }
                     finally
                     {

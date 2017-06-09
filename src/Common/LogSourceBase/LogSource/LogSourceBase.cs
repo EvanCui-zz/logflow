@@ -10,30 +10,15 @@
 
     public abstract class LogSourceBase<T> : ILogSource<T>, IDisposable where T : DataItemBase
     {
+        // Memory optimize critical
+        protected HashTablePool localHashTableStringPool = new HashTablePool();
+
         protected LogSourceBase(LogSourceProperties properties)
         {
             this.Properties = properties;
             this.propertyInfos = DataItemBase.GetPropertyInfos<T>();
 
             this.columnInfos = DataItemBase.GetColumnInfos(propertyInfos);
-            this.StartIntern();
-        }
-
-        private void StartIntern()
-        {
-            // TODO: inline intern
-            if (this.Properties.InternStrings)
-            {
-                this.internTimer = new Timer(this.BackGroundIntern, null, this.Properties.InternIntervalMilliseconds, -1);
-            }
-        }
-
-        private void BackGroundIntern(object state)
-        {
-            this.isInInternProgress = true;
-            this.InternStrings();
-            this.internTimer?.Change(this.Properties.InternIntervalMilliseconds, -1);
-            this.isInInternProgress = false;
         }
 
         public void Dispose()
@@ -42,21 +27,7 @@
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool isDisposing)
-        {
-            if (isDisposing)
-            {
-                this.cancelIntern = true;
-                while (this.isInInternProgress)
-                {
-                    Debug.WriteLine("SpinWait for string intern");
-                    Thread.SpinWait(100);
-                }
-
-                this.internTimer?.Dispose();
-                this.internTimer = null;
-            }
-        }
+        protected abstract void Dispose(bool isDisposing);
 
         public abstract string Name { get; }
 
@@ -67,8 +38,12 @@
 
         public virtual T this[int index] => this.InternalItems[index];
 
-        protected List<T> InternalItems = new List<T>();
-        protected List<string[]> Parameters = new List<string[]>();
+        // TODO: consider identifier cache
+        private readonly List<T> internalItems = new List<T>();
+        protected IReadOnlyList<T> InternalItems => this.internalItems;
+
+        private readonly List<string[]> parameters = new List<string[]>();
+        protected IReadOnlyList<string[]> Parameters => this.parameters;
 
         protected IdentifierCache<string> files = new IdentifierCache<string>();
 
@@ -155,23 +130,22 @@
             }
         }
 
-        // for performance, only pass int value
-        public event EventHandler<int> ItemAdded;
-        protected void OnItemAdded(int index)
-        {
-            this.ItemAdded?.Invoke(this, index);
-        }
-
         protected virtual void AddItem(FullDataItem<T> item)
         {
-            this.InternalItems.Add(item.Item);
+            this.localHashTableStringPool.Intern(item.Item.Parameters);
+            this.internalItems.Add(item.Item);
             item.Item.Id = this.InternalItems.Count - 1;
-            this.OnItemAdded(item.Item.Id);
         }
 
         protected int AddTemplate(string template)
         {
             return this.templates.Put(template);
+        }
+
+        protected void AddParameters(string[] values)
+        {
+            for (int i = 0; i < values.Length; i++) values[i] = this.localHashTableStringPool.Intern(values[i]);
+            this.parameters.Add(values);
         }
 
         private bool firstBatchLoaded;
@@ -189,34 +163,5 @@
 
         protected virtual IEnumerable<int> LoadFirst(IFilter filter, CancellationToken token) { yield break; }
         protected virtual IEnumerable<int> LoadIncremental(IFilter filter, CancellationToken token) { yield break; }
-
-        private Timer internTimer;
-        private bool isInInternProgress;
-        private bool cancelIntern;
-
-        private int lastInternIndex;
-        private int lastTemplateInternIndex;
-        private int lastParameterInternIndex;
-        public virtual void InternStrings()
-        {
-            while (this.lastInternIndex < this.InternalItems.Count && !this.cancelIntern)
-            {
-                this.InternalItems[this.lastInternIndex].Parameters = this.InternalItems[this.lastInternIndex].Parameters.Select(LocalStringPool.Intern).ToArray();
-                this.lastInternIndex++;
-            }
-
-            while (this.lastParameterInternIndex < this.Parameters.Count && !this.cancelIntern)
-            {
-                this.Parameters[this.lastParameterInternIndex] = this.Parameters[this.lastParameterInternIndex].Select(LocalStringPool.Intern).ToArray();
-                this.lastParameterInternIndex++;
-            }
-
-            while (this.lastTemplateInternIndex < this.templates.Count && !this.cancelIntern)
-            {
-                this.templates[this.lastTemplateInternIndex] =
-                    LocalStringPool.Intern(this.templates[this.lastTemplateInternIndex]);
-                this.lastTemplateInternIndex++;
-            }
-        }
     }
 }

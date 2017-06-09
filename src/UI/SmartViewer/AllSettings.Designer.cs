@@ -43,7 +43,6 @@
             this.checkBoxColorLevel = new System.Windows.Forms.CheckBox();
             this.tabPageBehavior = new System.Windows.Forms.TabPage();
             this.checkBoxCompression = new System.Windows.Forms.CheckBox();
-            this.checkBoxInternStrings = new System.Windows.Forms.CheckBox();
             this.checkBoxDataVirtual = new System.Windows.Forms.CheckBox();
             this.checkBoxAutoScroll = new System.Windows.Forms.CheckBox();
             this.checkBoxAutoLoad = new System.Windows.Forms.CheckBox();
@@ -58,8 +57,6 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.textBoxInternInterval = new System.Windows.Forms.TextBox();
-            this.labelInternInterval = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPageDisplay.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -219,10 +216,7 @@
             // 
             // tabPageBehavior
             // 
-            this.tabPageBehavior.Controls.Add(this.labelInternInterval);
-            this.tabPageBehavior.Controls.Add(this.textBoxInternInterval);
             this.tabPageBehavior.Controls.Add(this.checkBoxCompression);
-            this.tabPageBehavior.Controls.Add(this.checkBoxInternStrings);
             this.tabPageBehavior.Controls.Add(this.checkBoxDataVirtual);
             this.tabPageBehavior.Controls.Add(this.checkBoxAutoScroll);
             this.tabPageBehavior.Controls.Add(this.checkBoxAutoLoad);
@@ -236,24 +230,13 @@
             // 
             // checkBoxCompression
             // 
-            this.checkBoxCompression.Location = new System.Drawing.Point(18, 142);
+            this.checkBoxCompression.Location = new System.Drawing.Point(18, 87);
             this.checkBoxCompression.Name = "checkBoxCompression";
             this.checkBoxCompression.Size = new System.Drawing.Size(426, 35);
             this.checkBoxCompression.TabIndex = 5;
             this.checkBoxCompression.Text = "Enable &compression on loading. Slightly impact loading performance, but with tin" +
     "y memory footprint.";
             this.checkBoxCompression.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxInternStrings
-            // 
-            this.checkBoxInternStrings.AutoSize = true;
-            this.checkBoxInternStrings.Location = new System.Drawing.Point(18, 87);
-            this.checkBoxInternStrings.Name = "checkBoxInternStrings";
-            this.checkBoxInternStrings.Size = new System.Drawing.Size(324, 17);
-            this.checkBoxInternStrings.TabIndex = 3;
-            this.checkBoxInternStrings.Text = "I&ntern strings in background for optimized memory consumption.";
-            this.checkBoxInternStrings.UseVisualStyleBackColor = true;
-            this.checkBoxInternStrings.CheckedChanged += new System.EventHandler(this.checkBoxInternStrings_CheckedChanged);
             // 
             // checkBoxDataVirtual
             // 
@@ -399,23 +382,6 @@
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // textBoxInternInterval
-            // 
-            this.textBoxInternInterval.Location = new System.Drawing.Point(122, 110);
-            this.textBoxInternInterval.Name = "textBoxInternInterval";
-            this.textBoxInternInterval.Size = new System.Drawing.Size(100, 20);
-            this.textBoxInternInterval.TabIndex = 4;
-            this.textBoxInternInterval.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxInternInterval_Validating);
-            // 
-            // labelInternInterval
-            // 
-            this.labelInternInterval.AutoSize = true;
-            this.labelInternInterval.Location = new System.Drawing.Point(41, 113);
-            this.labelInternInterval.Name = "labelInternInterval";
-            this.labelInternInterval.Size = new System.Drawing.Size(75, 13);
-            this.labelInternInterval.TabIndex = 6;
-            this.labelInternInterval.Text = "Intern Interval:";
-            // 
             // AllSettings
             // 
             this.AcceptButton = this.buttonOK;
@@ -476,9 +442,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn HotKey;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.Label labelColumns;
-        private System.Windows.Forms.CheckBox checkBoxInternStrings;
         private System.Windows.Forms.CheckBox checkBoxCompression;
-        private System.Windows.Forms.Label labelInternInterval;
-        private System.Windows.Forms.TextBox textBoxInternInterval;
     }
 }

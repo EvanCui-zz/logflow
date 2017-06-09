@@ -158,9 +158,7 @@ namespace LogFlow.Viewer
 
             var logSource = LogSourceManager.Instance.GetLogSource(initializeString, new LogSourceProperties(
                 Settings.Default.Behavior_AutoLoad,
-                Settings.Default.Behavior_EnabledCompression,
-                Settings.Default.Behavior_BackgroundInternStrings,
-                Settings.Default.Behavior_InternIntervalMilliseconds),
+                Settings.Default.Behavior_EnabledCompression),
                 extension);
 
             var document = new RootView<DataItemBase>(logSource, filter);

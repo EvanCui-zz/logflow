@@ -287,36 +287,12 @@ namespace LogFlow.Viewer.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool Behavior_BackgroundInternStrings {
-            get {
-                return ((bool)(this["Behavior_BackgroundInternStrings"]));
-            }
-            set {
-                this["Behavior_BackgroundInternStrings"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Behavior_EnabledCompression {
             get {
                 return ((bool)(this["Behavior_EnabledCompression"]));
             }
             set {
                 this["Behavior_EnabledCompression"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
-        public int Behavior_InternIntervalMilliseconds {
-            get {
-                return ((int)(this["Behavior_InternIntervalMilliseconds"]));
-            }
-            set {
-                this["Behavior_InternIntervalMilliseconds"] = value;
             }
         }
     }
