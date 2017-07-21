@@ -135,18 +135,18 @@
                         {
                             if (token.IsCancellationRequested) return;
                             this.dataGridViewResult.Rows[i].Cells[2].Value = $"{progress} %";
-                            if (string.IsNullOrEmpty(this.dataGridViewResult.Rows[i].Cells[1].Value as string) && logSource.Count > 0)
-                            {
-                                dataItem = logSource[0];
-                                this.dataGridViewResult.Rows[i].Cells[1].Value =
-                                    string.Format(logSource.Templates[dataItem.TemplateId], dataItem.Parameters.Cast<object>().ToArray());
-                            }
-
-                            if (token.IsCancellationRequested) return;
-                            this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
-
-                            this.currentFinished++;
                         }
+                        if (string.IsNullOrEmpty(this.dataGridViewResult.Rows[i].Cells[1].Value as string) && logSource.Count > 0)
+                        {
+                            dataItem = logSource[0];
+                            this.dataGridViewResult.Rows[i].Cells[1].Value = string.Format(
+                                logSource.Templates[dataItem.TemplateId],
+                                dataItem.Parameters.Cast<object>().ToArray());
+                        }
+                        if (token.IsCancellationRequested) return;
+                        this.dataGridViewResult.Rows[i].Cells[2].Value = "100 %";
+
+                        this.currentFinished++;
                     }
                     finally
                     {
