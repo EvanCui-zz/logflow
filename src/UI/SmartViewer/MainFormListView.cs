@@ -162,7 +162,7 @@ namespace LogFlow.Viewer
                 extension);
 
             var document = new RootView<DataItemBase>(logSource, filter);
-            this.AddView(document, true, true);
+            this.AddView(document);
         }
 
         public IFilteredView<DataItemBase> CurrentView { get; set; }
@@ -378,30 +378,30 @@ namespace LogFlow.Viewer
             this.fastListViewMain.EndUpdate();
         }
 
-        private void AddView(IFilteredView<DataItemBase> childView, bool activateView = true, bool toRoot = false)
+        private void AddView(IFilteredView<DataItemBase> childView, TreeNode parentNode = null, bool activate = true)
         {
             TreeNode node;
-            if (this.treeViewDoc.Nodes.Count == 0 || toRoot)
+            if (parentNode == null)
             {
                 node = this.treeViewDoc.Nodes.Add(childView.Name, childView.Name);
             }
             else
             {
-                node = this.treeViewDoc.SelectedNode.Nodes.Add(childView.Name, childView.Name);
+                node = parentNode.Nodes.Add(childView.Name, childView.Name);
             }
 
             node.Tag = childView;
 
-            if (activateView)
-            {
-                this.treeViewDoc.SelectedNode = node;
-            }
+            if (activate) this.treeViewDoc.SelectedNode = node;
 
             if (childView.GroupFilters != null)
             {
+                var defaultFilters = node.Nodes.Add("Default Filters", "Default Filters");
+                defaultFilters.Tag = childView;
+
                 foreach (var v in childView.GroupFilters.Select(childView.CreateChild).ToList())
                 {
-                    this.AddView(v, false);
+                    this.AddView(v, defaultFilters, false);
                 }
             }
 
@@ -1121,7 +1121,7 @@ namespace LogFlow.Viewer
         private void CreateChild(IFilter filter)
         {
             if (this.CurrentView == null) return;
-            this.AddView(this.CurrentView.CreateChild(filter));
+            this.AddView(this.CurrentView.CreateChild(filter), this.treeViewDoc.SelectedNode);
         }
 
         private void filterWithTheSameActivityToolStripMenuItem_Click(object sender, EventArgs e)
