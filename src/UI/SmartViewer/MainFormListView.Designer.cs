@@ -1172,6 +1172,7 @@
             this.textBoxText.Multiline = true;
             this.textBoxText.Name = "textBoxText";
             this.textBoxText.ReadOnly = true;
+            this.textBoxText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxText.Size = new System.Drawing.Size(429, 135);
             this.textBoxText.TabIndex = 1;
             // 
@@ -1387,6 +1388,7 @@
             this.propertyGridStatistics.DisabledItemForeColor = System.Drawing.SystemColors.ControlText;
             this.propertyGridStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGridStatistics.HelpVisible = false;
+            this.propertyGridStatistics.LineColor = System.Drawing.SystemColors.ControlDark;
             this.propertyGridStatistics.Location = new System.Drawing.Point(3, 3);
             this.propertyGridStatistics.Name = "propertyGridStatistics";
             this.propertyGridStatistics.Size = new System.Drawing.Size(142, 308);
